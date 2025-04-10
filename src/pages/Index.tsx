@@ -4,11 +4,10 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
-  BarChart,
   Calendar,
   GraduationCap,
-  LineChart,
   Timer,
   Users,
 } from "lucide-react";
@@ -22,6 +21,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  BarChart,
   Bar,
 } from "recharts";
 
@@ -44,7 +44,18 @@ const progressionMensuelle = [
   { name: "Juin", stagiaires: 35 },
 ];
 
-const activitesRecentes = [
+// Définir correctement le type pour l'activité
+type ActivityItemType = "new_stagiaire" | "mission_completed" | "evaluation_submitted" | "mission_assigned";
+
+type ActivityItem = {
+  id: string;
+  type: ActivityItemType;
+  title: string;
+  description: string;
+  timestamp: string;
+};
+
+const activitesRecentes: ActivityItem[] = [
   {
     id: "1",
     type: "new_stagiaire",

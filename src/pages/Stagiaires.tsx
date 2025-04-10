@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Filter } from "lucide-react";
+import { GraduationCap, Plus, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const MOCK_STAGIAIRES: StagiaireType[] = [
