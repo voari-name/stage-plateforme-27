@@ -13,8 +13,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GraduationCap, Plus, Filter } from "lucide-react";
+import { 
+  Drawer,
+  DrawerClose,
+  DrawerContent, 
+  DrawerDescription, 
+  DrawerFooter, 
+  DrawerHeader, 
+  DrawerTitle,
+  DrawerTrigger
+} from "@/components/ui/drawer";
+import { GraduationCap, Plus, Filter, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { StagiaireForm } from "@/components/stagiaires/StagiaireForm";
+import { format } from "date-fns";
 
 const MOCK_STAGIAIRES: StagiaireType[] = [
   {
@@ -94,11 +106,24 @@ const MOCK_STAGIAIRES: StagiaireType[] = [
 const Stagiaires = () => {
   const [stagiaires, setStagiaires] = useState<StagiaireType[]>(MOCK_STAGIAIRES);
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [filterType, setFilterType] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
   
+  // Filtrer les stagiaires selon les critères
   const filteredStagiaires = stagiaires.filter(stagiaire => {
-    if (activeTab === "all") return true;
-    return stagiaire.status === activeTab;
+    // Filtre par statut
+    const statusMatch = activeTab === "all" || stagiaire.status === activeTab;
+    
+    // Filtre par recherche
+    const searchMatch = searchTerm === "" || 
+      `${stagiaire.prenom} ${stagiaire.nom}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stagiaire.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stagiaire.formation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stagiaire.etablissement.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return statusMatch && searchMatch;
   });
   
   const handleViewStagiaire = (id: string) => {
@@ -106,6 +131,24 @@ const Stagiaires = () => {
       title: "Détails du stagiaire",
       description: `Affichage des détails du stagiaire ID: ${id}`,
     });
+  };
+
+  const handleAddStagiaire = (values: any) => {
+    const newStagiaire: StagiaireType = {
+      id: `${stagiaires.length + 1}`,
+      nom: values.nom,
+      prenom: values.prenom,
+      email: values.email,
+      telephone: values.telephone,
+      etablissement: values.etablissement,
+      formation: values.formation,
+      status: values.status,
+      dateDebut: format(values.dateDebut, "dd/MM/yyyy"),
+      dateFin: format(values.dateFin, "dd/MM/yyyy"),
+    };
+    
+    setStagiaires([...stagiaires, newStagiaire]);
+    setDrawerOpen(false);
   };
   
   return (
@@ -119,10 +162,30 @@ const Stagiaires = () => {
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Stagiaires</h1>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Nouveau stagiaire
-              </Button>
+              <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+                <DrawerTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nouveau stagiaire
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <div className="mx-auto w-full max-w-3xl">
+                    <DrawerHeader className="text-left">
+                      <DrawerTitle>Ajouter un stagiaire</DrawerTitle>
+                      <DrawerDescription>
+                        Remplissez le formulaire ci-dessous pour ajouter un nouveau stagiaire.
+                      </DrawerDescription>
+                    </DrawerHeader>
+                    <div className="p-4">
+                      <StagiaireForm 
+                        onSubmit={handleAddStagiaire} 
+                        onCancel={() => setDrawerOpen(false)} 
+                      />
+                    </div>
+                  </div>
+                </DrawerContent>
+              </Drawer>
             </div>
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -144,8 +207,10 @@ const Stagiaires = () => {
                 <Input
                   placeholder="Rechercher un stagiaire..."
                   className="w-full sm:w-[250px]"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Select>
+                <Select onValueChange={setFilterType} value={filterType || ""}>
                   <SelectTrigger className="w-[180px]">
                     <div className="flex items-center">
                       <Filter className="mr-2 h-4 w-4" />
@@ -179,7 +244,11 @@ const Stagiaires = () => {
                   <p className="text-muted-foreground mb-4">
                     Aucun stagiaire ne correspond à vos filtres.
                   </p>
-                  <Button variant="outline" onClick={() => setActiveTab("all")}>
+                  <Button variant="outline" onClick={() => {
+                    setActiveTab("all");
+                    setSearchTerm("");
+                    setFilterType(null);
+                  }}>
                     Réinitialiser les filtres
                   </Button>
                 </div>
