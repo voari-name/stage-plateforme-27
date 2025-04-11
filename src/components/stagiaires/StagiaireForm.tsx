@@ -25,11 +25,18 @@ const stagiaireFormSchema = z.object({
   etablissement: z.string().min(2, "L'établissement doit être spécifié"),
   formation: z.string().min(2, "La formation doit être spécifiée"),
   status: z.enum(["active", "upcoming", "completed"]),
-  dateDebut: z.date(),
-  dateFin: z.date(),
+  dateDebut: z.date({
+    required_error: "Une date de début est requise",
+  }),
+  dateFin: z.date({
+    required_error: "Une date de fin est requise",
+  }),
+}).refine(data => data.dateFin >= data.dateDebut, {
+  message: "La date de fin doit être postérieure à la date de début",
+  path: ["dateFin"],
 });
 
-type StagiaireFormValues = z.infer<typeof stagiaireFormSchema>;
+export type StagiaireFormValues = z.infer<typeof stagiaireFormSchema>;
 
 type StagiaireFormProps = {
   onSubmit: (values: StagiaireFormValues) => void;
@@ -53,22 +60,19 @@ export const StagiaireForm = ({
     etablissement: initialValues?.etablissement || "",
     formation: initialValues?.formation || "",
     status: initialValues?.status || "upcoming",
-    dateDebut: initialValues?.dateDebut ? new Date(initialValues.dateDebut) : undefined,
-    dateFin: initialValues?.dateFin ? new Date(initialValues.dateFin) : undefined,
+    dateDebut: initialValues?.dateDebut ? new Date(initialValues.dateDebut.split('/').reverse().join('-')) : undefined,
+    dateFin: initialValues?.dateFin ? new Date(initialValues.dateFin.split('/').reverse().join('-')) : undefined,
   };
 
   const form = useForm<StagiaireFormValues>({
     resolver: zodResolver(stagiaireFormSchema),
     defaultValues,
+    mode: "onChange",
   });
 
   const handleSubmit = (values: StagiaireFormValues) => {
     try {
       onSubmit(values);
-      toast({
-        title: "Stagiaire enregistré",
-        description: "Les informations du stagiaire ont été enregistrées avec succès",
-      });
     } catch (error) {
       toast({
         title: "Erreur",
@@ -266,6 +270,9 @@ export const StagiaireForm = ({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
+                      disabled={(date) =>
+                        field.value && new Date(field.value) < new Date("2023-01-01")
+                      }
                       initialFocus
                     />
                   </PopoverContent>

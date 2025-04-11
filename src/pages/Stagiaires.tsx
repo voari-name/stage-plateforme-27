@@ -23,7 +23,18 @@ import {
   DrawerTitle,
   DrawerTrigger
 } from "@/components/ui/drawer";
-import { GraduationCap, Plus, Filter, X } from "lucide-react";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { GraduationCap, Plus, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { StagiaireForm } from "@/components/stagiaires/StagiaireForm";
 import { format } from "date-fns";
@@ -109,6 +120,7 @@ const Stagiaires = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [stagiaireToDelete, setStagiaireToDelete] = useState<string | null>(null);
   const { toast } = useToast();
   
   // Filtrer les stagiaires selon les critères
@@ -133,22 +145,48 @@ const Stagiaires = () => {
     });
   };
 
+  const handleDeleteStagiaire = () => {
+    if (stagiaireToDelete) {
+      const updatedStagiaires = stagiaires.filter(s => s.id !== stagiaireToDelete);
+      setStagiaires(updatedStagiaires);
+      setStagiaireToDelete(null);
+      
+      toast({
+        title: "Stagiaire supprimé",
+        description: "Le stagiaire a été supprimé avec succès",
+      });
+    }
+  };
+
   const handleAddStagiaire = (values: any) => {
-    const newStagiaire: StagiaireType = {
-      id: `${stagiaires.length + 1}`,
-      nom: values.nom,
-      prenom: values.prenom,
-      email: values.email,
-      telephone: values.telephone,
-      etablissement: values.etablissement,
-      formation: values.formation,
-      status: values.status,
-      dateDebut: format(values.dateDebut, "dd/MM/yyyy"),
-      dateFin: format(values.dateFin, "dd/MM/yyyy"),
-    };
-    
-    setStagiaires([...stagiaires, newStagiaire]);
-    setDrawerOpen(false);
+    try {
+      const newStagiaire: StagiaireType = {
+        id: `${stagiaires.length + 1}`,
+        nom: values.nom,
+        prenom: values.prenom,
+        email: values.email,
+        telephone: values.telephone,
+        etablissement: values.etablissement,
+        formation: values.formation,
+        status: values.status,
+        dateDebut: format(values.dateDebut, "dd/MM/yyyy"),
+        dateFin: format(values.dateFin, "dd/MM/yyyy"),
+      };
+      
+      setStagiaires([...stagiaires, newStagiaire]);
+      setDrawerOpen(false);
+      
+      toast({
+        title: "Stagiaire ajouté",
+        description: "Le nouveau stagiaire a été ajouté avec succès",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de l'ajout du stagiaire",
+        variant: "destructive",
+      });
+    }
   };
   
   return (
@@ -232,6 +270,7 @@ const Stagiaires = () => {
                   key={stagiaire.id}
                   stagiaire={stagiaire}
                   onView={handleViewStagiaire}
+                  onDelete={(id) => setStagiaireToDelete(id)}
                 />
               ))}
               
@@ -257,6 +296,24 @@ const Stagiaires = () => {
           </div>
         </main>
       </div>
+      
+      <AlertDialog open={!!stagiaireToDelete} onOpenChange={(open) => {
+        if (!open) setStagiaireToDelete(null);
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action ne peut pas être annulée. Cela supprimera définitivement le stagiaire
+              de la base de données.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteStagiaire}>Supprimer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

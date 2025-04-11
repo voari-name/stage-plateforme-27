@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Mail, Phone } from "lucide-react";
+import { FileText, Mail, Phone, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type StagiaireStatus = "active" | "completed" | "upcoming";
@@ -25,9 +25,10 @@ export type StagiaireType = {
 type StagiaireCardProps = {
   stagiaire: StagiaireType;
   onView?: (id: string) => void;
+  onDelete?: (id: string) => void;
 };
 
-export function StagiaireCard({ stagiaire, onView }: StagiaireCardProps) {
+export function StagiaireCard({ stagiaire, onView, onDelete }: StagiaireCardProps) {
   const statusConfig = {
     active: { label: "En cours", className: "bg-success text-success-foreground" },
     completed: { label: "Terminé", className: "bg-muted text-muted-foreground" },
@@ -79,7 +80,16 @@ export function StagiaireCard({ stagiaire, onView }: StagiaireCardProps) {
           </Button>
         </div>
       </CardContent>
-      <CardFooter className="bg-muted/30 px-6 py-3 flex justify-end">
+      <CardFooter className="bg-muted/30 px-6 py-3 flex justify-between">
+        <Button
+          variant="destructive"
+          size="sm"
+          className="gap-1"
+          onClick={() => onDelete && onDelete(stagiaire.id)}
+        >
+          <Trash className="h-4 w-4" />
+          Supprimer
+        </Button>
         <Button
           variant="default"
           size="sm"
