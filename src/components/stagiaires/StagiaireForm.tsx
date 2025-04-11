@@ -52,6 +52,12 @@ export const StagiaireForm = ({
   const { toast } = useToast();
   
   // Conversion des dates string en objets Date pour le formulaire si des valeurs initiales sont fournies
+  const parseDate = (dateStr?: string) => {
+    if (!dateStr) return undefined;
+    const [day, month, year] = dateStr.split('/').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   const defaultValues: Partial<StagiaireFormValues> = {
     nom: initialValues?.nom || "",
     prenom: initialValues?.prenom || "",
@@ -60,8 +66,8 @@ export const StagiaireForm = ({
     etablissement: initialValues?.etablissement || "",
     formation: initialValues?.formation || "",
     status: initialValues?.status || "upcoming",
-    dateDebut: initialValues?.dateDebut ? new Date(initialValues.dateDebut.split('/').reverse().join('-')) : undefined,
-    dateFin: initialValues?.dateFin ? new Date(initialValues.dateFin.split('/').reverse().join('-')) : undefined,
+    dateDebut: initialValues?.dateDebut ? parseDate(initialValues.dateDebut) : undefined,
+    dateFin: initialValues?.dateFin ? parseDate(initialValues.dateFin) : undefined,
   };
 
   const form = useForm<StagiaireFormValues>({
@@ -84,8 +90,8 @@ export const StagiaireForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-2">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <FormField
             control={form.control}
             name="nom"
@@ -115,61 +121,65 @@ export const StagiaireForm = ({
           />
         </div>
         
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="email@exemple.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="email@exemple.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="telephone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Téléphone</FormLabel>
+                <FormControl>
+                  <Input placeholder="06 12 34 56 78" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         
-        <FormField
-          control={form.control}
-          name="telephone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Téléphone</FormLabel>
-              <FormControl>
-                <Input placeholder="06 12 34 56 78" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="etablissement"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Établissement</FormLabel>
-              <FormControl>
-                <Input placeholder="Nom de l'établissement" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="formation"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Formation</FormLabel>
-              <FormControl>
-                <Input placeholder="Intitulé de la formation" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <FormField
+            control={form.control}
+            name="etablissement"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Établissement</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nom de l'établissement" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="formation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Formation</FormLabel>
+                <FormControl>
+                  <Input placeholder="Intitulé de la formation" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         
         <FormField
           control={form.control}
@@ -197,7 +207,7 @@ export const StagiaireForm = ({
           )}
         />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <FormField
             control={form.control}
             name="dateDebut"
@@ -232,6 +242,7 @@ export const StagiaireForm = ({
                         date < new Date("2023-01-01")
                       }
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -271,9 +282,10 @@ export const StagiaireForm = ({
                       selected={field.value}
                       onSelect={field.onChange}
                       disabled={(date) =>
-                        field.value && new Date(field.value) < new Date("2023-01-01")
+                        date < new Date("2023-01-01")
                       }
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -283,11 +295,11 @@ export const StagiaireForm = ({
           />
         </div>
         
-        <div className="flex justify-end space-x-2 pt-4">
-          <Button variant="outline" type="button" onClick={onCancel}>
+        <div className="flex justify-end space-x-2 pt-3">
+          <Button variant="outline" type="button" onClick={onCancel} size="sm">
             Annuler
           </Button>
-          <Button type="submit">Enregistrer</Button>
+          <Button type="submit" size="sm">Enregistrer</Button>
         </div>
       </form>
     </Form>
