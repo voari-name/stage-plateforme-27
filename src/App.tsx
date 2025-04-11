@@ -10,24 +10,27 @@ import Missions from "./pages/Missions";
 import Evaluations from "./pages/Evaluations";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/stagiaires" element={<Stagiaires />} />
-          <Route path="/missions" element={<Missions />} />
-          <Route path="/evaluations" element={<Evaluations />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Créer une nouvelle instance de QueryClient à l'intérieur du composant
+  const queryClient = new QueryClient();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/stagiaires" element={<Stagiaires />} />
+            <Route path="/missions" element={<Missions />} />
+            <Route path="/evaluations" element={<Evaluations />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
