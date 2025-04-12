@@ -76,11 +76,11 @@ export function Sidebar() {
       
       <div className="flex-1 px-3 py-2 space-y-1">
         <NavItem
-          icon={Home}
-          label="Tableau de bord"
-          to="/"
+          icon={Info}
+          label="À propos"
+          to="/a-propos"
           expanded={expanded}
-          active={isActive("/")}
+          active={isActive("/a-propos")}
         />
         <NavItem
           icon={Users}
@@ -90,18 +90,18 @@ export function Sidebar() {
           active={isActive("/stagiaires")}
         />
         <NavItem
-          icon={ClipboardList}
-          label="Missions"
-          to="/missions"
-          expanded={expanded}
-          active={isActive("/missions")}
-        />
-        <NavItem
           icon={Star}
           label="Évaluations"
           to="/evaluations"
           expanded={expanded}
           active={isActive("/evaluations")}
+        />
+        <NavItem
+          icon={ClipboardList}
+          label="Missions"
+          to="/missions"
+          expanded={expanded}
+          active={isActive("/missions")}
         />
         <NavItem
           icon={BarChart3}
@@ -111,11 +111,11 @@ export function Sidebar() {
           active={isActive("/rapports")}
         />
         <NavItem
-          icon={Info}
-          label="À propos"
-          to="/a-propos"
+          icon={Home}
+          label="Tableau de bord"
+          to="/"
           expanded={expanded}
-          active={isActive("/a-propos")}
+          active={isActive("/")}
         />
       </div>
       

@@ -126,12 +126,6 @@ const Login = () => {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <div className="text-sm text-muted-foreground border border-muted p-3 rounded-md bg-muted/30">
-              <p><strong>Identifiant:</strong> RAHAJANIAINA</p>
-              <p><strong>Mot de passe:</strong> motdepasse</p>
-            </div>
-          </CardFooter>
         </Card>
       </div>
     </div>
