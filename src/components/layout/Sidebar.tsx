@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -11,6 +12,31 @@ import {
   Star,
   Users
 } from "lucide-react";
+
+type NavItemProps = {
+  icon: React.ElementType;
+  label: string;
+  to: string;
+  expanded: boolean;
+  active?: boolean;
+};
+
+const NavItem = ({ icon: Icon, label, to, expanded, active }: NavItemProps) => {
+  return (
+    <Link to={to}>
+      <Button
+        variant="ghost"
+        className={cn(
+          "w-full justify-start mb-1",
+          active ? "bg-sidebar-accent text-sidebar-primary" : ""
+        )}
+      >
+        <Icon className={cn("h-5 w-5", active ? "text-sidebar-primary" : "")} />
+        {expanded && <span className="ml-2">{label}</span>}
+      </Button>
+    </Link>
+  );
+};
 
 export function Sidebar() {
   const [expanded, setExpanded] = useState(true);
