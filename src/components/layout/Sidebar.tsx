@@ -4,14 +4,13 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  BarChart3,
-  ChevronLeft,
-  ClipboardList,
   Home,
-  Settings,
-  Star,
   Users,
-  Info
+  ClipboardList,
+  Star,
+  BarChart3,
+  Info,
+  Settings
 } from "lucide-react";
 
 type NavItemProps = {
@@ -29,10 +28,10 @@ const NavItem = ({ icon: Icon, label, to, expanded, active }: NavItemProps) => {
         variant="ghost"
         className={cn(
           "w-full justify-start mb-1",
-          active ? "bg-sidebar-accent text-sidebar-primary" : ""
+          active ? "bg-sidebar-accent text-primary" : ""
         )}
       >
-        <Icon className={cn("h-5 w-5", active ? "text-sidebar-primary" : "")} />
+        <Icon className={cn("h-5 w-5", active ? "text-primary" : "")} />
         {expanded && <span className="ml-2">{label}</span>}
       </Button>
     </Link>
@@ -62,7 +61,7 @@ export function Sidebar() {
               alt="MTEFoP Logo" 
               className="h-10 w-10 mr-2"
             />
-            <h1 className="text-xl font-bold text-sidebar-primary">MTEFoP</h1>
+            <h1 className="text-xl font-bold text-blue-500">MTEFoP</h1>
           </div>
         )}
         <Button
@@ -71,11 +70,11 @@ export function Sidebar() {
           onClick={() => setExpanded(!expanded)}
           className="ml-auto"
         >
-          <ChevronLeft className={cn("h-5 w-5 transition-all", !expanded && "rotate-180")} />
+          <span className="sr-only">Toggle Sidebar</span>
         </Button>
       </div>
       
-      <div className="flex-1 px-3 py-2">
+      <div className="flex-1 px-3 py-2 space-y-1">
         <NavItem
           icon={Home}
           label="Tableau de bord"
