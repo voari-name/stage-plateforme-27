@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -7,37 +6,11 @@ import {
   BarChart3,
   ChevronLeft,
   ClipboardList,
-  GraduationCap,
   Home,
   Settings,
   Star,
   Users
 } from "lucide-react";
-
-type NavItemProps = {
-  icon: React.ElementType;
-  label: string;
-  to: string;
-  expanded: boolean;
-  active?: boolean;
-};
-
-const NavItem = ({ icon: Icon, label, to, expanded, active }: NavItemProps) => {
-  return (
-    <Link to={to}>
-      <Button
-        variant="ghost"
-        className={cn(
-          "w-full justify-start mb-1",
-          active ? "bg-sidebar-accent text-sidebar-primary" : ""
-        )}
-      >
-        <Icon className={cn("h-5 w-5", active ? "text-sidebar-primary" : "")} />
-        {expanded && <span className="ml-2">{label}</span>}
-      </Button>
-    </Link>
-  );
-};
 
 export function Sidebar() {
   const [expanded, setExpanded] = useState(true);
@@ -56,7 +29,14 @@ export function Sidebar() {
     >
       <div className="flex items-center justify-between p-4">
         {expanded && (
-          <h1 className="text-xl font-bold text-sidebar-primary">StageManager</h1>
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/5c0ae490-98de-4bfa-bff1-df9fe97ebe0b.png" 
+              alt="MTEFoP Logo" 
+              className="h-10 w-10 mr-2"
+            />
+            <h1 className="text-xl font-bold text-sidebar-primary">MTEFoP</h1>
+          </div>
         )}
         <Button
           variant="ghost"
