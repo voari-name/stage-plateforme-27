@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Stagiaires from "./pages/Stagiaires";
 import Missions from "./pages/Missions";
 import Evaluations from "./pages/Evaluations";
+import APropos from "./pages/APropos";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 
@@ -63,6 +64,11 @@ const App = () => {
             <Route path="/evaluations" element={
               <ProtectedRoute>
                 <Evaluations />
+              </ProtectedRoute>
+            } />
+            <Route path="/a-propos" element={
+              <ProtectedRoute>
+                <APropos />
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />

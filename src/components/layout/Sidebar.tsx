@@ -10,7 +10,8 @@ import {
   Home,
   Settings,
   Star,
-  Users
+  Users,
+  Info
 } from "lucide-react";
 
 type NavItemProps = {
@@ -109,6 +110,13 @@ export function Sidebar() {
           to="/rapports"
           expanded={expanded}
           active={isActive("/rapports")}
+        />
+        <NavItem
+          icon={Info}
+          label="À propos"
+          to="/a-propos"
+          expanded={expanded}
+          active={isActive("/a-propos")}
         />
       </div>
       

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Banner } from "@/components/layout/Banner";
 
 // Schéma de validation pour le formulaire de connexion
 const loginFormSchema = z.object({
@@ -26,8 +27,8 @@ const Login = () => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      username: "RAHAJANIAINA",
+      password: "motdepasse",
     },
   });
 
@@ -61,55 +62,78 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Connexion</CardTitle>
-          <CardDescription className="text-center">
-            Entrez vos identifiants pour accéder à la plateforme
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nom d'utilisateur</FormLabel>
-                    <FormControl>
-                      <Input placeholder="RAHAJANIAINA" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    <div className="min-h-screen flex flex-col bg-muted/30">
+      <div className="w-full">
+        <Banner />
+      </div>
+      
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-center mb-4">
+              <img 
+                src="/lovable-uploads/5c0ae490-98de-4bfa-bff1-df9fe97ebe0b.png" 
+                alt="MTEFoP Logo" 
+                className="h-16 w-16"
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mot de passe</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Connexion en cours..." : "Se connecter"}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
-            Identifiant: RAHAJANIAINA | Mot de passe: motdepasse
-          </p>
-        </CardFooter>
-      </Card>
+            </div>
+            <CardTitle className="text-2xl font-bold text-center">Connexion</CardTitle>
+            <CardDescription className="text-center">
+              Entrez vos identifiants pour accéder à la plateforme
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base">Nom d'utilisateur</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="RAHAJANIAINA" 
+                          {...field} 
+                          className="text-base py-6"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base">Mot de passe</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          {...field}
+                          className="text-base py-6" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full py-6 text-base" disabled={isLoading}>
+                  {isLoading ? "Connexion en cours..." : "Se connecter"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <div className="text-sm text-muted-foreground border border-muted p-3 rounded-md bg-muted/30">
+              <p><strong>Identifiant:</strong> RAHAJANIAINA</p>
+              <p><strong>Mot de passe:</strong> motdepasse</p>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 };
