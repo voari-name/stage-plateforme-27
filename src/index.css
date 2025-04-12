@@ -108,3 +108,46 @@
 .page-transition {
   transition: all 0.3s ease-in-out;
 }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Card styles */
+.card-gradient {
+  @apply bg-gradient-to-br from-white to-gray-100 shadow-md;
+}
+
+.glass-effect {
+  @apply backdrop-blur-md bg-white/60 border border-white/30 shadow-lg;
+}
+
+/* Button hover effects */
+.btn-hover-effect {
+  @apply transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5;
+}
+
+/* Table styles */
+.table-row-hover {
+  @apply transition-colors duration-200 hover:bg-blue-50;
+}
+
+/* Sidebar improvements */
+.sidebar-item-active {
+  @apply bg-blue-100 text-blue-700 font-medium;
+}
+
+.sidebar-item-hover {
+  @apply transition-colors hover:bg-blue-50;
+}
+
+/* Form input focus effect */
+.input-focus-effect {
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+}

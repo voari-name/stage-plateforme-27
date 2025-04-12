@@ -10,8 +10,11 @@ import {
   Star,
   BarChart3,
   Info,
-  Settings
+  Settings,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type NavItemProps = {
   icon: React.ElementType;
@@ -22,20 +25,45 @@ type NavItemProps = {
 };
 
 const NavItem = ({ icon: Icon, label, to, expanded, active }: NavItemProps) => {
-  return (
-    <Link to={to}>
-      <Button
-        variant="ghost"
-        className={cn(
-          "w-full justify-start mb-1",
-          active ? "bg-sidebar-accent text-primary" : ""
-        )}
-      >
-        <Icon className={cn("h-5 w-5", active ? "text-primary" : "")} />
-        {expanded && <span className="ml-2">{label}</span>}
-      </Button>
-    </Link>
-  );
+  if (expanded) {
+    return (
+      <Link to={to} className="w-full block mb-1">
+        <Button
+          variant="ghost"
+          className={cn(
+            "w-full justify-start transition-all duration-200 sidebar-item-hover",
+            active ? "sidebar-item-active" : ""
+          )}
+        >
+          <Icon className={cn("h-5 w-5 mr-2", active ? "text-primary" : "")} />
+          <span className="font-medium">{label}</span>
+        </Button>
+      </Link>
+    );
+  } else {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link to={to} className="w-full block mb-1">
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full justify-center py-3 transition-all duration-200 sidebar-item-hover",
+                  active ? "sidebar-item-active" : ""
+                )}
+              >
+                <Icon className={cn("h-5 w-5", active ? "text-primary" : "")} />
+              </Button>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="bg-popover">
+            {label}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
 };
 
 export function Sidebar() {
@@ -49,13 +77,13 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        "h-screen bg-sidebar flex flex-col border-r border-sidebar-border transition-all duration-300",
+        "h-screen bg-sidebar flex flex-col border-r border-sidebar-border transition-all duration-300 shadow-sm",
         expanded ? "w-64" : "w-16"
       )}
     >
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {expanded && (
-          <div className="flex items-center">
+          <div className="flex items-center fade-in">
             <img 
               src="/lovable-uploads/5c0ae490-98de-4bfa-bff1-df9fe97ebe0b.png" 
               alt="MTEFoP Logo" 
@@ -68,13 +96,14 @@ export function Sidebar() {
           variant="ghost"
           size="icon"
           onClick={() => setExpanded(!expanded)}
-          className="ml-auto"
+          className="ml-auto hover:bg-blue-50"
         >
+          {expanded ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           <span className="sr-only">Toggle Sidebar</span>
         </Button>
       </div>
       
-      <div className="flex-1 px-3 py-2 space-y-1">
+      <div className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto scrollbar-hide">
         <NavItem
           icon={Info}
           label="À propos"
