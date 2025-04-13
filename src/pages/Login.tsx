@@ -35,30 +35,20 @@ const Login = () => {
   const onSubmit = (values: LoginFormValues) => {
     setIsLoading(true);
     
-    // Vérification des identifiants
-    if (values.username === "RAHAJANIAINA" && values.password === "motdepasse") {
-      // Simule un délai de connexion
-      setTimeout(() => {
-        setIsLoading(false);
-        // Stocker le fait que l'utilisateur est connecté
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("username", values.username);
-        
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur la plateforme de gestion des stagiaires",
-        });
-        
-        navigate("/");
-      }, 1000);
-    } else {
+    // Simule un délai de connexion
+    setTimeout(() => {
       setIsLoading(false);
+      // Stocker le fait que l'utilisateur est connecté
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("username", values.username);
+      
       toast({
-        title: "Échec de la connexion",
-        description: "Identifiants incorrects. Veuillez réessayer.",
-        variant: "destructive",
+        title: "Connexion réussie",
+        description: "Bienvenue sur la plateforme de gestion des stagiaires",
       });
-    }
+      
+      navigate("/");
+    }, 1000);
   };
 
   return (
@@ -130,9 +120,6 @@ const Login = () => {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex justify-center text-sm text-muted-foreground">
-            Utilisez "RAHAJANIAINA" et "motdepasse" pour vous connecter
-          </CardFooter>
         </Card>
       </div>
     </div>

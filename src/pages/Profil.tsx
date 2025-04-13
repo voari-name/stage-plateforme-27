@@ -1,13 +1,49 @@
 
+import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { User, Mail, Phone, Edit, Lock, Calendar, Award } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { User, Mail, Phone, Calendar } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Profil = () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const { toast } = useToast();
+  const [profileData, setProfileData] = useState({
+    fullName: "RAHAJANIAINA Olivier",
+    email: "olivier.rahajaniaina@mtefop.mg",
+    phone: "+261 34 12 345 67",
+    hireDate: "01/01/2023"
+  });
+  
+  const [formData, setFormData] = useState({...profileData});
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+  
+  const handleSave = () => {
+    setProfileData({...formData});
+    setIsEditing(false);
+    toast({
+      title: "Profil mis à jour",
+      description: "Vos informations ont été mises à jour avec succès.",
+    });
+  };
+  
+  const handleCancel = () => {
+    setFormData({...profileData});
+    setIsEditing(false);
+  };
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
@@ -18,7 +54,7 @@ const Profil = () => {
         <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
           <div className="mx-auto max-w-5xl">
             <div className="flex flex-col lg:flex-row gap-6">
-              <div className="w-full lg:w-1/3">
+              <div className="w-full">
                 <Card className="shadow-lg border-blue-200 overflow-hidden">
                   <div className="h-24 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
                   <div className="px-6 pb-6 -mt-12 flex flex-col items-center">
@@ -26,12 +62,17 @@ const Profil = () => {
                       <AvatarImage src="/lovable-uploads/aa4b9f4c-2bff-4893-a101-3498804ab803.png" alt="RAHAJANIAINA Olivier" />
                       <AvatarFallback>RO</AvatarFallback>
                     </Avatar>
-                    <h2 className="mt-4 text-2xl font-bold">RAHAJANIAINA Olivier</h2>
+                    <h2 className="mt-4 text-2xl font-bold">{profileData.fullName}</h2>
                     <p className="text-muted-foreground">Administrateur</p>
-                    <Button variant="outline" className="mt-4 w-full">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Modifier le profil
-                    </Button>
+                    
+                    {!isEditing && (
+                      <Button 
+                        onClick={() => setIsEditing(true)} 
+                        className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                      >
+                        Modifier le profil
+                      </Button>
+                    )}
                   </div>
                 </Card>
                 
@@ -39,109 +80,112 @@ const Profil = () => {
                   <CardHeader>
                     <CardTitle className="text-lg">Informations personnelles</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center">
-                      <User className="h-5 w-5 mr-3 text-blue-500" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Nom complet</p>
-                        <p className="font-medium">RAHAJANIAINA Olivier</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <Mail className="h-5 w-5 mr-3 text-blue-500" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">olivier.rahajaniaina@mtefop.mg</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <Phone className="h-5 w-5 mr-3 text-blue-500" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Téléphone</p>
-                        <p className="font-medium">+261 34 12 345 67</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="h-5 w-5 mr-3 text-blue-500" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Date d'embauche</p>
-                        <p className="font-medium">01/01/2023</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <div className="flex-1">
-                <Card className="shadow-lg border-blue-200">
-                  <CardHeader>
-                    <CardTitle>Tableau de bord personnel</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Tabs defaultValue="activite">
-                      <TabsList className="grid grid-cols-3 mb-6">
-                        <TabsTrigger value="activite">Activité récente</TabsTrigger>
-                        <TabsTrigger value="stagiaires">Stagiaires</TabsTrigger>
-                        <TabsTrigger value="securite">Sécurité</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="activite" className="space-y-4">
-                        <div className="space-y-4">
-                          {[1, 2, 3].map((i) => (
-                            <div key={i} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                <Award className="h-4 w-4" />
-                              </div>
-                              <div>
-                                <p className="font-medium">Stagiaire ajouté</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Vous avez ajouté un nouveau stagiaire
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-1">Il y a {i} jour{i > 1 ? "s" : ""}</p>
-                              </div>
-                            </div>
-                          ))}
+                  <CardContent className="space-y-6">
+                    {isEditing ? (
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="fullName" className="flex items-center">
+                            <User className="h-5 w-5 mr-2 text-blue-500" />
+                            Nom complet
+                          </Label>
+                          <Input
+                            id="fullName"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            className="border-blue-200 focus:border-blue-400"
+                          />
                         </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="stagiaires">
-                        <div className="text-center py-10 text-muted-foreground">
-                          <p>Les informations sur les stagiaires seront basées sur ce que vous ajoutez via le formulaire.</p>
-                          <Button className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
-                            Voir tous les stagiaires
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="email" className="flex items-center">
+                            <Mail className="h-5 w-5 mr-2 text-blue-500" />
+                            Email
+                          </Label>
+                          <Input
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="border-blue-200 focus:border-blue-400"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="flex items-center">
+                            <Phone className="h-5 w-5 mr-2 text-blue-500" />
+                            Téléphone
+                          </Label>
+                          <Input
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            className="border-blue-200 focus:border-blue-400"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="hireDate" className="flex items-center">
+                            <Calendar className="h-5 w-5 mr-2 text-blue-500" />
+                            Date d'embauche
+                          </Label>
+                          <Input
+                            id="hireDate"
+                            name="hireDate"
+                            value={formData.hireDate}
+                            onChange={handleChange}
+                            className="border-blue-200 focus:border-blue-400"
+                          />
+                        </div>
+                        
+                        <div className="flex space-x-4 pt-4">
+                          <Button 
+                            onClick={handleSave}
+                            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                          >
+                            Enregistrer
+                          </Button>
+                          <Button 
+                            onClick={handleCancel} 
+                            variant="outline"
+                          >
+                            Annuler
                           </Button>
                         </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="securite">
-                        <div className="space-y-4">
-                          <div className="p-4 border rounded-lg">
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center">
-                                <Lock className="h-5 w-5 mr-3 text-blue-500" />
-                                <div>
-                                  <p className="font-medium">Changer de mot de passe</p>
-                                  <p className="text-sm text-muted-foreground">Modifiez votre mot de passe</p>
-                                </div>
-                              </div>
-                              <Button variant="outline" size="sm">Modifier</Button>
-                            </div>
-                          </div>
-                          <div className="p-4 border rounded-lg">
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center">
-                                <Mail className="h-5 w-5 mr-3 text-blue-500" />
-                                <div>
-                                  <p className="font-medium">Changer d'email</p>
-                                  <p className="text-sm text-muted-foreground">Modifiez votre adresse email</p>
-                                </div>
-                              </div>
-                              <Button variant="outline" size="sm">Modifier</Button>
-                            </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center">
+                          <User className="h-5 w-5 mr-3 text-blue-500" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Nom complet</p>
+                            <p className="font-medium">{profileData.fullName}</p>
                           </div>
                         </div>
-                      </TabsContent>
-                    </Tabs>
+                        <div className="flex items-center">
+                          <Mail className="h-5 w-5 mr-3 text-blue-500" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Email</p>
+                            <p className="font-medium">{profileData.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <Phone className="h-5 w-5 mr-3 text-blue-500" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Téléphone</p>
+                            <p className="font-medium">{profileData.phone}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <Calendar className="h-5 w-5 mr-3 text-blue-500" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Date d'embauche</p>
+                            <p className="font-medium">{profileData.hireDate}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
