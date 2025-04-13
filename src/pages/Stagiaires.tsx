@@ -39,83 +39,9 @@ import { useToast } from "@/hooks/use-toast";
 import { StagiaireForm } from "@/components/stagiaires/StagiaireForm";
 import { format } from "date-fns";
 
-const MOCK_STAGIAIRES: StagiaireType[] = [
-  {
-    id: "1",
-    nom: "Dubois",
-    prenom: "Marie",
-    email: "marie.dubois@email.com",
-    telephone: "06 12 34 56 78",
-    etablissement: "Université de Paris",
-    formation: "Master Informatique",
-    status: "active",
-    dateDebut: "01/03/2025",
-    dateFin: "31/08/2025",
-  },
-  {
-    id: "2",
-    nom: "Martin",
-    prenom: "Thomas",
-    email: "thomas.martin@email.com",
-    telephone: "07 23 45 67 89",
-    etablissement: "École d'Ingénieurs de Lyon",
-    formation: "Ingénierie des systèmes",
-    status: "active",
-    dateDebut: "15/02/2025",
-    dateFin: "15/07/2025",
-  },
-  {
-    id: "3",
-    nom: "Bernard",
-    prenom: "Lucie",
-    email: "lucie.bernard@email.com",
-    telephone: "06 34 56 78 90",
-    etablissement: "HEC Paris",
-    formation: "MBA Marketing Digital",
-    status: "upcoming",
-    dateDebut: "01/05/2025",
-    dateFin: "31/10/2025",
-  },
-  {
-    id: "4",
-    nom: "Petit",
-    prenom: "Antoine",
-    email: "antoine.petit@email.com",
-    telephone: "07 45 67 89 01",
-    etablissement: "Sciences Po Bordeaux",
-    formation: "Master Relations Internationales",
-    status: "completed",
-    dateDebut: "01/09/2024",
-    dateFin: "28/02/2025",
-  },
-  {
-    id: "5",
-    nom: "Durand",
-    prenom: "Sophie",
-    email: "sophie.durand@email.com",
-    telephone: "06 56 78 90 12",
-    etablissement: "ESCP Business School",
-    formation: "Finance d'entreprise",
-    status: "active",
-    dateDebut: "15/01/2025",
-    dateFin: "15/06/2025",
-  },
-  {
-    id: "6",
-    nom: "Leroy",
-    prenom: "Maxime",
-    email: "maxime.leroy@email.com",
-    telephone: "07 67 89 01 23",
-    etablissement: "Ecole 42",
-    formation: "Développement informatique",
-    status: "upcoming",
-    dateDebut: "01/06/2025",
-    dateFin: "30/11/2025",
-  },
-];
-
 const Stagiaires = () => {
-  const [stagiaires, setStagiaires] = useState<StagiaireType[]>(MOCK_STAGIAIRES);
+  // Initialisation avec un tableau vide au lieu des données fictives
+  const [stagiaires, setStagiaires] = useState<StagiaireType[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterType, setFilterType] = useState<string | null>(null);
@@ -281,15 +207,19 @@ const Stagiaires = () => {
                   </div>
                   <h3 className="font-medium text-lg mb-1">Aucun stagiaire trouvé</h3>
                   <p className="text-muted-foreground mb-4">
-                    Aucun stagiaire ne correspond à vos filtres.
+                    {stagiaires.length === 0 
+                      ? "Ajoutez votre premier stagiaire en cliquant sur le bouton \"Nouveau stagiaire\"."
+                      : "Aucun stagiaire ne correspond à vos filtres."}
                   </p>
-                  <Button variant="outline" onClick={() => {
-                    setActiveTab("all");
-                    setSearchTerm("");
-                    setFilterType(null);
-                  }}>
-                    Réinitialiser les filtres
-                  </Button>
+                  {stagiaires.length > 0 && (
+                    <Button variant="outline" onClick={() => {
+                      setActiveTab("all");
+                      setSearchTerm("");
+                      setFilterType(null);
+                    }}>
+                      Réinitialiser les filtres
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
