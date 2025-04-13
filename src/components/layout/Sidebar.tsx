@@ -103,12 +103,13 @@ export function Sidebar() {
       </div>
       
       <div className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto scrollbar-hide">
+        {/* Nouvel ordre du menu selon la demande */}
         <NavItem
-          icon={Home}
-          label="Tableau de bord"
-          to="/"
+          icon={Info}
+          label="À propos"
+          to="/a-propos"
           expanded={expanded}
-          active={isActive("/")}
+          active={isActive("/a-propos")}
         />
         <NavItem
           icon={Users}
@@ -118,18 +119,18 @@ export function Sidebar() {
           active={isActive("/stagiaires")}
         />
         <NavItem
+          icon={Home}
+          label="Tableau de bord"
+          to="/"
+          expanded={expanded}
+          active={isActive("/")}
+        />
+        <NavItem
           icon={Star}
           label="Évaluations"
           to="/evaluations"
           expanded={expanded}
           active={isActive("/evaluations")}
-        />
-        <NavItem
-          icon={Info}
-          label="À propos"
-          to="/a-propos"
-          expanded={expanded}
-          active={isActive("/a-propos")}
         />
       </div>
       

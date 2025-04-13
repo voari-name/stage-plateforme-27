@@ -47,7 +47,8 @@ const Login = () => {
         description: "Bienvenue sur la plateforme de gestion des stagiaires",
       });
       
-      navigate("/");
+      // Redirection vers la page À propos au lieu de la page d'accueil
+      navigate("/a-propos");
     }, 1000);
   };
 
@@ -101,7 +102,7 @@ const Login = () => {
                       <FormControl>
                         <Input 
                           type="password" 
-                          placeholder="••••••••" 
+                          placeholder="" 
                           {...field}
                           className="text-base py-6 border-blue-200 focus:border-blue-400" 
                         />

@@ -46,7 +46,7 @@ const App = () => {
             <Route path="/" element={
               isAuthenticated ? 
               <ProtectedRoute>
-                <Index />
+                <Navigate to="/a-propos" />
               </ProtectedRoute> : 
               <Navigate to="/login" />
             } />
