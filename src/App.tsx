@@ -7,11 +7,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Stagiaires from "./pages/Stagiaires";
-import Missions from "./pages/Missions";
 import Evaluations from "./pages/Evaluations";
 import APropos from "./pages/APropos";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Profil from "./pages/Profil";
 
 // Composant pour les routes protégées
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -42,23 +42,22 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Route par défaut - redirigé vers login si non connecté */}
+            <Route path="/" element={
+              isAuthenticated ? 
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute> : 
+              <Navigate to="/login" />
+            } />
+            
             {/* Route publique pour la connexion */}
             <Route path="/login" element={<Login />} />
             
             {/* Routes protégées */}
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            } />
             <Route path="/stagiaires" element={
               <ProtectedRoute>
                 <Stagiaires />
-              </ProtectedRoute>
-            } />
-            <Route path="/missions" element={
-              <ProtectedRoute>
-                <Missions />
               </ProtectedRoute>
             } />
             <Route path="/evaluations" element={
@@ -69,6 +68,11 @@ const App = () => {
             <Route path="/a-propos" element={
               <ProtectedRoute>
                 <APropos />
+              </ProtectedRoute>
+            } />
+            <Route path="/profil" element={
+              <ProtectedRoute>
+                <Profil />
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />

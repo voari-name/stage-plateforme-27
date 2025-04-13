@@ -6,13 +6,12 @@ import { Button } from "@/components/ui/button";
 import {
   Home,
   Users,
-  ClipboardList,
   Star,
-  BarChart3,
   Info,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  UserCircle
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -77,11 +76,11 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        "h-screen bg-sidebar flex flex-col border-r border-sidebar-border transition-all duration-300 shadow-sm",
+        "h-screen bg-sidebar flex flex-col border-r border-sidebar-border transition-all duration-300 shadow-md",
         expanded ? "w-64" : "w-16"
       )}
     >
-      <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+      <div className="flex items-center justify-between p-4 border-b border-sidebar-border bg-gradient-to-r from-blue-100 to-blue-200">
         {expanded && (
           <div className="flex items-center fade-in">
             <img 
@@ -89,7 +88,7 @@ export function Sidebar() {
               alt="MTEFoP Logo" 
               className="h-10 w-10 mr-2"
             />
-            <h1 className="text-xl font-bold text-blue-500">MTEFoP</h1>
+            <h1 className="text-xl font-bold text-blue-600">MTEFoP</h1>
           </div>
         )}
         <Button
@@ -105,11 +104,11 @@ export function Sidebar() {
       
       <div className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto scrollbar-hide">
         <NavItem
-          icon={Info}
-          label="À propos"
-          to="/a-propos"
+          icon={Home}
+          label="Tableau de bord"
+          to="/"
           expanded={expanded}
-          active={isActive("/a-propos")}
+          active={isActive("/")}
         />
         <NavItem
           icon={Users}
@@ -126,29 +125,22 @@ export function Sidebar() {
           active={isActive("/evaluations")}
         />
         <NavItem
-          icon={ClipboardList}
-          label="Missions"
-          to="/missions"
+          icon={Info}
+          label="À propos"
+          to="/a-propos"
           expanded={expanded}
-          active={isActive("/missions")}
-        />
-        <NavItem
-          icon={BarChart3}
-          label="Rapports"
-          to="/rapports"
-          expanded={expanded}
-          active={isActive("/rapports")}
-        />
-        <NavItem
-          icon={Home}
-          label="Tableau de bord"
-          to="/"
-          expanded={expanded}
-          active={isActive("/")}
+          active={isActive("/a-propos")}
         />
       </div>
       
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="p-3 border-t border-sidebar-border bg-gradient-to-r from-blue-100 to-blue-200">
+        <NavItem
+          icon={UserCircle}
+          label="Profil"
+          to="/profil"
+          expanded={expanded}
+          active={isActive("/profil")}
+        />
         <NavItem
           icon={Settings}
           label="Paramètres"

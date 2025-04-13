@@ -27,15 +27,15 @@ const Login = () => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      username: "RAHAJANIAINA",
-      password: "motdepasse",
+      username: "",
+      password: "",
     },
   });
 
   const onSubmit = (values: LoginFormValues) => {
     setIsLoading(true);
     
-    // Vérification des identifiants codés en dur
+    // Vérification des identifiants
     if (values.username === "RAHAJANIAINA" && values.password === "motdepasse") {
       // Simule un délai de connexion
       setTimeout(() => {
@@ -62,27 +62,27 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-muted/30">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="w-full">
         <Banner />
       </div>
       
       <div className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
+        <Card className="w-full max-w-md shadow-lg border-blue-200">
+          <CardHeader className="space-y-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
             <div className="flex items-center justify-center mb-4">
               <img 
                 src="/lovable-uploads/5c0ae490-98de-4bfa-bff1-df9fe97ebe0b.png" 
                 alt="MTEFoP Logo" 
-                className="h-16 w-16"
+                className="h-16 w-16 filter drop-shadow-md"
               />
             </div>
             <CardTitle className="text-2xl font-bold text-center">Connexion</CardTitle>
-            <CardDescription className="text-center">
+            <CardDescription className="text-center text-blue-100">
               Entrez vos identifiants pour accéder à la plateforme
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -93,9 +93,9 @@ const Login = () => {
                       <FormLabel className="text-base">Nom d'utilisateur</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="RAHAJANIAINA" 
+                          placeholder="Entrez votre nom d'utilisateur" 
                           {...field} 
-                          className="text-base py-6"
+                          className="text-base py-6 border-blue-200 focus:border-blue-400"
                         />
                       </FormControl>
                       <FormMessage />
@@ -113,19 +113,26 @@ const Login = () => {
                           type="password" 
                           placeholder="••••••••" 
                           {...field}
-                          className="text-base py-6" 
+                          className="text-base py-6 border-blue-200 focus:border-blue-400" 
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full py-6 text-base" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full py-6 text-base bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
+                  disabled={isLoading}
+                >
                   {isLoading ? "Connexion en cours..." : "Se connecter"}
                 </Button>
               </form>
             </Form>
           </CardContent>
+          <CardFooter className="flex justify-center text-sm text-muted-foreground">
+            Utilisez "RAHAJANIAINA" et "motdepasse" pour vous connecter
+          </CardFooter>
         </Card>
       </div>
     </div>

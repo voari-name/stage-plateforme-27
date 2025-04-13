@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { StagiaireCard, StagiaireType } from "@/components/stagiaires/StagiaireCard";
@@ -39,8 +39,10 @@ import { useToast } from "@/hooks/use-toast";
 import { StagiaireForm } from "@/components/stagiaires/StagiaireForm";
 import { format } from "date-fns";
 
+const LOCAL_STORAGE_KEY = "mtefop-stagiaires";
+
 const Stagiaires = () => {
-  // Initialisation avec un tableau vide au lieu des données fictives
+  // Initialisation avec un tableau vide par défaut
   const [stagiaires, setStagiaires] = useState<StagiaireType[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -48,6 +50,19 @@ const Stagiaires = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [stagiaireToDelete, setStagiaireToDelete] = useState<string | null>(null);
   const { toast } = useToast();
+  
+  // Charger les stagiaires du localStorage lors du chargement de la page
+  useEffect(() => {
+    const savedStagiaires = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedStagiaires) {
+      setStagiaires(JSON.parse(savedStagiaires));
+    }
+  }, []);
+  
+  // Sauvegarder les stagiaires dans le localStorage quand ils changent
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stagiaires));
+  }, [stagiaires]);
   
   // Filtrer les stagiaires selon les critères
   const filteredStagiaires = stagiaires.filter(stagiaire => {
@@ -87,7 +102,7 @@ const Stagiaires = () => {
   const handleAddStagiaire = (values: any) => {
     try {
       const newStagiaire: StagiaireType = {
-        id: `${stagiaires.length + 1}`,
+        id: `${Date.now()}`, // Utilise un timestamp pour l'ID
         nom: values.nom,
         prenom: values.prenom,
         email: values.email,
@@ -122,13 +137,13 @@ const Stagiaires = () => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold">Stagiaires</h1>
+              <h1 className="text-3xl font-bold text-blue-800">Stagiaires</h1>
               <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
                 <DrawerTrigger asChild>
-                  <Button>
+                  <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300">
                     <Plus className="h-4 w-4 mr-2" />
                     Nouveau stagiaire
                   </Button>
@@ -159,7 +174,7 @@ const Stagiaires = () => {
                 onValueChange={setActiveTab}
                 className="w-full sm:w-auto"
               >
-                <TabsList>
+                <TabsList className="bg-white/50 backdrop-blur-sm">
                   <TabsTrigger value="all">Tous</TabsTrigger>
                   <TabsTrigger value="active">En cours</TabsTrigger>
                   <TabsTrigger value="upcoming">À venir</TabsTrigger>
@@ -170,12 +185,12 @@ const Stagiaires = () => {
               <div className="flex w-full sm:w-auto gap-2">
                 <Input
                   placeholder="Rechercher un stagiaire..."
-                  className="w-full sm:w-[250px]"
+                  className="w-full sm:w-[250px] bg-white/80 border-blue-200"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <Select onValueChange={setFilterType} value={filterType || ""}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[180px] bg-white/80 border-blue-200">
                     <div className="flex items-center">
                       <Filter className="mr-2 h-4 w-4" />
                       <SelectValue placeholder="Filtrer par" />
@@ -201,12 +216,12 @@ const Stagiaires = () => {
               ))}
               
               {filteredStagiaires.length === 0 && (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                  <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <GraduationCap className="h-10 w-10 text-muted-foreground" />
+                <div className="col-span-full flex flex-col items-center justify-center py-12 text-center bg-white/50 backdrop-blur-sm rounded-xl shadow-md">
+                  <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center mb-4">
+                    <GraduationCap className="h-10 w-10 text-blue-600" />
                   </div>
-                  <h3 className="font-medium text-lg mb-1">Aucun stagiaire trouvé</h3>
-                  <p className="text-muted-foreground mb-4">
+                  <h3 className="font-medium text-xl mb-2 text-blue-800">Aucun stagiaire trouvé</h3>
+                  <p className="text-muted-foreground mb-6 max-w-md">
                     {stagiaires.length === 0 
                       ? "Ajoutez votre premier stagiaire en cliquant sur le bouton \"Nouveau stagiaire\"."
                       : "Aucun stagiaire ne correspond à vos filtres."}
@@ -240,7 +255,7 @@ const Stagiaires = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteStagiaire}>Supprimer</AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteStagiaire} className="bg-red-500 hover:bg-red-600">Supprimer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
