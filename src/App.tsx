@@ -13,7 +13,6 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Profil from "./pages/Profil";
 
-// Composant pour les routes protégées
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = localStorage.getItem("isLoggedIn") === "true";
   
@@ -25,12 +24,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
-  // Créer une nouvelle instance de QueryClient à l'intérieur du composant
   const queryClient = new QueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   useEffect(() => {
-    // Vérifier si l'utilisateur est connecté au chargement de l'application
     const loggedIn = localStorage.getItem("isLoggedIn") === "true";
     setIsAuthenticated(loggedIn);
   }, []);
@@ -42,7 +39,6 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Route par défaut - redirigé vers login si non connecté */}
             <Route path="/" element={
               isAuthenticated ? 
               <ProtectedRoute>
@@ -51,10 +47,8 @@ const App = () => {
               <Navigate to="/login" />
             } />
             
-            {/* Route publique pour la connexion */}
             <Route path="/login" element={<Login />} />
             
-            {/* Routes protégées */}
             <Route path="/stagiaires" element={
               <ProtectedRoute>
                 <Stagiaires />

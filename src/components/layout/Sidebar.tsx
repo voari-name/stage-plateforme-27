@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -103,7 +102,6 @@ export function Sidebar() {
       </div>
       
       <div className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto scrollbar-hide">
-        {/* Nouvel ordre du menu selon la demande */}
         <NavItem
           icon={Info}
           label="À propos"
@@ -117,13 +115,6 @@ export function Sidebar() {
           to="/stagiaires"
           expanded={expanded}
           active={isActive("/stagiaires")}
-        />
-        <NavItem
-          icon={Home}
-          label="Tableau de bord"
-          to="/"
-          expanded={expanded}
-          active={isActive("/")}
         />
         <NavItem
           icon={Star}
