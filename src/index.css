@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -174,11 +173,11 @@
 
 /* Sidebar improvements */
 .sidebar-item-active {
-  @apply bg-blue-100 text-blue-700 font-medium;
+  @apply bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300;
 }
 
 .sidebar-item-hover {
-  @apply transition-colors hover:bg-blue-50;
+  @apply transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/30;
 }
 
 /* Form input focus effect */

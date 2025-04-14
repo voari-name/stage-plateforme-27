@@ -31,7 +31,7 @@ const NavItem = ({ icon: Icon, label, to, expanded, active }: NavItemProps) => {
             active ? "sidebar-item-active" : ""
           )}
         >
-          <Icon className={cn("h-5 w-5 mr-2", active ? "text-blue-600" : "")} />
+          <Icon className={cn("h-5 w-5 mr-2", active ? "text-blue-600 dark:text-blue-400" : "")} />
           <span className="font-medium">{label}</span>
         </Button>
       </Link>
@@ -49,7 +49,7 @@ const NavItem = ({ icon: Icon, label, to, expanded, active }: NavItemProps) => {
                   active ? "sidebar-item-active" : ""
                 )}
               >
-                <Icon className={cn("h-5 w-5", active ? "text-blue-600" : "")} />
+                <Icon className={cn("h-5 w-5", active ? "text-blue-600 dark:text-blue-400" : "")} />
               </Button>
             </Link>
           </TooltipTrigger>
@@ -73,11 +73,11 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        "h-screen flex flex-col bg-gradient-to-b from-blue-50 via-indigo-50 to-blue-50 border-r border-sidebar-border transition-all duration-300 shadow-lg",
+        "h-screen flex flex-col bg-gradient-to-b from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950 dark:via-indigo-950 dark:to-blue-950 border-r border-sidebar-border transition-all duration-300 shadow-lg",
         expanded ? "w-64" : "w-16"
       )}
     >
-      <div className="flex items-center justify-between p-4 border-b border-sidebar-border bg-gradient-to-r from-blue-200 to-indigo-200">
+      <div className="flex items-center justify-between p-4 border-b border-sidebar-border bg-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-900 dark:to-indigo-900">
         {expanded && (
           <div className="flex items-center fade-in">
             <img 
@@ -85,7 +85,7 @@ export function Sidebar() {
               alt="MTEFoP Logo" 
               className="h-10 w-10 mr-2 animate-pulse"
             />
-            <h1 className="text-xl font-bold text-blue-700">MTEFoP</h1>
+            <h1 className="text-xl font-bold text-blue-700 dark:text-blue-300">MTEFoP</h1>
           </div>
         )}
         <Button
@@ -93,7 +93,7 @@ export function Sidebar() {
           size="icon"
           onClick={() => setExpanded(!expanded)}
           className={cn(
-            "hover:bg-blue-100 rounded-full",
+            "hover:bg-blue-100 dark:hover:bg-blue-900 rounded-full",
             expanded ? "ml-auto" : "mx-auto"
           )}
         >
