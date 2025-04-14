@@ -10,6 +10,7 @@ import {
   UserCircle
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Banner } from "@/components/layout/Banner";
 
 type NavItemProps = {
   icon: React.ElementType;
@@ -72,7 +73,7 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        "h-screen bg-gradient-to-b from-blue-50 via-indigo-50 to-blue-50 flex flex-col border-r border-sidebar-border transition-all duration-300 shadow-lg",
+        "h-screen flex flex-col bg-gradient-to-b from-blue-50 via-indigo-50 to-blue-50 border-r border-sidebar-border transition-all duration-300 shadow-lg",
         expanded ? "w-64" : "w-16"
       )}
     >
@@ -87,6 +88,26 @@ export function Sidebar() {
             <h1 className="text-xl font-bold text-blue-700">MTEFoP</h1>
           </div>
         )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setExpanded(!expanded)}
+          className={cn(
+            "hover:bg-blue-100 rounded-full",
+            expanded ? "ml-auto" : "mx-auto"
+          )}
+        >
+          {expanded ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          )}
+          <span className="sr-only">Toggle Sidebar</span>
+        </Button>
       </div>
       
       <div className="flex-1 px-3 py-4 space-y-2 overflow-y-auto scrollbar-hide">
@@ -118,6 +139,10 @@ export function Sidebar() {
           expanded={expanded}
           active={isActive("/profil")}
         />
+      </div>
+
+      <div className="mt-auto p-3">
+        <Banner className={cn("w-full rounded-lg overflow-hidden transition-all duration-300", !expanded && "h-24")} />
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -37,6 +36,7 @@ import { GraduationCap, Plus, Filter, Edit, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { StagiaireForm } from "@/components/stagiaires/StagiaireForm";
 import { format } from "date-fns";
+import { addNotification } from "@/utils/notificationUtils";
 
 const LOCAL_STORAGE_KEY = "mtefop-stagiaires";
 
@@ -81,6 +81,7 @@ const Stagiaires = () => {
 
   const handleDeleteStagiaire = () => {
     if (stagiaireToDelete) {
+      const stagiaireToRemove = stagiaires.find(s => s.id === stagiaireToDelete);
       const updatedStagiaires = stagiaires.filter(s => s.id !== stagiaireToDelete);
       setStagiaires(updatedStagiaires);
       setStagiaireToDelete(null);
@@ -89,6 +90,13 @@ const Stagiaires = () => {
         title: "Stagiaire supprimé",
         description: "Le stagiaire a été supprimé avec succès",
       });
+      
+      if (stagiaireToRemove) {
+        addNotification(
+          "Stagiaire supprimé",
+          `${stagiaireToRemove.prenom} ${stagiaireToRemove.nom} a été supprimé`
+        );
+      }
     }
   };
 
@@ -109,6 +117,16 @@ const Stagiaires = () => {
       
       setStagiaires([...stagiaires, newStagiaire]);
       setDrawerOpen(false);
+      
+      addNotification(
+        "Nouveau stagiaire ajouté",
+        `${newStagiaire.prenom} ${newStagiaire.nom} a été ajouté avec succès`
+      );
+      
+      toast({
+        title: "Stagiaire ajouté",
+        description: `${newStagiaire.prenom} ${newStagiaire.nom} a été ajouté avec succès`,
+      });
     } catch (error) {
       toast({
         title: "Erreur",
@@ -142,6 +160,16 @@ const Stagiaires = () => {
         setStagiaires(updatedStagiaires);
         setDrawerOpen(false);
         setStagiaireToEdit(null);
+        
+        addNotification(
+          "Stagiaire modifié",
+          `Les informations de ${values.prenom} ${values.nom} ont été mises à jour`
+        );
+        
+        toast({
+          title: "Stagiaire modifié",
+          description: `Les informations de ${values.prenom} ${values.nom} ont été mises à jour`,
+        });
       } catch (error) {
         toast({
           title: "Erreur",
