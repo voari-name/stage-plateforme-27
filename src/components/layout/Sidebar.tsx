@@ -4,20 +4,12 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  User,
   Users,
   Star,
   Info,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  UserCircle,
-  LogOut,
-  Mail,
-  Phone
+  UserCircle
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useToast } from "@/hooks/use-toast";
 
 type NavItemProps = {
   icon: React.ElementType;
@@ -72,20 +64,9 @@ const NavItem = ({ icon: Icon, label, to, expanded, active }: NavItemProps) => {
 export function Sidebar() {
   const [expanded, setExpanded] = useState(true);
   const location = useLocation();
-  const { toast } = useToast();
   
   const isActive = (path: string) => {
     return location.pathname === path;
-  };
-  
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    toast({
-      title: "Déconnexion réussie",
-      description: "Vous avez été déconnecté avec succès."
-    });
-    // La redirection se fera par le router dans App.tsx
-    window.location.href = "/login";
   };
 
   return (
@@ -106,15 +87,6 @@ export function Sidebar() {
             <h1 className="text-xl font-bold text-blue-700">MTEFoP</h1>
           </div>
         )}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setExpanded(!expanded)}
-          className="ml-auto hover:bg-blue-100 rounded-full"
-        >
-          {expanded ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-          <span className="sr-only">Toggle Sidebar</span>
-        </Button>
       </div>
       
       <div className="flex-1 px-3 py-4 space-y-2 overflow-y-auto scrollbar-hide">
@@ -139,73 +111,13 @@ export function Sidebar() {
           expanded={expanded}
           active={isActive("/evaluations")}
         />
-      </div>
-      
-      <div className="mt-auto">
-        <div className="p-3 mx-2 mb-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md">
-          {expanded ? (
-            <div className="flex flex-col items-center p-2 space-y-2 animate-fade-in">
-              <h3 className="font-bold">Besoin d'aide ?</h3>
-              <div className="flex items-center text-sm">
-                <Mail className="h-4 w-4 mr-1" />
-                <span>support@mtefop.mg</span>
-              </div>
-              <div className="flex items-center text-sm">
-                <Phone className="h-4 w-4 mr-1" />
-                <span>+261 20 22 651 31</span>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <Mail className="h-6 w-6" />
-            </div>
-          )}
-        </div>
-        
-        <div className="p-3 border-t border-sidebar-border bg-gradient-to-r from-blue-200 to-indigo-200">
-          <NavItem
-            icon={UserCircle}
-            label="Profil"
-            to="/profil"
-            expanded={expanded}
-            active={isActive("/profil")}
-          />
-          <NavItem
-            icon={Settings}
-            label="Paramètres"
-            to="/parametres"
-            expanded={expanded}
-            active={isActive("/parametres")}
-          />
-          
-          {expanded ? (
-            <Button
-              variant="ghost"
-              onClick={handleLogout}
-              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 mt-1"
-            >
-              <LogOut className="h-5 w-5 mr-2" />
-              <span className="font-medium">Déconnexion</span>
-            </Button>
-          ) : (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    onClick={handleLogout}
-                    className="w-full justify-center py-3 text-red-600 hover:text-red-700 hover:bg-red-50 mt-1"
-                  >
-                    <LogOut className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right" className="bg-popover font-medium">
-                  Déconnexion
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
+        <NavItem
+          icon={UserCircle}
+          label="Profil"
+          to="/profil"
+          expanded={expanded}
+          active={isActive("/profil")}
+        />
       </div>
     </div>
   );
