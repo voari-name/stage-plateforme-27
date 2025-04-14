@@ -142,7 +142,10 @@ export function Sidebar() {
       </div>
 
       <div className="mt-auto p-3">
-        <Banner className={cn("w-full rounded-lg overflow-hidden transition-all duration-300", !expanded && "h-24")} />
+        <Banner className={cn(
+          "w-full rounded-lg overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1", 
+          !expanded && "h-24"
+        )} />
       </div>
     </div>
   );
