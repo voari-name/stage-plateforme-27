@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +7,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, Phone, Calendar } from "lucide-react";
+import { User, Mail, Phone, Calendar, Camera, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Profil = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const [profileImage, setProfileImage] = useState<string>("/lovable-uploads/aa4b9f4c-2bff-4893-a101-3498804ab803.png");
+  const [showImageUpload, setShowImageUpload] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const [profileData, setProfileData] = useState({
     fullName: "RAHAJANIAINA Olivier",
@@ -21,6 +24,12 @@ const Profil = () => {
   });
   
   const [formData, setFormData] = useState({...profileData});
+  const [animateProfile, setAnimateProfile] = useState(false);
+  
+  useEffect(() => {
+    // Animation d'entrée
+    setAnimateProfile(true);
+  }, []);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,6 +51,30 @@ const Profil = () => {
   const handleCancel = () => {
     setFormData({...profileData});
     setIsEditing(false);
+    setShowImageUpload(false);
+  };
+  
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        if (event.target && typeof event.target.result === 'string') {
+          setProfileImage(event.target.result);
+          toast({
+            title: "Photo de profil mise à jour",
+            description: "Votre photo de profil a été changée avec succès."
+          });
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -55,17 +88,54 @@ const Profil = () => {
           <div className="mx-auto max-w-5xl">
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="w-full">
-                <Card className="shadow-lg border-blue-200 overflow-hidden">
-                  <div className="h-24 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-                  <div className="px-6 pb-6 -mt-12 flex flex-col items-center">
-                    <Avatar className="border-4 border-white h-24 w-24 shadow-lg">
-                      <AvatarImage src="/lovable-uploads/aa4b9f4c-2bff-4893-a101-3498804ab803.png" alt="RAHAJANIAINA Olivier" />
-                      <AvatarFallback>RO</AvatarFallback>
-                    </Avatar>
-                    <h2 className="mt-4 text-2xl font-bold">{profileData.fullName}</h2>
+                <Card 
+                  className={`shadow-lg border-blue-200 overflow-hidden transition-all duration-700 transform ${animateProfile ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                >
+                  <div className="h-32 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                  <div className="px-6 pb-6 -mt-16 flex flex-col items-center relative">
+                    <div className="relative">
+                      <Avatar className="border-4 border-white h-32 w-32 shadow-lg hover:scale-105 transition-transform cursor-pointer" onClick={() => setShowImageUpload(true)}>
+                        <AvatarImage src={profileImage} alt="Photo de profil" />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-xl">RO</AvatarFallback>
+                      </Avatar>
+                      
+                      {showImageUpload && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 rounded-full">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="h-10 w-10 rounded-full bg-white text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={triggerFileInput}
+                          >
+                            <Camera className="h-5 w-5" />
+                            <span className="sr-only">Changer la photo</span>
+                          </Button>
+                          <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={handleImageChange}
+                          />
+                        </div>
+                      )}
+                      
+                      {!showImageUpload && (
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-white border-blue-300 hover:bg-blue-50"
+                          onClick={() => setShowImageUpload(true)}
+                        >
+                          <Camera className="h-4 w-4 text-blue-600" />
+                          <span className="sr-only">Changer la photo</span>
+                        </Button>
+                      )}
+                    </div>
+                    <h2 className="mt-4 text-2xl font-bold text-blue-800">{profileData.fullName}</h2>
                     <p className="text-muted-foreground">Administrateur</p>
                     
-                    {!isEditing && (
+                    {!isEditing && !showImageUpload && (
                       <Button 
                         onClick={() => setIsEditing(true)} 
                         className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
@@ -73,12 +143,26 @@ const Profil = () => {
                         Modifier le profil
                       </Button>
                     )}
+                    
+                    {showImageUpload && (
+                      <div className="mt-4 flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handleCancel}
+                          className="flex items-center"
+                        >
+                          <X className="mr-1 h-4 w-4" />
+                          Annuler
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </Card>
                 
-                <Card className="mt-6 shadow-md border-blue-200">
+                <Card className={`mt-6 shadow-md border-blue-200 transition-all duration-700 delay-300 transform ${animateProfile ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
                   <CardHeader>
-                    <CardTitle className="text-lg">Informations personnelles</CardTitle>
+                    <CardTitle className="text-lg text-blue-800">Informations personnelles</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {isEditing ? (
@@ -142,46 +226,49 @@ const Profil = () => {
                         <div className="flex space-x-4 pt-4">
                           <Button 
                             onClick={handleSave}
-                            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 flex items-center"
                           >
+                            <Save className="mr-2 h-4 w-4" />
                             Enregistrer
                           </Button>
                           <Button 
                             onClick={handleCancel} 
                             variant="outline"
+                            className="border-blue-200 flex items-center"
                           >
+                            <X className="mr-2 h-4 w-4" />
                             Annuler
                           </Button>
                         </div>
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <div className="flex items-center">
-                          <User className="h-5 w-5 mr-3 text-blue-500" />
+                        <div className="flex items-center p-3 hover:bg-blue-50 rounded-lg transition-colors">
+                          <User className="h-5 w-5 mr-3 text-blue-600" />
                           <div>
-                            <p className="text-sm text-muted-foreground">Nom complet</p>
-                            <p className="font-medium">{profileData.fullName}</p>
+                            <p className="text-sm text-gray-500">Nom complet</p>
+                            <p className="font-medium text-gray-800">{profileData.fullName}</p>
                           </div>
                         </div>
-                        <div className="flex items-center">
-                          <Mail className="h-5 w-5 mr-3 text-blue-500" />
+                        <div className="flex items-center p-3 hover:bg-blue-50 rounded-lg transition-colors">
+                          <Mail className="h-5 w-5 mr-3 text-blue-600" />
                           <div>
-                            <p className="text-sm text-muted-foreground">Email</p>
-                            <p className="font-medium">{profileData.email}</p>
+                            <p className="text-sm text-gray-500">Email</p>
+                            <p className="font-medium text-gray-800">{profileData.email}</p>
                           </div>
                         </div>
-                        <div className="flex items-center">
-                          <Phone className="h-5 w-5 mr-3 text-blue-500" />
+                        <div className="flex items-center p-3 hover:bg-blue-50 rounded-lg transition-colors">
+                          <Phone className="h-5 w-5 mr-3 text-blue-600" />
                           <div>
-                            <p className="text-sm text-muted-foreground">Téléphone</p>
-                            <p className="font-medium">{profileData.phone}</p>
+                            <p className="text-sm text-gray-500">Téléphone</p>
+                            <p className="font-medium text-gray-800">{profileData.phone}</p>
                           </div>
                         </div>
-                        <div className="flex items-center">
-                          <Calendar className="h-5 w-5 mr-3 text-blue-500" />
+                        <div className="flex items-center p-3 hover:bg-blue-50 rounded-lg transition-colors">
+                          <Calendar className="h-5 w-5 mr-3 text-blue-600" />
                           <div>
-                            <p className="text-sm text-muted-foreground">Date d'embauche</p>
-                            <p className="font-medium">{profileData.hireDate}</p>
+                            <p className="text-sm text-gray-500">Date d'embauche</p>
+                            <p className="font-medium text-gray-800">{profileData.hireDate}</p>
                           </div>
                         </div>
                       </div>

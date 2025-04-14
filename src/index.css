@@ -43,6 +43,14 @@
     --sidebar-accent-foreground: 210 50% 10%;
     --sidebar-border: 210 40% 90%;
     --sidebar-ring: 210 100% 50%;
+    
+    /* Nouveaux thèmes */
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 10%;
+    --info: 200 98% 50%;
+    --info-foreground: 200 98% 10%;
+    --success: 142 71% 45%;
+    --success-foreground: 142 71% 10%;
   }
 
   .dark {
@@ -82,6 +90,14 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 210 40% 20%;
     --sidebar-ring: 210 100% 60%;
+    
+    /* Nouveaux thèmes */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 200 98% 50%;
+    --info-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
   }
 }
 
@@ -119,6 +135,24 @@
   animation: fadeIn 0.5s ease-out forwards;
 }
 
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.slide-in {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite ease-in-out;
+}
+
 /* Card styles */
 .card-gradient {
   @apply bg-gradient-to-br from-white to-gray-100 shadow-md;
@@ -150,4 +184,50 @@
 /* Form input focus effect */
 .input-focus-effect {
   @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+}
+
+/* 3D Button Effect */
+.btn-3d {
+  @apply transition-all duration-200 shadow-md hover:shadow-lg active:shadow-sm active:translate-y-px;
+}
+
+/* Gradient Text */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
+}
+
+/* Glass Card */
+.glass-card {
+  @apply backdrop-blur-lg bg-white/70 border border-white/30 shadow-lg;
+}
+
+/* Glowing Effect */
+.glow {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  transition: all 0.3s ease;
+}
+
+.glow:hover {
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
+}
+
+/* Float Animation */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* Hover Card Effect */
+.hover-card {
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }

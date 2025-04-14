@@ -42,12 +42,14 @@ type StagiaireFormProps = {
   onSubmit: (values: StagiaireFormValues) => void;
   initialValues?: Partial<StagiaireType>;
   onCancel: () => void;
+  isEdit?: boolean;
 };
 
 export const StagiaireForm = ({
   onSubmit,
   initialValues,
   onCancel,
+  isEdit = false,
 }: StagiaireFormProps) => {
   const { toast } = useToast();
   
@@ -79,6 +81,12 @@ export const StagiaireForm = ({
   const handleSubmit = (values: StagiaireFormValues) => {
     try {
       onSubmit(values);
+      toast({
+        title: isEdit ? "Stagiaire modifié" : "Stagiaire ajouté",
+        description: isEdit 
+          ? "Les informations du stagiaire ont été mises à jour avec succès."
+          : "Le nouveau stagiaire a été ajouté avec succès.",
+      });
     } catch (error) {
       toast({
         title: "Erreur",
@@ -299,7 +307,13 @@ export const StagiaireForm = ({
           <Button variant="outline" type="button" onClick={onCancel} size="sm">
             Annuler
           </Button>
-          <Button type="submit" size="sm">Enregistrer</Button>
+          <Button 
+            type="submit" 
+            size="sm" 
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+          >
+            {isEdit ? "Modifier" : "Enregistrer"}
+          </Button>
         </div>
       </form>
     </Form>

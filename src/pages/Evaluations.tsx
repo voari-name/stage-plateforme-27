@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DownloadCloud,
-  ExternalLink,
   Eye,
   FileCheck,
   FileText,
@@ -27,6 +26,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Drawer,
+  DrawerClose,
+  DrawerContent, 
+  DrawerDescription, 
+  DrawerFooter, 
+  DrawerHeader, 
+  DrawerTitle,
+  DrawerTrigger
+} from "@/components/ui/drawer";
 
 type EvaluationStatus = "pending" | "submitted" | "reviewed";
 
@@ -50,6 +59,8 @@ type Evaluation = {
   score?: number;
   feedback?: string;
 };
+
+const LOCAL_STORAGE_KEY = "mtefop-evaluations";
 
 const MOCK_EVALUATIONS: Evaluation[] = [
   {
@@ -129,13 +140,44 @@ const getEvaluationStatusConfig = (status: EvaluationStatus) => {
 };
 
 const Evaluations = () => {
-  const [evaluations, setEvaluations] = useState<Evaluation[]>(MOCK_EVALUATIONS);
+  const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
   
+  // Charger les évaluations du localStorage
+  useEffect(() => {
+    const savedEvaluations = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedEvaluations) {
+      setEvaluations(JSON.parse(savedEvaluations));
+    } else {
+      // Utiliser les mocks si aucune donnée n'est disponible dans le localStorage
+      setEvaluations(MOCK_EVALUATIONS);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(MOCK_EVALUATIONS));
+    }
+  }, []);
+  
+  const handleCreateEvaluation = () => {
+    setDrawerOpen(true);
+    // Le reste de la logique sera ajouté dans une prochaine mise à jour
+  };
+  
   const filteredEvaluations = evaluations.filter((evaluation) => {
-    if (activeTab === "all") return true;
-    return evaluation.status === activeTab;
+    if (activeTab !== "all" && evaluation.status !== activeTab) return false;
+    
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const stagiaireNom = `${evaluation.stagiaire.prenom} ${evaluation.stagiaire.nom}`.toLowerCase();
+      const titre = evaluation.title.toLowerCase();
+      const mission = evaluation.mission.titre.toLowerCase();
+      
+      return stagiaireNom.includes(searchLower) || 
+             titre.includes(searchLower) || 
+             mission.includes(searchLower);
+    }
+    
+    return true;
   });
   
   const handleViewEvaluation = (id: string) => {
@@ -159,14 +201,37 @@ const Evaluations = () => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold">Évaluations</h1>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Créer une évaluation
-              </Button>
+              <h1 className="text-3xl font-bold text-blue-800">Évaluations</h1>
+              <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+                <DrawerTrigger asChild>
+                  <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Créer une évaluation
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <div className="mx-auto w-full max-w-3xl">
+                    <DrawerHeader className="text-left">
+                      <DrawerTitle>Créer une évaluation</DrawerTitle>
+                      <DrawerDescription>
+                        Remplissez le formulaire ci-dessous pour créer une nouvelle évaluation.
+                      </DrawerDescription>
+                    </DrawerHeader>
+                    <div className="p-4">
+                      {/* Formulaire d'évaluation sera ajouté dans une prochaine version */}
+                      <p className="text-center text-muted-foreground py-10">
+                        Fonctionnalité en cours de développement
+                      </p>
+                    </div>
+                    <DrawerFooter>
+                      <Button onClick={() => setDrawerOpen(false)}>Fermer</Button>
+                    </DrawerFooter>
+                  </div>
+                </DrawerContent>
+              </Drawer>
             </div>
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -176,7 +241,7 @@ const Evaluations = () => {
                 onValueChange={setActiveTab}
                 className="w-full sm:w-auto"
               >
-                <TabsList>
+                <TabsList className="bg-white/50 backdrop-blur-sm">
                   <TabsTrigger value="all">Toutes</TabsTrigger>
                   <TabsTrigger value="pending">En attente</TabsTrigger>
                   <TabsTrigger value="submitted">Soumises</TabsTrigger>
@@ -187,10 +252,12 @@ const Evaluations = () => {
               <div className="flex w-full sm:w-auto gap-2">
                 <Input
                   placeholder="Rechercher une évaluation..."
-                  className="w-full sm:w-[250px]"
+                  className="w-full sm:w-[250px] bg-white/80 border-blue-200"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <Select>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[180px] bg-white/80 border-blue-200">
                     <div className="flex items-center">
                       <Filter className="mr-2 h-4 w-4" />
                       <SelectValue placeholder="Filtrer par" />
@@ -210,16 +277,16 @@ const Evaluations = () => {
                 const statusConfig = getEvaluationStatusConfig(evaluation.status);
                 
                 return (
-                  <Card key={evaluation.id}>
+                  <Card key={evaluation.id} className="hover:shadow-lg transition-all duration-300 border-blue-200">
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-4">
-                          <Avatar className="h-10 w-10">
+                          <Avatar className="h-10 w-10 border-2 border-blue-200">
                             <AvatarImage
                               src={evaluation.stagiaire.avatar}
                               alt={`${evaluation.stagiaire.prenom} ${evaluation.stagiaire.nom}`}
                             />
-                            <AvatarFallback>
+                            <AvatarFallback className="bg-gradient-to-br from-blue-400 to-indigo-500 text-white">
                               {evaluation.stagiaire.prenom[0]}
                               {evaluation.stagiaire.nom[0]}
                             </AvatarFallback>
@@ -263,7 +330,7 @@ const Evaluations = () => {
                         
                         {evaluation.score !== undefined && (
                           <div className="flex items-center">
-                            <div className="h-16 w-16 rounded-full border-4 border-primary flex items-center justify-center">
+                            <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center text-white">
                               <span className="text-xl font-bold">{evaluation.score}</span>
                             </div>
                             <div className="ml-4">
@@ -275,7 +342,7 @@ const Evaluations = () => {
                       </div>
                       
                       {evaluation.feedback && (
-                        <div className="mt-4 pt-4 border-t">
+                        <div className="mt-4 pt-4 border-t border-blue-100">
                           <p className="text-sm font-medium mb-1">Feedback:</p>
                           <p className="text-sm text-muted-foreground">
                             {evaluation.feedback}
@@ -289,6 +356,7 @@ const Evaluations = () => {
                         <Button
                           variant="outline"
                           size="sm"
+                          className="border-blue-300 hover:bg-blue-50"
                           onClick={() => handleDownloadEvaluation(evaluation.id)}
                         >
                           <DownloadCloud className="h-4 w-4 mr-1" />
@@ -297,6 +365,7 @@ const Evaluations = () => {
                       )}
                       <Button
                         size="sm"
+                        className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
                         onClick={() => handleViewEvaluation(evaluation.id)}
                       >
                         <Eye className="h-4 w-4 mr-1" />
@@ -308,15 +377,18 @@ const Evaluations = () => {
               })}
               
               {filteredEvaluations.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <FileText className="h-10 w-10 text-muted-foreground" />
+                <div className="flex flex-col items-center justify-center py-12 text-center bg-white/50 backdrop-blur-sm rounded-xl shadow-md">
+                  <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center mb-4">
+                    <FileText className="h-10 w-10 text-blue-600" />
                   </div>
                   <h3 className="font-medium text-lg mb-1">Aucune évaluation trouvée</h3>
                   <p className="text-muted-foreground mb-4">
                     Aucune évaluation ne correspond à vos filtres.
                   </p>
-                  <Button variant="outline" onClick={() => setActiveTab("all")}>
+                  <Button variant="outline" onClick={() => {
+                    setActiveTab("all");
+                    setSearchTerm("");
+                  }}>
                     Réinitialiser les filtres
                   </Button>
                 </div>

@@ -32,9 +32,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { GraduationCap, Plus, Filter } from "lucide-react";
+import { GraduationCap, Plus, Filter, Edit, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { StagiaireForm } from "@/components/stagiaires/StagiaireForm";
 import { format } from "date-fns";
@@ -42,16 +41,15 @@ import { format } from "date-fns";
 const LOCAL_STORAGE_KEY = "mtefop-stagiaires";
 
 const Stagiaires = () => {
-  // Initialisation avec un tableau vide par défaut
   const [stagiaires, setStagiaires] = useState<StagiaireType[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [stagiaireToDelete, setStagiaireToDelete] = useState<string | null>(null);
+  const [stagiaireToEdit, setStagiaireToEdit] = useState<StagiaireType | null>(null);
   const { toast } = useToast();
   
-  // Charger les stagiaires du localStorage lors du chargement de la page
   useEffect(() => {
     const savedStagiaires = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (savedStagiaires) {
@@ -59,17 +57,13 @@ const Stagiaires = () => {
     }
   }, []);
   
-  // Sauvegarder les stagiaires dans le localStorage quand ils changent
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stagiaires));
   }, [stagiaires]);
   
-  // Filtrer les stagiaires selon les critères
   const filteredStagiaires = stagiaires.filter(stagiaire => {
-    // Filtre par statut
     const statusMatch = activeTab === "all" || stagiaire.status === activeTab;
     
-    // Filtre par recherche
     const searchMatch = searchTerm === "" || 
       `${stagiaire.prenom} ${stagiaire.nom}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       stagiaire.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -80,10 +74,9 @@ const Stagiaires = () => {
   });
   
   const handleViewStagiaire = (id: string) => {
-    toast({
-      title: "Détails du stagiaire",
-      description: `Affichage des détails du stagiaire ID: ${id}`,
-    });
+    const stagiaire = stagiaires.find(s => s.id === id);
+    setStagiaireToEdit(stagiaire || null);
+    setDrawerOpen(true);
   };
 
   const handleDeleteStagiaire = () => {
@@ -102,7 +95,7 @@ const Stagiaires = () => {
   const handleAddStagiaire = (values: any) => {
     try {
       const newStagiaire: StagiaireType = {
-        id: `${Date.now()}`, // Utilise un timestamp pour l'ID
+        id: `${Date.now()}`,
         nom: values.nom,
         prenom: values.prenom,
         email: values.email,
@@ -116,11 +109,6 @@ const Stagiaires = () => {
       
       setStagiaires([...stagiaires, newStagiaire]);
       setDrawerOpen(false);
-      
-      toast({
-        title: "Stagiaire ajouté",
-        description: "Le nouveau stagiaire a été ajouté avec succès",
-      });
     } catch (error) {
       toast({
         title: "Erreur",
@@ -128,6 +116,45 @@ const Stagiaires = () => {
         variant: "destructive",
       });
     }
+  };
+  
+  const handleEditStagiaire = (values: any) => {
+    if (stagiaireToEdit) {
+      try {
+        const updatedStagiaires = stagiaires.map(s => {
+          if (s.id === stagiaireToEdit.id) {
+            return {
+              ...s,
+              nom: values.nom,
+              prenom: values.prenom,
+              email: values.email,
+              telephone: values.telephone,
+              etablissement: values.etablissement,
+              formation: values.formation,
+              status: values.status,
+              dateDebut: format(values.dateDebut, "dd/MM/yyyy"),
+              dateFin: format(values.dateFin, "dd/MM/yyyy"),
+            };
+          }
+          return s;
+        });
+        
+        setStagiaires(updatedStagiaires);
+        setDrawerOpen(false);
+        setStagiaireToEdit(null);
+      } catch (error) {
+        toast({
+          title: "Erreur",
+          description: "Une erreur s'est produite lors de la modification du stagiaire",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+  
+  const handleCloseDrawer = () => {
+    setDrawerOpen(false);
+    setStagiaireToEdit(null);
   };
   
   return (
@@ -151,15 +178,19 @@ const Stagiaires = () => {
                 <DrawerContent>
                   <div className="mx-auto w-full max-w-3xl">
                     <DrawerHeader className="text-left">
-                      <DrawerTitle>Ajouter un stagiaire</DrawerTitle>
+                      <DrawerTitle>{stagiaireToEdit ? "Modifier un stagiaire" : "Ajouter un stagiaire"}</DrawerTitle>
                       <DrawerDescription>
-                        Remplissez le formulaire ci-dessous pour ajouter un nouveau stagiaire.
+                        {stagiaireToEdit 
+                          ? "Modifiez les informations du stagiaire ci-dessous."
+                          : "Remplissez le formulaire ci-dessous pour ajouter un nouveau stagiaire."}
                       </DrawerDescription>
                     </DrawerHeader>
                     <div className="p-4">
                       <StagiaireForm 
-                        onSubmit={handleAddStagiaire} 
-                        onCancel={() => setDrawerOpen(false)} 
+                        onSubmit={stagiaireToEdit ? handleEditStagiaire : handleAddStagiaire} 
+                        onCancel={handleCloseDrawer}
+                        initialValues={stagiaireToEdit || undefined}
+                        isEdit={!!stagiaireToEdit}
                       />
                     </div>
                   </div>
