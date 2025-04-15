@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, FileCheck, FileText, Plus, Star } from "lucide-react";
+import { Eye, FileText, Plus, FilePdf } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -22,8 +22,9 @@ import {
   DrawerTrigger
 } from "@/components/ui/drawer";
 import { EvaluationForm } from "@/components/evaluations/EvaluationForm";
+import { generatePDF } from "@/utils/pdfUtils";
 
-type EvaluationStatus = "pending" | "submitted" | "reviewed";
+type EvaluationStatus = "pending" | "reviewed";
 
 type Evaluation = {
   id: string;
@@ -76,15 +77,10 @@ const Evaluations = () => {
         className: "bg-warning text-warning-foreground",
         icon: <FileText className="h-4 w-4 mr-1" />
       },
-      submitted: { 
-        label: "Soumise", 
-        className: "bg-info text-info-foreground",
-        icon: <FileCheck className="h-4 w-4 mr-1" />
-      },
       reviewed: { 
         label: "Évaluée", 
         className: "bg-success text-success-foreground",
-        icon: <Star className="h-4 w-4 mr-1" />
+        icon: <Eye className="h-4 w-4 mr-1" />
       },
     };
     
@@ -110,6 +106,24 @@ const Evaluations = () => {
       description: `Visualisation de l'évaluation ID: ${id}`,
     });
   };
+
+  const handleDownloadPDF = () => {
+    if (evaluations.length === 0) {
+      toast({
+        title: "Aucune évaluation",
+        description: "Il n'y a aucune évaluation à télécharger.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    generatePDF(evaluations);
+    
+    toast({
+      title: "Téléchargement en cours",
+      description: "Le rapport d'évaluations est en cours de téléchargement.",
+    });
+  };
   
   return (
     <div className="flex h-screen bg-background">
@@ -122,27 +136,36 @@ const Evaluations = () => {
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-300">Évaluations</h1>
-              <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-                <DrawerTrigger asChild>
-                  <Button className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 transition-all duration-300">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Créer une évaluation
-                  </Button>
-                </DrawerTrigger>
-                <DrawerContent className="dark:bg-slate-800">
-                  <div className="mx-auto w-full max-w-3xl">
-                    <DrawerHeader className="text-left">
-                      <DrawerTitle className="text-2xl font-bold dark:text-white">Créer une évaluation</DrawerTitle>
-                      <DrawerDescription className="dark:text-gray-300">
-                        Remplissez le formulaire ci-dessous pour créer une nouvelle évaluation.
-                      </DrawerDescription>
-                    </DrawerHeader>
-                    <div className="p-4">
-                      <EvaluationForm onSubmit={handleCreateEvaluation} onCancel={() => setDrawerOpen(false)} />
+              <div className="flex gap-2">
+                <Button 
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300"
+                  onClick={handleDownloadPDF}
+                >
+                  <FilePdf className="h-4 w-4 mr-2" />
+                  Télécharger PDF
+                </Button>
+                <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+                  <DrawerTrigger asChild>
+                    <Button className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 transition-all duration-300">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Créer une évaluation
+                    </Button>
+                  </DrawerTrigger>
+                  <DrawerContent className="dark:bg-slate-800">
+                    <div className="mx-auto w-full max-w-3xl">
+                      <DrawerHeader className="text-left">
+                        <DrawerTitle className="text-2xl font-bold dark:text-white">Créer une évaluation</DrawerTitle>
+                        <DrawerDescription className="dark:text-gray-300">
+                          Remplissez le formulaire ci-dessous pour créer une nouvelle évaluation.
+                        </DrawerDescription>
+                      </DrawerHeader>
+                      <div className="p-4">
+                        <EvaluationForm onSubmit={handleCreateEvaluation} onCancel={() => setDrawerOpen(false)} />
+                      </div>
                     </div>
-                  </div>
-                </DrawerContent>
-              </Drawer>
+                  </DrawerContent>
+                </Drawer>
+              </div>
             </div>
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -155,7 +178,6 @@ const Evaluations = () => {
                 <TabsList className="bg-white/50 backdrop-blur-sm dark:bg-slate-800/50">
                   <TabsTrigger value="all">Toutes</TabsTrigger>
                   <TabsTrigger value="pending">En attente</TabsTrigger>
-                  <TabsTrigger value="submitted">Soumises</TabsTrigger>
                   <TabsTrigger value="reviewed">Évaluées</TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -218,16 +240,16 @@ const Evaluations = () => {
                         <div className="flex items-center">
                           <div className={cn(
                             "h-16 w-16 rounded-full flex items-center justify-center text-white",
-                            evaluation.note >= 80 ? "bg-gradient-to-r from-green-400 to-green-600" :
-                            evaluation.note >= 60 ? "bg-gradient-to-r from-blue-400 to-blue-600" :
-                            evaluation.note >= 40 ? "bg-gradient-to-r from-yellow-400 to-yellow-600" :
+                            evaluation.note >= 16 ? "bg-gradient-to-r from-green-400 to-green-600" :
+                            evaluation.note >= 12 ? "bg-gradient-to-r from-blue-400 to-blue-600" :
+                            evaluation.note >= 8 ? "bg-gradient-to-r from-yellow-400 to-yellow-600" :
                             "bg-gradient-to-r from-red-400 to-red-600"
                           )}>
                             <span className="text-xl font-bold">{evaluation.note}</span>
                           </div>
                           <div className="ml-4">
                             <p className="text-sm font-medium dark:text-gray-200">Note</p>
-                            <p className="text-xs text-muted-foreground dark:text-gray-400">sur 100</p>
+                            <p className="text-xs text-muted-foreground dark:text-gray-400">sur 20</p>
                           </div>
                         </div>
                       </div>
@@ -240,7 +262,7 @@ const Evaluations = () => {
                         onClick={() => handleViewEvaluation(evaluation.id)}
                       >
                         <Eye className="h-4 w-4 mr-1" />
-                        {evaluation.status === "submitted" ? "Évaluer" : "Voir"}
+                        Voir
                       </Button>
                     </CardFooter>
                   </Card>

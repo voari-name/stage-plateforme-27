@@ -36,7 +36,7 @@ const formSchema = z.object({
   note: z.coerce
     .number()
     .min(0, { message: "La note ne peut pas être négative." })
-    .max(100, { message: "La note ne peut pas dépasser 100." }),
+    .max(20, { message: "La note ne peut pas dépasser 20." }),
   genre: z.enum(["masculin", "feminin"], {
     required_error: "Veuillez sélectionner le genre.",
   }),
@@ -109,15 +109,15 @@ export function EvaluationForm({ onSubmit, onCancel }: EvaluationFormProps) {
                   <Input 
                     type="number" 
                     min="0" 
-                    max="100" 
+                    max="20" 
                     {...field} 
                     className="dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                   />
-                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">sur 100</div>
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">sur 20</div>
                 </div>
               </FormControl>
               <FormDescription className="dark:text-gray-400">
-                Attribuez une note entre 0 et 100.
+                Attribuez une note entre 0 et 20.
               </FormDescription>
               <FormMessage />
             </FormItem>
