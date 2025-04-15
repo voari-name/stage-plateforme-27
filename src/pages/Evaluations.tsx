@@ -99,9 +99,8 @@ const Evaluations = () => {
   });
 
   const handleDownloadPDF = (id?: string) => {
-    // If id is provided, download PDF for a specific evaluation
     if (id) {
-      const evaluation = evaluations.find(eval => eval.id === id);
+      const evaluation = evaluations.find(item => item.id === id);
       if (evaluation) {
         generatePDF([evaluation]);
         toast({
@@ -112,7 +111,6 @@ const Evaluations = () => {
       }
     }
 
-    // Otherwise download all filtered evaluations
     if (filteredEvaluations.length === 0) {
       toast({
         title: "Aucune évaluation",

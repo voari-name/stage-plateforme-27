@@ -68,7 +68,7 @@ export const generatePDF = (evaluations: Evaluation[]) => {
   });
 
   // Add a footer
-  const pageCount = doc.internal.getNumberOfPages();
+  const pageCount = doc.internal.pages.length;
   for(let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
