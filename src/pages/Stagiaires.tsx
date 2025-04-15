@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -5,13 +6,6 @@ import { StagiaireCard, StagiaireType } from "@/components/stagiaires/StagiaireC
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { 
   Drawer,
   DrawerClose,
@@ -32,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { GraduationCap, Plus, Filter, Edit, Save } from "lucide-react";
+import { GraduationCap, Plus, Edit, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { StagiaireForm } from "@/components/stagiaires/StagiaireForm";
 import { format } from "date-fns";
@@ -44,7 +38,6 @@ const Stagiaires = () => {
   const [stagiaires, setStagiaires] = useState<StagiaireType[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filterType, setFilterType] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [stagiaireToDelete, setStagiaireToDelete] = useState<string | null>(null);
   const [stagiaireToEdit, setStagiaireToEdit] = useState<StagiaireType | null>(null);
@@ -192,10 +185,10 @@ const Stagiaires = () => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
         
-        <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 dark:text-white">
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold text-blue-800">Stagiaires</h1>
+              <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-300">Stagiaires</h1>
               <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
                 <DrawerTrigger asChild>
                   <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300">
@@ -203,7 +196,7 @@ const Stagiaires = () => {
                     Nouveau stagiaire
                   </Button>
                 </DrawerTrigger>
-                <DrawerContent>
+                <DrawerContent className="dark:bg-slate-800">
                   <div className="mx-auto w-full max-w-3xl">
                     <DrawerHeader className="text-left">
                       <DrawerTitle>{stagiaireToEdit ? "Modifier un stagiaire" : "Ajouter un stagiaire"}</DrawerTitle>
@@ -233,7 +226,7 @@ const Stagiaires = () => {
                 onValueChange={setActiveTab}
                 className="w-full sm:w-auto"
               >
-                <TabsList className="bg-white/50 backdrop-blur-sm">
+                <TabsList className="bg-white/50 backdrop-blur-sm dark:bg-slate-800/50">
                   <TabsTrigger value="all">Tous</TabsTrigger>
                   <TabsTrigger value="active">En cours</TabsTrigger>
                   <TabsTrigger value="upcoming">À venir</TabsTrigger>
@@ -241,26 +234,13 @@ const Stagiaires = () => {
                 </TabsList>
               </Tabs>
               
-              <div className="flex w-full sm:w-auto gap-2">
+              <div className="flex w-full sm:w-auto">
                 <Input
                   placeholder="Rechercher un stagiaire..."
-                  className="w-full sm:w-[250px] bg-white/80 border-blue-200"
+                  className="w-full sm:w-[250px] bg-white/80 dark:bg-slate-700/80 border-blue-200 dark:border-blue-900"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Select onValueChange={setFilterType} value={filterType || ""}>
-                  <SelectTrigger className="w-[180px] bg-white/80 border-blue-200">
-                    <div className="flex items-center">
-                      <Filter className="mr-2 h-4 w-4" />
-                      <SelectValue placeholder="Filtrer par" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="formation">Formation</SelectItem>
-                    <SelectItem value="etablissement">Établissement</SelectItem>
-                    <SelectItem value="date">Date</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
             
@@ -275,12 +255,12 @@ const Stagiaires = () => {
               ))}
               
               {filteredStagiaires.length === 0 && (
-                <div className="col-span-full flex flex-col items-center justify-center py-12 text-center bg-white/50 backdrop-blur-sm rounded-xl shadow-md">
-                  <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                    <GraduationCap className="h-10 w-10 text-blue-600" />
+                <div className="col-span-full flex flex-col items-center justify-center py-12 text-center bg-white/50 backdrop-blur-sm rounded-xl shadow-md dark:bg-slate-800/50 dark:text-white">
+                  <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-4">
+                    <GraduationCap className="h-10 w-10 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="font-medium text-xl mb-2 text-blue-800">Aucun stagiaire trouvé</h3>
-                  <p className="text-muted-foreground mb-6 max-w-md">
+                  <h3 className="font-medium text-xl mb-2 text-blue-800 dark:text-blue-300">Aucun stagiaire trouvé</h3>
+                  <p className="text-muted-foreground dark:text-gray-400 mb-6 max-w-md">
                     {stagiaires.length === 0 
                       ? "Ajoutez votre premier stagiaire en cliquant sur le bouton \"Nouveau stagiaire\"."
                       : "Aucun stagiaire ne correspond à vos filtres."}
@@ -289,8 +269,7 @@ const Stagiaires = () => {
                     <Button variant="outline" onClick={() => {
                       setActiveTab("all");
                       setSearchTerm("");
-                      setFilterType(null);
-                    }}>
+                    }} className="dark:text-white dark:border-blue-700">
                       Réinitialiser les filtres
                     </Button>
                   )}

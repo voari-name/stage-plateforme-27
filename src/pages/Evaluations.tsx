@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -7,20 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, FileText, Plus, FileDown } from "lucide-react";
+import { Eye, FileText, FileDown, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Drawer,
-  DrawerClose,
-  DrawerContent, 
-  DrawerDescription, 
-  DrawerFooter, 
-  DrawerHeader, 
-  DrawerTitle,
-  DrawerTrigger
-} from "@/components/ui/drawer";
-import { EvaluationForm } from "@/components/evaluations/EvaluationForm";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { generatePDF } from "@/utils/pdfUtils";
 
 type EvaluationStatus = "pending" | "reviewed";
@@ -39,7 +39,7 @@ const Evaluations = () => {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [evaluationToDelete, setEvaluationToDelete] = useState<string | null>(null);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -48,25 +48,6 @@ const Evaluations = () => {
       setEvaluations(JSON.parse(savedEvaluations));
     }
   }, []);
-  
-  const handleCreateEvaluation = (newEvaluation: Omit<Evaluation, "id" | "date" | "status">) => {
-    const evaluation: Evaluation = {
-      ...newEvaluation,
-      id: Date.now().toString(),
-      date: new Date().toLocaleDateString('fr-FR'),
-      status: "pending"
-    };
-    
-    const updatedEvaluations = [...evaluations, evaluation];
-    setEvaluations(updatedEvaluations);
-    localStorage.setItem("evaluations", JSON.stringify(updatedEvaluations));
-    
-    setDrawerOpen(false);
-    toast({
-      title: "Évaluation créée",
-      description: `L'évaluation pour ${evaluation.prenom} ${evaluation.nom} a été créée avec succès.`,
-    });
-  };
   
   const getEvaluationStatusConfig = (status: EvaluationStatus) => {
     const config = {
@@ -127,6 +108,23 @@ const Evaluations = () => {
       description: "Le rapport d'évaluations est en cours de téléchargement.",
     });
   };
+
+  const handleDeleteEvaluation = () => {
+    if (evaluationToDelete) {
+      const evaluationToRemove = evaluations.find(item => item.id === evaluationToDelete);
+      if (evaluationToRemove) {
+        const updatedEvaluations = evaluations.filter(item => item.id !== evaluationToDelete);
+        setEvaluations(updatedEvaluations);
+        localStorage.setItem("evaluations", JSON.stringify(updatedEvaluations));
+        
+        toast({
+          title: "Évaluation supprimée",
+          description: `L'évaluation de ${evaluationToRemove.prenom} ${evaluationToRemove.nom} a été supprimée avec succès.`,
+        });
+      }
+      setEvaluationToDelete(null);
+    }
+  };
   
   return (
     <div className="flex h-screen bg-background">
@@ -147,27 +145,6 @@ const Evaluations = () => {
                   <FileDown className="h-4 w-4 mr-2" />
                   Télécharger PDF
                 </Button>
-                <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-                  <DrawerTrigger asChild>
-                    <Button className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 transition-all duration-300">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Créer une évaluation
-                    </Button>
-                  </DrawerTrigger>
-                  <DrawerContent className="dark:bg-slate-800">
-                    <div className="mx-auto w-full max-w-3xl">
-                      <DrawerHeader className="text-left">
-                        <DrawerTitle className="text-2xl font-bold dark:text-white">Créer une évaluation</DrawerTitle>
-                        <DrawerDescription className="dark:text-gray-300">
-                          Remplissez le formulaire ci-dessous pour créer une nouvelle évaluation.
-                        </DrawerDescription>
-                      </DrawerHeader>
-                      <div className="p-4">
-                        <EvaluationForm onSubmit={handleCreateEvaluation} onCancel={() => setDrawerOpen(false)} />
-                      </div>
-                    </div>
-                  </DrawerContent>
-                </Drawer>
               </div>
             </div>
             
@@ -261,6 +238,14 @@ const Evaluations = () => {
                     <CardFooter className="border-t border-blue-100 dark:border-blue-900 pt-4 flex justify-end gap-2">
                       <Button
                         size="sm"
+                        variant="destructive"
+                        onClick={() => setEvaluationToDelete(evaluation.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Supprimer
+                      </Button>
+                      <Button
+                        size="sm"
                         className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
                         onClick={() => handleDownloadPDF(evaluation.id)}
                       >
@@ -281,20 +266,11 @@ const Evaluations = () => {
                   <p className="text-muted-foreground dark:text-gray-400 mb-4">
                     {searchTerm 
                       ? "Aucune évaluation ne correspond à votre recherche."
-                      : "Commencez par créer une nouvelle évaluation !"}
+                      : "Vous n'avez pas encore d'évaluation enregistrée."}
                   </p>
                   {searchTerm && (
                     <Button variant="outline" onClick={() => setSearchTerm("")} className="dark:text-white dark:border-blue-700">
                       Réinitialiser la recherche
-                    </Button>
-                  )}
-                  {!searchTerm && (
-                    <Button 
-                      onClick={() => setDrawerOpen(true)}
-                      className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Créer une évaluation
                     </Button>
                   )}
                 </div>
@@ -303,6 +279,28 @@ const Evaluations = () => {
           </div>
         </main>
       </div>
+      
+      <AlertDialog open={!!evaluationToDelete} onOpenChange={(open) => {
+        if (!open) setEvaluationToDelete(null);
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer cette évaluation ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteEvaluation}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

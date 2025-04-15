@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Bell, Search, User, LogOut } from "lucide-react";
+import { Bell, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -84,15 +83,7 @@ export function Header() {
 
   return (
     <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-full items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <Search className="h-5 w-5 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Rechercher..."
-            className="h-9 md:w-[300px] lg:w-[400px]"
-          />
-        </div>
+      <div className="flex h-full items-center justify-end px-4">
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
