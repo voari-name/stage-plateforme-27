@@ -60,48 +60,54 @@ export function EvaluationForm({ onSubmit, onCancel }: EvaluationFormProps) {
       note: values.note,
       genre: values.genre
     });
+    
+    // Reset form after submission
+    form.reset({
+      nom: "",
+      prenom: "",
+      note: 0,
+      genre: "masculin",
+    });
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="nom"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="dark:text-gray-200">Nom</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Nom du stagiaire" 
-                    {...field}
-                    className="dark:bg-slate-700 dark:border-slate-600 dark:text-white" 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="prenom"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="dark:text-gray-200">Prénom</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Prénom du stagiaire" 
-                    {...field} 
-                    className="dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="nom"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="dark:text-gray-200">Nom</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Nom du stagiaire" 
+                  {...field}
+                  className="dark:bg-slate-700 dark:border-slate-600 dark:text-white" 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="prenom"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="dark:text-gray-200">Prénom</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Prénom du stagiaire" 
+                  {...field} 
+                  className="dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -164,22 +170,12 @@ export function EvaluationForm({ onSubmit, onCancel }: EvaluationFormProps) {
           )}
         />
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onCancel}
-            className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-          >
-            Annuler
-          </Button>
-          <Button 
-            type="submit" 
-            className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-          >
-            Créer l'évaluation
-          </Button>
-        </div>
+        <Button 
+          type="submit" 
+          className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+        >
+          Créer l'évaluation
+        </Button>
       </form>
     </Form>
   );
