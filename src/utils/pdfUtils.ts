@@ -1,13 +1,6 @@
 
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
-
-// Add the necessary type definitions for jspdf-autotable
-declare module "jspdf" {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
+import autoTable from "jspdf-autotable";
 
 type Evaluation = {
   id: string;
@@ -52,7 +45,7 @@ export const generatePDF = (evaluations: Evaluation[]) => {
   });
 
   // Add the table to the PDF
-  doc.autoTable({
+  autoTable(doc, {
     head: [tableColumn],
     body: tableRows,
     startY: 40,
@@ -75,7 +68,7 @@ export const generatePDF = (evaluations: Evaluation[]) => {
   });
 
   // Add a footer
-  const pageCount = (doc as any).internal.pages.length;
+  const pageCount = doc.internal.getNumberOfPages();
   for(let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
@@ -88,6 +81,7 @@ export const generatePDF = (evaluations: Evaluation[]) => {
     );
   }
 
-  // Save the PDF
-  doc.save("evaluations-stagiaires.pdf");
+  // Save the PDF with a timestamp to ensure unique filenames
+  const timestamp = new Date().getTime();
+  doc.save(`evaluations-stagiaires-${timestamp}.pdf`);
 };

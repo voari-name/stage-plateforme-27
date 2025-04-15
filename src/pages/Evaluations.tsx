@@ -97,16 +97,23 @@ const Evaluations = () => {
     
     return true;
   });
-  
-  const handleViewEvaluation = (id: string) => {
-    toast({
-      title: "Affichage de l'évaluation",
-      description: `Visualisation de l'évaluation ID: ${id}`,
-    });
-  };
 
-  const handleDownloadPDF = () => {
-    if (evaluations.length === 0) {
+  const handleDownloadPDF = (id?: string) => {
+    // If id is provided, download PDF for a specific evaluation
+    if (id) {
+      const evaluation = evaluations.find(eval => eval.id === id);
+      if (evaluation) {
+        generatePDF([evaluation]);
+        toast({
+          title: "Téléchargement en cours",
+          description: `Le rapport d'évaluation pour ${evaluation.prenom} ${evaluation.nom} est en cours de téléchargement.`,
+        });
+        return;
+      }
+    }
+
+    // Otherwise download all filtered evaluations
+    if (filteredEvaluations.length === 0) {
       toast({
         title: "Aucune évaluation",
         description: "Il n'y a aucune évaluation à télécharger.",
@@ -115,7 +122,7 @@ const Evaluations = () => {
       return;
     }
 
-    generatePDF(evaluations);
+    generatePDF(filteredEvaluations);
     
     toast({
       title: "Téléchargement en cours",
@@ -137,7 +144,7 @@ const Evaluations = () => {
               <div className="flex gap-2">
                 <Button 
                   className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300"
-                  onClick={handleDownloadPDF}
+                  onClick={() => handleDownloadPDF()}
                 >
                   <FileDown className="h-4 w-4 mr-2" />
                   Télécharger PDF
@@ -257,10 +264,10 @@ const Evaluations = () => {
                       <Button
                         size="sm"
                         className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-                        onClick={() => handleViewEvaluation(evaluation.id)}
+                        onClick={() => handleDownloadPDF(evaluation.id)}
                       >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Voir
+                        <FileDown className="h-4 w-4 mr-1" />
+                        Télécharger PDF
                       </Button>
                     </CardFooter>
                   </Card>
