@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -8,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, FileText, Plus, FilePdf } from "lucide-react";
+import { Eye, FileText, Plus, FileDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -43,7 +42,6 @@ const Evaluations = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
   
-  // Charger les évaluations du localStorage
   useEffect(() => {
     const savedEvaluations = localStorage.getItem("evaluations");
     if (savedEvaluations) {
@@ -141,7 +139,7 @@ const Evaluations = () => {
                   className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300"
                   onClick={handleDownloadPDF}
                 >
-                  <FilePdf className="h-4 w-4 mr-2" />
+                  <FileDown className="h-4 w-4 mr-2" />
                   Télécharger PDF
                 </Button>
                 <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>

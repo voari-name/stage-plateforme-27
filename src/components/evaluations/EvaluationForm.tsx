@@ -54,7 +54,12 @@ export function EvaluationForm({ onSubmit, onCancel }: EvaluationFormProps) {
   });
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
-    onSubmit(values);
+    onSubmit({
+      nom: values.nom,
+      prenom: values.prenom,
+      note: values.note,
+      genre: values.genre
+    });
   }
 
   return (
