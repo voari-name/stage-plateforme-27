@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, FileText, FileDown, Trash2 } from "lucide-react";
+import { Eye, FileText, FileDown, Trash2, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -20,6 +20,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { EvaluationForm } from "@/components/evaluations/EvaluationForm";
 import { generatePDF } from "@/utils/pdfUtils";
 
@@ -39,6 +47,7 @@ const Evaluations = () => {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [evaluationToDelete, setEvaluationToDelete] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -142,13 +151,40 @@ const Evaluations = () => {
               <div className="lg:col-span-2">
                 <div className="flex items-center justify-between mb-6">
                   <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-300">Évaluations</h1>
-                  <Button 
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300"
-                    onClick={() => handleDownloadPDF()}
-                  >
-                    <FileDown className="h-4 w-4 mr-2" />
-                    Télécharger PDF
-                  </Button>
+                  <div className="flex gap-2">
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 transition-all duration-300"
+                        >
+                          <PlusCircle className="h-4 w-4 mr-2" />
+                          Créer une évaluation
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Nouvelle évaluation</DialogTitle>
+                          <DialogDescription>
+                            Remplissez le formulaire pour créer une nouvelle évaluation de stage
+                          </DialogDescription>
+                        </DialogHeader>
+                        <EvaluationForm 
+                          onSubmit={(data) => {
+                            handleCreateEvaluation(data);
+                            setIsDialogOpen(false);
+                          }} 
+                          onCancel={() => setIsDialogOpen(false)}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                    <Button 
+                      className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300"
+                      onClick={() => handleDownloadPDF()}
+                    >
+                      <FileDown className="h-4 w-4 mr-2" />
+                      Télécharger PDF
+                    </Button>
+                  </div>
                 </div>
                 
                 <div className="mb-6">
@@ -264,20 +300,55 @@ const Evaluations = () => {
                 </div>
               </div>
 
-              {/* Colonne de droite - Formulaire d'évaluation */}
+              {/* Colonne de droite - Statistiques et infos */}
               <div className="lg:col-span-1">
-                <Card className="border-blue-200 dark:border-blue-900 dark:bg-slate-800">
+                <Card className="border-blue-200 dark:border-blue-900 dark:bg-slate-800 mb-6">
                   <CardHeader>
-                    <h2 className="text-xl font-semibold dark:text-white">Nouvelle évaluation</h2>
+                    <h2 className="text-xl font-semibold dark:text-white">Résumé des évaluations</h2>
                     <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Créez une nouvelle évaluation de stage
+                      Statistiques et informations sur les évaluations
                     </p>
                   </CardHeader>
                   <CardContent>
-                    <EvaluationForm 
-                      onSubmit={handleCreateEvaluation} 
-                      onCancel={() => {}} // Pas besoin de fonction d'annulation ici
-                    />
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground dark:text-gray-400">Nombre total</p>
+                          <p className="text-2xl font-bold dark:text-white">{evaluations.length}</p>
+                        </div>
+                        <div className="h-10 w-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
+                          <FileText className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-center mt-6">
+                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button 
+                              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+                            >
+                              <PlusCircle className="h-4 w-4 mr-2" />
+                              Créer une évaluation
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>Nouvelle évaluation</DialogTitle>
+                              <DialogDescription>
+                                Remplissez le formulaire pour créer une nouvelle évaluation de stage
+                              </DialogDescription>
+                            </DialogHeader>
+                            <EvaluationForm 
+                              onSubmit={(data) => {
+                                handleCreateEvaluation(data);
+                                setIsDialogOpen(false);
+                              }} 
+                              onCancel={() => setIsDialogOpen(false)}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
