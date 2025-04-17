@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FilePenLine } from "lucide-react";
 
 type EvaluationFormProps = {
   onSubmit: (data: {
@@ -170,12 +171,22 @@ export function EvaluationForm({ onSubmit, onCancel }: EvaluationFormProps) {
           )}
         />
 
-        <Button 
-          type="submit" 
-          className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-        >
-          Créer l'évaluation
-        </Button>
+        <div className="flex gap-2 pt-2">
+          <Button 
+            type="submit" 
+            className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+          >
+            <FilePenLine className="h-4 w-4 mr-2" /> Créer l'évaluation
+          </Button>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            className="flex-1"
+          >
+            Annuler
+          </Button>
+        </div>
       </form>
     </Form>
   );

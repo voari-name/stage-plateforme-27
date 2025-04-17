@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -7,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, FileText, FileDown, Trash2, PlusCircle } from "lucide-react";
+import { Eye, FileText, FileDown, Trash2, PlusCircle, FilePenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -27,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { EvaluationForm } from "@/components/evaluations/EvaluationForm";
 import { generatePDF } from "@/utils/pdfUtils";
@@ -48,6 +48,7 @@ const Evaluations = () => {
   const [activeTab, setActiveTab] = useState<string>("all");
   const [evaluationToDelete, setEvaluationToDelete] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -73,6 +74,9 @@ const Evaluations = () => {
       title: "Évaluation créée",
       description: `L'évaluation pour ${evaluation.prenom} ${evaluation.nom} a été créée avec succès.`,
     });
+    
+    setShowForm(false);
+    setIsDialogOpen(false);
   };
   
   const getEvaluationStatusConfig = (status: EvaluationStatus) => {
@@ -137,6 +141,11 @@ const Evaluations = () => {
     }
   };
   
+  const handleCloseDialog = () => {
+    setShowForm(false);
+    setIsDialogOpen(false);
+  };
+  
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
@@ -165,16 +174,40 @@ const Evaluations = () => {
                         <DialogHeader>
                           <DialogTitle>Nouvelle évaluation</DialogTitle>
                           <DialogDescription>
-                            Remplissez le formulaire pour créer une nouvelle évaluation de stage
+                            Formulaire de création d'une évaluation de stage
                           </DialogDescription>
                         </DialogHeader>
-                        <EvaluationForm 
-                          onSubmit={(data) => {
-                            handleCreateEvaluation(data);
-                            setIsDialogOpen(false);
-                          }} 
-                          onCancel={() => setIsDialogOpen(false)}
-                        />
+                        
+                        {showForm ? (
+                          <EvaluationForm 
+                            onSubmit={handleCreateEvaluation} 
+                            onCancel={handleCloseDialog}
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center py-4 space-y-4">
+                            <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-2">
+                              <FilePenLine className="h-10 w-10 text-blue-600 dark:text-blue-300" />
+                            </div>
+                            <h3 className="font-medium text-lg text-center">Formulaire d'évaluation</h3>
+                            <p className="text-sm text-muted-foreground text-center dark:text-gray-400 mb-2">
+                              Cliquez sur le bouton ci-dessous pour ouvrir le formulaire d'évaluation.
+                            </p>
+                            <Button 
+                              onClick={() => setShowForm(true)}
+                              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+                            >
+                              <FilePenLine className="h-4 w-4 mr-2" />
+                              Ouvrir le formulaire
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              onClick={handleCloseDialog}
+                              className="w-full mt-2"
+                            >
+                              Annuler
+                            </Button>
+                          </div>
+                        )}
                       </DialogContent>
                     </Dialog>
                     <Button 
@@ -331,21 +364,6 @@ const Evaluations = () => {
                               Créer une évaluation
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="sm:max-w-md">
-                            <DialogHeader>
-                              <DialogTitle>Nouvelle évaluation</DialogTitle>
-                              <DialogDescription>
-                                Remplissez le formulaire pour créer une nouvelle évaluation de stage
-                              </DialogDescription>
-                            </DialogHeader>
-                            <EvaluationForm 
-                              onSubmit={(data) => {
-                                handleCreateEvaluation(data);
-                                setIsDialogOpen(false);
-                              }} 
-                              onCancel={() => setIsDialogOpen(false)}
-                            />
-                          </DialogContent>
                         </Dialog>
                       </div>
                     </div>
