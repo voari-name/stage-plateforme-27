@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -47,8 +48,7 @@ const Evaluations = () => {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [evaluationToDelete, setEvaluationToDelete] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -75,8 +75,7 @@ const Evaluations = () => {
       description: `L'évaluation pour ${evaluation.prenom} ${evaluation.nom} a été créée avec succès.`,
     });
     
-    setShowForm(false);
-    setIsDialogOpen(false);
+    setIsFormDialogOpen(false);
   };
   
   const getEvaluationStatusConfig = (status: EvaluationStatus) => {
@@ -141,11 +140,6 @@ const Evaluations = () => {
     }
   };
   
-  const handleCloseDialog = () => {
-    setShowForm(false);
-    setIsDialogOpen(false);
-  };
-  
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
@@ -161,13 +155,13 @@ const Evaluations = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-300">Évaluations</h1>
                   <div className="flex gap-2">
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
                       <DialogTrigger asChild>
                         <Button 
                           className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 transition-all duration-300"
                         >
                           <PlusCircle className="h-4 w-4 mr-2" />
-                          Créer une évaluation
+                          Créer
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
@@ -178,36 +172,10 @@ const Evaluations = () => {
                           </DialogDescription>
                         </DialogHeader>
                         
-                        {showForm ? (
-                          <EvaluationForm 
-                            onSubmit={handleCreateEvaluation} 
-                            onCancel={handleCloseDialog}
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center py-4 space-y-4">
-                            <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-2">
-                              <FilePenLine className="h-10 w-10 text-blue-600 dark:text-blue-300" />
-                            </div>
-                            <h3 className="font-medium text-lg text-center">Formulaire d'évaluation</h3>
-                            <p className="text-sm text-muted-foreground text-center dark:text-gray-400 mb-2">
-                              Cliquez sur le bouton ci-dessous pour ouvrir le formulaire d'évaluation.
-                            </p>
-                            <Button 
-                              onClick={() => setShowForm(true)}
-                              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-                            >
-                              <FilePenLine className="h-4 w-4 mr-2" />
-                              Ouvrir le formulaire
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              onClick={handleCloseDialog}
-                              className="w-full mt-2"
-                            >
-                              Annuler
-                            </Button>
-                          </div>
-                        )}
+                        <EvaluationForm 
+                          onSubmit={handleCreateEvaluation} 
+                          onCancel={() => setIsFormDialogOpen(false)}
+                        />
                       </DialogContent>
                     </Dialog>
                     <Button 
@@ -355,7 +323,7 @@ const Evaluations = () => {
                       </div>
                       
                       <div className="flex justify-center mt-6">
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                        <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
                           <DialogTrigger asChild>
                             <Button 
                               className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
