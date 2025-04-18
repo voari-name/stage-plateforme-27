@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Bell, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,19 +19,16 @@ export function Header() {
   const { toast } = useToast();
   
   useEffect(() => {
-    // Récupérer le nom d'utilisateur stocké
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
       setUsername(storedUsername);
     }
     
-    // Récupérer les notifications depuis le localStorage
     const storedNotifications = localStorage.getItem("notifications");
     if (storedNotifications) {
       setNotifications(JSON.parse(storedNotifications));
     }
 
-    // Écouter les événements personnalisés pour les notifications
     const handleNotification = (e: CustomEvent) => {
       const newNotification = e.detail;
       setNotifications(prev => {
@@ -42,10 +38,8 @@ export function Header() {
       });
     };
 
-    // Ajouter l'écouteur d'événement
     window.addEventListener('app:notification' as any, handleNotification as EventListener);
     
-    // Nettoyer l'écouteur d'événement
     return () => {
       window.removeEventListener('app:notification' as any, handleNotification as EventListener);
     };
@@ -55,7 +49,6 @@ export function Header() {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("username");
     
-    // Ajouter une notification de déconnexion
     const logoutNotification = {
       id: Date.now().toString(),
       title: "Déconnexion réussie",
@@ -150,14 +143,9 @@ export function Header() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel className="flex flex-col">
-                <span>Mon compte</span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  {username || "Utilisateur"}
-                </span>
+              <DropdownMenuLabel>
+                <span>{username || "Utilisateur"}</span>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/profil')}>Profil</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                 <LogOut className="h-4 w-4 mr-2" />
