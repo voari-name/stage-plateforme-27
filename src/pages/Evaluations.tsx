@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -82,6 +81,9 @@ const Evaluations = () => {
       "Nouvelle évaluation",
       `Une évaluation a été créée pour ${evaluation.prenom} ${evaluation.nom}.`
     );
+    
+    // Automatically switch to "Évaluer" tab
+    setActiveTab("reviewed");
     
     setShowForm(false);
     setIsDialogOpen(false);
@@ -374,4 +376,3 @@ const Evaluations = () => {
 };
 
 export default Evaluations;
-
