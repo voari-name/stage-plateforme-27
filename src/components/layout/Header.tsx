@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, User, LogOut } from "lucide-react";
+import { Bell, User, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -61,6 +61,10 @@ export function Header() {
     });
     
     navigate("/login");
+  };
+
+  const handleSettings = () => {
+    navigate("/parametres");
   };
 
   const handleClearNotification = (id: string) => {
@@ -147,6 +151,10 @@ export function Header() {
                 <span>{username || "Utilisateur"}</span>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSettings}>
+                <Settings className="h-4 w-4 mr-2" />
+                Paramètres
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                 <LogOut className="h-4 w-4 mr-2" />
                 Déconnexion
