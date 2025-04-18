@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -305,28 +306,29 @@ const Evaluations = () => {
                               <p className="text-xs text-muted-foreground dark:text-gray-400">sur 20</p>
                             </div>
                           </div>
-                        </CardContent>
-                        
-                        <CardFooter className="border-t border-blue-100 dark:border-blue-900 pt-4 flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => setEvaluationToDelete(evaluation.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Supprimer
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-                            onClick={() => handleDownloadPDF(evaluation.id)}
-                          >
-                            <FileDown className="h-4 w-4 mr-1" />
-                            Télécharger PDF
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    );
+                        </div>
+                      </CardContent>
+                      
+                      <CardFooter className="border-t border-blue-100 dark:border-blue-900 pt-4 flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => setEvaluationToDelete(evaluation.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Supprimer
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+                          onClick={() => handleDownloadPDF(evaluation.id)}
+                        >
+                          <FileDown className="h-4 w-4 mr-1" />
+                          Télécharger PDF
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
                 })}
                 
                 {filteredEvaluations.length === 0 && (
@@ -372,3 +374,4 @@ const Evaluations = () => {
 };
 
 export default Evaluations;
+
