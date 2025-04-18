@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -48,7 +47,8 @@ const Evaluations = () => {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [evaluationToDelete, setEvaluationToDelete] = useState<string | null>(null);
-  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -75,7 +75,13 @@ const Evaluations = () => {
       description: `L'évaluation pour ${evaluation.prenom} ${evaluation.nom} a été créée avec succès.`,
     });
     
-    setIsFormDialogOpen(false);
+    setShowForm(false);
+    setIsDialogOpen(false);
+  };
+  
+  const handleCloseDialog = () => {
+    setShowForm(false);
+    setIsDialogOpen(false);
   };
   
   const getEvaluationStatusConfig = (status: EvaluationStatus) => {
@@ -150,18 +156,17 @@ const Evaluations = () => {
         <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 dark:text-white">
           <div className="mx-auto max-w-7xl">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Colonne de gauche - Liste des évaluations */}
               <div className="lg:col-span-2">
                 <div className="flex items-center justify-between mb-6">
                   <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-300">Évaluations</h1>
                   <div className="flex gap-2">
-                    <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                       <DialogTrigger asChild>
                         <Button 
                           className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 transition-all duration-300"
                         >
                           <PlusCircle className="h-4 w-4 mr-2" />
-                          Créer
+                          Créer une évaluation
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-md">
@@ -172,10 +177,36 @@ const Evaluations = () => {
                           </DialogDescription>
                         </DialogHeader>
                         
-                        <EvaluationForm 
-                          onSubmit={handleCreateEvaluation} 
-                          onCancel={() => setIsFormDialogOpen(false)}
-                        />
+                        {showForm ? (
+                          <EvaluationForm 
+                            onSubmit={handleCreateEvaluation} 
+                            onCancel={handleCloseDialog}
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center py-4 space-y-4">
+                            <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-2">
+                              <FilePenLine className="h-10 w-10 text-blue-600 dark:text-blue-300" />
+                            </div>
+                            <h3 className="font-medium text-lg text-center">Formulaire d'évaluation</h3>
+                            <p className="text-sm text-muted-foreground text-center dark:text-gray-400 mb-2">
+                              Cliquez sur le bouton ci-dessous pour ouvrir le formulaire d'évaluation.
+                            </p>
+                            <Button 
+                              onClick={() => setShowForm(true)}
+                              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+                            >
+                              <FilePenLine className="h-4 w-4 mr-2" />
+                              Ouvrir le formulaire
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              onClick={handleCloseDialog}
+                              className="w-full mt-2"
+                            >
+                              Annuler
+                            </Button>
+                          </div>
+                        )}
                       </DialogContent>
                     </Dialog>
                     <Button 
@@ -301,7 +332,6 @@ const Evaluations = () => {
                 </div>
               </div>
 
-              {/* Colonne de droite - Statistiques et infos */}
               <div className="lg:col-span-1">
                 <Card className="border-blue-200 dark:border-blue-900 dark:bg-slate-800 mb-6">
                   <CardHeader>
@@ -323,7 +353,7 @@ const Evaluations = () => {
                       </div>
                       
                       <div className="flex justify-center mt-6">
-                        <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
+                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                           <DialogTrigger asChild>
                             <Button 
                               className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
