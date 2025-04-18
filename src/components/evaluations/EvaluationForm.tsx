@@ -44,6 +44,7 @@ const formSchema = z.object({
 });
 
 export function EvaluationForm({ onSubmit, onCancel }: EvaluationFormProps) {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,6 +56,15 @@ export function EvaluationForm({ onSubmit, onCancel }: EvaluationFormProps) {
   });
 
   function handleSubmit(values: z.infer<typeof formSchema>) {
+    if (Object.keys(form.formState.errors).length > 0) {
+      toast({
+        title: "Erreur de validation",
+        description: "Veuillez corriger les erreurs dans le formulaire",
+        variant: "destructive",
+      });
+      return;
+    }
+
     onSubmit({
       nom: values.nom,
       prenom: values.prenom,

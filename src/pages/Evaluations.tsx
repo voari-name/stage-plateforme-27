@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, FileText, FileDown, Trash2, PlusCircle, FilePenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { addNotification } from "@/utils/notificationUtils";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -70,10 +71,16 @@ const Evaluations = () => {
     setEvaluations(updatedEvaluations);
     localStorage.setItem("evaluations", JSON.stringify(updatedEvaluations));
     
+    // Add both toast and notification
     toast({
       title: "Évaluation créée",
       description: `L'évaluation pour ${evaluation.prenom} ${evaluation.nom} a été créée avec succès.`,
     });
+    
+    addNotification(
+      "Nouvelle évaluation",
+      `Une évaluation a été créée pour ${evaluation.prenom} ${evaluation.nom}.`
+    );
     
     setShowForm(false);
     setIsDialogOpen(false);
@@ -155,143 +162,147 @@ const Evaluations = () => {
         
         <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 dark:text-white">
           <div className="mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <div className="flex items-center justify-between mb-6">
-                  <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-300">Évaluations</h1>
-                  <div className="flex gap-2">
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button 
-                          className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 transition-all duration-300"
-                        >
-                          <PlusCircle className="h-4 w-4 mr-2" />
-                          Créer une évaluation
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Nouvelle évaluation</DialogTitle>
-                          <DialogDescription>
-                            Formulaire de création d'une évaluation de stage
-                          </DialogDescription>
-                        </DialogHeader>
-                        
-                        {showForm ? (
-                          <EvaluationForm 
-                            onSubmit={handleCreateEvaluation} 
-                            onCancel={handleCloseDialog}
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center py-4 space-y-4">
-                            <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-2">
-                              <FilePenLine className="h-10 w-10 text-blue-600 dark:text-blue-300" />
-                            </div>
-                            <h3 className="font-medium text-lg text-center">Formulaire d'évaluation</h3>
-                            <p className="text-sm text-muted-foreground text-center dark:text-gray-400 mb-2">
-                              Cliquez sur le bouton ci-dessous pour ouvrir le formulaire d'évaluation.
-                            </p>
-                            <Button 
-                              onClick={() => setShowForm(true)}
-                              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-                            >
-                              <FilePenLine className="h-4 w-4 mr-2" />
-                              Ouvrir le formulaire
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              onClick={handleCloseDialog}
-                              className="w-full mt-2"
-                            >
-                              Annuler
-                            </Button>
+            <div className="w-full">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-300">Évaluations</h1>
+                <div className="flex gap-2">
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 transition-all duration-300"
+                      >
+                        <PlusCircle className="h-4 w-4 mr-2" />
+                        Créer une évaluation
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Nouvelle évaluation</DialogTitle>
+                        <DialogDescription>
+                          Formulaire de création d'une évaluation de stage
+                        </DialogDescription>
+                      </DialogHeader>
+                      
+                      {showForm ? (
+                        <EvaluationForm 
+                          onSubmit={handleCreateEvaluation} 
+                          onCancel={() => {
+                            setShowForm(false);
+                            setIsDialogOpen(false);
+                          }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center py-4 space-y-4">
+                          <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-2">
+                            <FilePenLine className="h-10 w-10 text-blue-600 dark:text-blue-300" />
                           </div>
-                        )}
-                      </DialogContent>
-                    </Dialog>
-                    <Button 
-                      className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300"
-                      onClick={() => handleDownloadPDF()}
-                    >
-                      <FileDown className="h-4 w-4 mr-2" />
-                      Télécharger PDF
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="mb-6">
-                  <Tabs
-                    defaultValue="all"
-                    value={activeTab}
-                    onValueChange={setActiveTab}
-                    className="w-full"
+                          <h3 className="font-medium text-lg text-center">Formulaire d'évaluation</h3>
+                          <p className="text-sm text-muted-foreground text-center dark:text-gray-400 mb-2">
+                            Cliquez sur le bouton ci-dessous pour ouvrir le formulaire d'évaluation.
+                          </p>
+                          <Button 
+                            onClick={() => setShowForm(true)}
+                            className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+                          >
+                            <FilePenLine className="h-4 w-4 mr-2" />
+                            Ouvrir le formulaire
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setShowForm(false);
+                              setIsDialogOpen(false);
+                            }}
+                            className="w-full mt-2"
+                          >
+                            Annuler
+                          </Button>
+                        </div>
+                      )}
+                    </DialogContent>
+                  </Dialog>
+                  <Button 
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300"
+                    onClick={() => handleDownloadPDF()}
                   >
-                    <TabsList className="bg-white/50 backdrop-blur-sm dark:bg-slate-800/50 w-full md:w-auto">
-                      <TabsTrigger value="all" className="flex-1 md:flex-none">Toutes</TabsTrigger>
-                      <TabsTrigger value="reviewed" className="flex-1 md:flex-none">Évaluées</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
+                    <FileDown className="h-4 w-4 mr-2" />
+                    Télécharger PDF
+                  </Button>
                 </div>
-                
-                <div className="space-y-4">
-                  {filteredEvaluations.map((evaluation) => {
-                    const statusConfig = getEvaluationStatusConfig(evaluation.status);
-                    
-                    return (
-                      <Card key={evaluation.id} className="hover:shadow-lg transition-all duration-300 border-blue-200 dark:border-blue-900 dark:bg-slate-800">
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between items-start">
-                            <div className="flex items-center gap-4">
-                              <Avatar className="h-10 w-10 border-2 border-blue-200 dark:border-blue-700">
-                                <AvatarFallback className={cn(
-                                  "bg-gradient-to-br text-white",
-                                  evaluation.genre === "feminin" ? "from-pink-400 to-rose-500" : "from-blue-400 to-indigo-500"
-                                )}>
-                                  {evaluation.prenom[0]}
-                                  {evaluation.nom[0]}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <h3 className="font-medium text-lg dark:text-white">Évaluation de stage</h3>
-                                <p className="text-sm text-muted-foreground dark:text-gray-300">
-                                  {evaluation.prenom} {evaluation.nom}
-                                </p>
-                              </div>
-                            </div>
-                            <Badge className={cn("font-normal flex items-center", statusConfig.className)}>
-                              {statusConfig.icon}
-                              {statusConfig.label}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        
-                        <CardContent className="pb-2">
-                          <div className="flex flex-col md:flex-row justify-between gap-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center text-sm">
-                                <span className="text-muted-foreground dark:text-gray-400 min-w-28">Genre:</span>
-                                <span className="dark:text-white">{evaluation.genre === "masculin" ? "Masculin" : "Féminin"}</span>
-                              </div>
-                              <div className="flex items-center text-sm">
-                                <span className="text-muted-foreground dark:text-gray-400 min-w-28">Date d'évaluation:</span>
-                                <span className="dark:text-white">{evaluation.date}</span>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center">
-                              <div className={cn(
-                                "h-16 w-16 rounded-full flex items-center justify-center text-white",
-                                evaluation.note >= 16 ? "bg-gradient-to-r from-green-400 to-green-600" :
-                                evaluation.note >= 12 ? "bg-gradient-to-r from-blue-400 to-blue-600" :
-                                evaluation.note >= 8 ? "bg-gradient-to-r from-yellow-400 to-yellow-600" :
-                                "bg-gradient-to-r from-red-400 to-red-600"
+              </div>
+              
+              <div className="mb-6">
+                <Tabs
+                  defaultValue="all"
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="w-full"
+                >
+                  <TabsList className="bg-white/50 backdrop-blur-sm dark:bg-slate-800/50 w-full md:w-auto">
+                    <TabsTrigger value="all" className="flex-1 md:flex-none">Toutes</TabsTrigger>
+                    <TabsTrigger value="reviewed" className="flex-1 md:flex-none">Évaluées</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              
+              <div className="space-y-4">
+                {filteredEvaluations.map((evaluation) => {
+                  const statusConfig = getEvaluationStatusConfig(evaluation.status);
+                  
+                  return (
+                    <Card key={evaluation.id} className="hover:shadow-lg transition-all duration-300 border-blue-200 dark:border-blue-900 dark:bg-slate-800">
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-4">
+                            <Avatar className="h-10 w-10 border-2 border-blue-200 dark:border-blue-700">
+                              <AvatarFallback className={cn(
+                                "bg-gradient-to-br text-white",
+                                evaluation.genre === "feminin" ? "from-pink-400 to-rose-500" : "from-blue-400 to-indigo-500"
                               )}>
-                                <span className="text-xl font-bold">{evaluation.note}</span>
-                              </div>
-                              <div className="ml-4">
-                                <p className="text-sm font-medium dark:text-gray-200">Note</p>
-                                <p className="text-xs text-muted-foreground dark:text-gray-400">sur 20</p>
-                              </div>
+                                {evaluation.prenom[0]}
+                                {evaluation.nom[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h3 className="font-medium text-lg dark:text-white">Évaluation de stage</h3>
+                              <p className="text-sm text-muted-foreground dark:text-gray-300">
+                                {evaluation.prenom} {evaluation.nom}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className={cn("font-normal flex items-center", statusConfig.className)}>
+                            {statusConfig.icon}
+                            {statusConfig.label}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      
+                      <CardContent className="pb-2">
+                        <div className="flex flex-col md:flex-row justify-between gap-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center text-sm">
+                              <span className="text-muted-foreground dark:text-gray-400 min-w-28">Genre:</span>
+                              <span className="dark:text-white">{evaluation.genre === "masculin" ? "Masculin" : "Féminin"}</span>
+                            </div>
+                            <div className="flex items-center text-sm">
+                              <span className="text-muted-foreground dark:text-gray-400 min-w-28">Date d'évaluation:</span>
+                              <span className="dark:text-white">{evaluation.date}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <div className={cn(
+                              "h-16 w-16 rounded-full flex items-center justify-center text-white",
+                              evaluation.note >= 16 ? "bg-gradient-to-r from-green-400 to-green-600" :
+                              evaluation.note >= 12 ? "bg-gradient-to-r from-blue-400 to-blue-600" :
+                              evaluation.note >= 8 ? "bg-gradient-to-r from-yellow-400 to-yellow-600" :
+                              "bg-gradient-to-r from-red-400 to-red-600"
+                            )}>
+                              <span className="text-xl font-bold">{evaluation.note}</span>
+                            </div>
+                            <div className="ml-4">
+                              <p className="text-sm font-medium dark:text-gray-200">Note</p>
+                              <p className="text-xs text-muted-foreground dark:text-gray-400">sur 20</p>
                             </div>
                           </div>
                         </CardContent>
@@ -316,57 +327,19 @@ const Evaluations = () => {
                         </CardFooter>
                       </Card>
                     );
-                  })}
-                  
-                  {filteredEvaluations.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-12 text-center bg-white/50 backdrop-blur-sm rounded-xl shadow-md dark:bg-slate-800/50 dark:text-white">
-                      <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-4">
-                        <FileText className="h-10 w-10 text-blue-600 dark:text-blue-300" />
-                      </div>
-                      <h3 className="font-medium text-lg mb-1">Aucune évaluation trouvée</h3>
-                      <p className="text-muted-foreground dark:text-gray-400 mb-4">
-                        Utilisez le formulaire pour créer une nouvelle évaluation.
-                      </p>
+                })}
+                
+                {filteredEvaluations.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center bg-white/50 backdrop-blur-sm rounded-xl shadow-md dark:bg-slate-800/50 dark:text-white">
+                    <div className="h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-4">
+                      <FileText className="h-10 w-10 text-blue-600 dark:text-blue-300" />
                     </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="lg:col-span-1">
-                <Card className="border-blue-200 dark:border-blue-900 dark:bg-slate-800 mb-6">
-                  <CardHeader>
-                    <h2 className="text-xl font-semibold dark:text-white">Résumé des évaluations</h2>
-                    <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      Statistiques et informations sur les évaluations
+                    <h3 className="font-medium text-lg mb-1">Aucune évaluation trouvée</h3>
+                    <p className="text-muted-foreground dark:text-gray-400 mb-4">
+                      Utilisez le formulaire pour créer une nouvelle évaluation.
                     </p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground dark:text-gray-400">Nombre total</p>
-                          <p className="text-2xl font-bold dark:text-white">{evaluations.length}</p>
-                        </div>
-                        <div className="h-10 w-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
-                          <FileText className="h-5 w-5 text-blue-600 dark:text-blue-300" />
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-center mt-6">
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                          <DialogTrigger asChild>
-                            <Button 
-                              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-                            >
-                              <PlusCircle className="h-4 w-4 mr-2" />
-                              Créer une évaluation
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                )}
               </div>
             </div>
           </div>
