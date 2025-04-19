@@ -7,7 +7,8 @@ import {
   Users,
   Star,
   Info,
-  UserCircle
+  UserCircle,
+  Briefcase
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Banner } from "@/components/layout/Banner";
@@ -131,6 +132,13 @@ export function Sidebar() {
           to="/evaluations"
           expanded={expanded}
           active={isActive("/evaluations")}
+        />
+        <NavItem
+          icon={Briefcase}
+          label="Gestion de Projet"
+          to="/gestion-projets"
+          expanded={expanded}
+          active={isActive("/gestion-projets")}
         />
         <NavItem
           icon={UserCircle}

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import APropos from "./pages/APropos";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Profil from "./pages/Profil";
+import GestionProjets from "./pages/GestionProjets";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = localStorage.getItem("isLoggedIn") === "true";
@@ -69,6 +69,11 @@ const App = () => {
               <Route path="/profil" element={
                 <ProtectedRoute>
                   <Profil />
+                </ProtectedRoute>
+              } />
+              <Route path="/gestion-projets" element={
+                <ProtectedRoute>
+                  <GestionProjets />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />
