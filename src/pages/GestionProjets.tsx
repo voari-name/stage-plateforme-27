@@ -6,8 +6,26 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+}
+
 export default function GestionProjets() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  const handleProjectCreate = (projectData: Omit<Project, "id">) => {
+    const newProject = {
+      ...projectData,
+      id: crypto.randomUUID()
+    };
+    setProjects([...projects, newProject]);
+    setCreateDialogOpen(false);
+  };
 
   return (
     <Layout>
@@ -24,43 +42,33 @@ export default function GestionProjets() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="text-lg">En cours</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-muted-foreground">
-                Projets en cours d'exécution
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="text-lg">À venir</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-muted-foreground">
-                Projets planifiés
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="text-lg">Terminés</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-muted-foreground">
-                Projets achevés
-              </div>
-            </CardContent>
-          </Card>
+          {projects.map((project) => (
+            <Card key={project.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-lg">{project.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">{project.description}</p>
+                  <div className="text-sm">
+                    <p>Date de début: {new Date(project.startDate).toLocaleDateString()}</p>
+                    <p>Date de fin: {new Date(project.endDate).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          {projects.length === 0 && (
+            <Card className="col-span-full text-center p-6">
+              <p className="text-muted-foreground">Aucun projet créé pour le moment</p>
+            </Card>
+          )}
         </div>
       </div>
       <CreateProjectDialog 
         open={createDialogOpen} 
-        onOpenChange={setCreateDialogOpen} 
+        onOpenChange={setCreateDialogOpen}
+        onSubmit={handleProjectCreate}
       />
     </Layout>
   );

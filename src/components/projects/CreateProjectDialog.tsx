@@ -15,9 +15,15 @@ import { useState } from "react";
 interface CreateProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSubmit: (projectData: {
+    title: string;
+    description: string;
+    startDate: string;
+    endDate: string;
+  }) => void;
 }
 
-export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogProps) {
+export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProjectDialogProps) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -27,8 +33,13 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement project creation
-    onOpenChange(false);
+    onSubmit(formData);
+    setFormData({
+      title: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+    });
   };
 
   return (
