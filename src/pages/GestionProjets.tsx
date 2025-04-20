@@ -26,9 +26,12 @@ export default function GestionProjets() {
 
   const fetchProjects = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { data, error } = await supabase
         .from('projects')
         .select('*')
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -45,9 +48,11 @@ export default function GestionProjets() {
 
   const handleProjectCreate = async (projectData: { title: string; description: string }) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { data, error } = await supabase
         .from('projects')
-        .insert([projectData])
+        .insert([{ ...projectData, user_id: user?.id }])
         .select()
         .single();
 
