@@ -3,28 +3,70 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface Project {
   id: string;
   title: string;
   description: string;
-  startDate: string;
-  endDate: string;
+  created_at: string;
 }
 
 export default function GestionProjets() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
+  const { toast } = useToast();
 
-  const handleProjectCreate = (projectData: Omit<Project, "id">) => {
-    const newProject = {
-      ...projectData,
-      id: crypto.randomUUID()
-    };
-    setProjects([...projects, newProject]);
-    setCreateDialogOpen(false);
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProjects(data || []);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de charger les projets"
+      });
+    }
+  };
+
+  const handleProjectCreate = async (projectData: { title: string; description: string }) => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([projectData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setProjects([data, ...projects]);
+      setCreateDialogOpen(false);
+      toast({
+        title: "Succès",
+        description: "Projet créé avec succès"
+      });
+    } catch (error) {
+      console.error('Error creating project:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de créer le projet"
+      });
+    }
   };
 
   return (
@@ -50,10 +92,9 @@ export default function GestionProjets() {
               <CardContent>
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">{project.description}</p>
-                  <div className="text-sm">
-                    <p>Date de début: {new Date(project.startDate).toLocaleDateString()}</p>
-                    <p>Date de fin: {new Date(project.endDate).toLocaleDateString()}</p>
-                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Créé le: {new Date(project.created_at).toLocaleDateString()}
+                  </p>
                 </div>
               </CardContent>
             </Card>

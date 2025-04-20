@@ -18,8 +18,6 @@ interface CreateProjectDialogProps {
   onSubmit: (projectData: {
     title: string;
     description: string;
-    startDate: string;
-    endDate: string;
   }) => void;
 }
 
@@ -27,8 +25,6 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    startDate: "",
-    endDate: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,8 +33,6 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
     setFormData({
       title: "",
       description: "",
-      startDate: "",
-      endDate: "",
     });
   };
 
@@ -66,28 +60,6 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               required
             />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Date de début</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endDate">Date de fin</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={formData.endDate}
-                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                required
-              />
-            </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
