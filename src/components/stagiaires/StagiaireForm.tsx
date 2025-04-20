@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -97,7 +98,9 @@ export const StagiaireForm = ({
     <Form {...form}>
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-primary mb-4">
-          {isEdit ? "Modifier un Stagiaire" : "Ajouter un Nouveau Stagiaire"}
+          {isEdit 
+            ? "Modifier les informations du stagiaire" 
+            : "Ajouter un nouveau stagiaire"}
         </h2>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
