@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Banner } from "@/components/layout/Banner";
+import { supabase } from "@/lib/supabase";
 
-// Schéma de validation pour le formulaire de connexion
 const loginFormSchema = z.object({
   username: z.string().min(1, "Le nom d'utilisateur est requis"),
   password: z.string().min(1, "Le mot de passe est requis"),
@@ -32,24 +32,42 @@ const Login = () => {
     },
   });
 
-  const onSubmit = (values: LoginFormValues) => {
+  const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
-    
-    // Simule un délai de connexion
-    setTimeout(() => {
-      setIsLoading(false);
-      // Stocker le fait que l'utilisateur est connecté
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("username", values.username);
-      
+    try {
+      if (values.username === "RAHAJANIAINA" && values.password === "olivier") {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: "rahajaniaina@example.com", // Using a default email since Supabase requires email
+          password: values.password,
+        });
+
+        if (error) throw error;
+
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("username", values.username);
+        
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur la plateforme de gestion des stagiaires",
+        });
+        
+        navigate("/a-propos");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erreur de connexion",
+          description: "Identifiants invalides",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Connexion réussie",
-        description: "Bienvenue sur la plateforme de gestion des stagiaires",
+        variant: "destructive",
+        title: "Erreur de connexion",
+        description: "Une erreur est survenue lors de la connexion",
       });
-      
-      // Redirection vers la page À propos au lieu de la page d'accueil
-      navigate("/a-propos");
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
