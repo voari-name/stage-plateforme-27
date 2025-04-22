@@ -40,8 +40,28 @@ type Evaluation = {
   prenom: string;
   note: number;
   genre: "masculin" | "feminin";
-  status: EvaluationStatus;
+  status: "pending" | "submitted" | "reviewed";
   date: string;
+  // Add missing fields to match Stagiaire type
+  email?: string;
+  telephone?: string;
+  etablissement?: string;
+  formation?: string;
+  dateDebut?: string;
+  dateFin?: string;
+};
+
+type Stagiaire = {
+  id: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  etablissement: string;
+  formation: string;
+  status: string;
+  dateDebut: string;
+  dateFin: string;
 };
 
 const Evaluations = () => {
@@ -110,19 +130,32 @@ const Evaluations = () => {
   });
 
   const handleDownloadPDF = (id?: string) => {
+    const stagiairesForPDF: Stagiaire[] = filteredEvaluations.map(evaluation => ({
+      id: evaluation.id,
+      nom: evaluation.nom,
+      prenom: evaluation.prenom,
+      email: evaluation.email || '',
+      telephone: evaluation.telephone || '',
+      etablissement: evaluation.etablissement || 'Non spécifié',
+      formation: evaluation.formation || 'Non spécifié',
+      status: evaluation.status === 'reviewed' ? 'Évaluée' : 'En attente',
+      dateDebut: evaluation.dateDebut || evaluation.date,
+      dateFin: evaluation.dateFin || evaluation.date
+    }));
+
     if (id) {
-      const evaluation = evaluations.find(item => item.id === id);
-      if (evaluation) {
-        generatePDF([evaluation]);
+      const evaluationToPDF = stagiairesForPDF.find(item => item.id === id);
+      if (evaluationToPDF) {
+        generatePDF([evaluationToPDF]);
         toast({
           title: "Téléchargement en cours",
-          description: `Le rapport d'évaluation pour ${evaluation.prenom} ${evaluation.nom} est en cours de téléchargement.`,
+          description: `Le rapport d'évaluation pour ${evaluationToPDF.prenom} ${evaluationToPDF.nom} est en cours de téléchargement.`,
         });
         return;
       }
     }
 
-    if (filteredEvaluations.length === 0) {
+    if (stagiairesForPDF.length === 0) {
       toast({
         title: "Aucune évaluation",
         description: "Il n'y a aucune évaluation à télécharger.",
@@ -131,7 +164,7 @@ const Evaluations = () => {
       return;
     }
 
-    generatePDF(filteredEvaluations);
+    generatePDF(stagiairesForPDF);
     
     toast({
       title: "Téléchargement en cours",
