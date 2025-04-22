@@ -1,6 +1,5 @@
 
 import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 
 type Evaluation = {
   id: string;
@@ -16,63 +15,98 @@ export const generatePDF = (evaluations: Evaluation[]) => {
   // Initialize the PDF document
   const doc = new jsPDF();
   
-  // Add title
-  doc.setFontSize(18);
-  doc.setTextColor(75, 85, 99);
-  doc.text("Rapport d'Évaluations des Stagiaires", 14, 22);
+  // Add header image placeholder (you might want to add a real logo)
+  doc.setDrawColor(0);
+  doc.setFillColor(200, 200, 200);
+  doc.circle(doc.internal.pageSize.getWidth() / 2, 20, 10, 'F');
+
+  // Add header text
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
   
-  // Add date
+  // Center-align the header text
+  const textLines = [
+    "REPOBLIKAN'I MADAGASIKARA",
+    "Fitiavana - Tanindrazana - Fandrosoana",
+    "",
+    "MINISTERE DU TRAVAIL, DE L'EMPLOI",
+    "DE LA FONCTION PUBLIQUE ET",
+    "DES LOIS SOCIALES",
+    "",
+    "SECRETARIAT GENERAL",
+    "",
+    "DIRECTION DU SYSTEME D'INFORMATION"
+  ];
+
+  let yPosition = 15;
+  textLines.forEach((line, index) => {
+    const textWidth = doc.getStringUnitWidth(line) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+    const xPosition = (doc.internal.pageSize.getWidth() - textWidth) / 2;
+    doc.text(line, xPosition, yPosition);
+    yPosition += (index === 1 || index === 5 || index === 7) ? 10 : 6;
+  });
+
+  // Add date on the right
   doc.setFontSize(11);
-  doc.setTextColor(100, 100, 100);
-  doc.text(`Généré le: ${new Date().toLocaleDateString('fr-FR')}`, 14, 32);
+  doc.text(`Antananarivo, le ${new Date().toLocaleDateString('fr-FR')}`, 120, yPosition);
+  yPosition += 15;
+
+  // Add reference number
+  doc.text(`N° _____ ${new Date().getFullYear()}/MTEFOP.SG/DSI`, 20, yPosition);
+  yPosition += 20;
+
+  // Add title
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  const title = "RAPPORT D'EVALUATION STAGIAIRE";
+  const titleWidth = doc.getStringUnitWidth(title) * 16 / doc.internal.scaleFactor;
+  const titleX = (doc.internal.pageSize.getWidth() - titleWidth) / 2;
+  doc.text(title, titleX, yPosition);
+  yPosition += 20;
+
+  // Add content for each evaluation
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
   
-  // Define the table columns and rows
-  const tableColumn = ["Nom", "Prénom", "Genre", "Note", "Statut", "Date"];
-  
-  const tableRows = evaluations.map(evaluation => {
+  evaluations.forEach((evaluation, index) => {
+    // Check if we need a new page
+    if (yPosition > 250) {
+      doc.addPage();
+      yPosition = 20;
+    }
+
     const status = 
       evaluation.status === "pending" ? "En attente" : 
       evaluation.status === "submitted" ? "Soumise" : "Évaluée";
-    
-    return [
-      evaluation.nom,
-      evaluation.prenom,
-      evaluation.genre === "masculin" ? "Masculin" : "Féminin",
-      `${evaluation.note}/20`,
-      status,
-      evaluation.date
+
+    doc.setFont("helvetica", "bold");
+    doc.text(`Évaluation ${index + 1}:`, 20, yPosition);
+    yPosition += 10;
+
+    doc.setFont("helvetica", "normal");
+    const content = [
+      `Nom et Prénom: ${evaluation.prenom} ${evaluation.nom}`,
+      `Genre: ${evaluation.genre === "masculin" ? "Masculin" : "Féminin"}`,
+      `Note obtenue: ${evaluation.note}/20`,
+      `Statut: ${status}`,
+      `Date d'évaluation: ${evaluation.date}`
     ];
+
+    content.forEach(line => {
+      doc.text(line, 30, yPosition);
+      yPosition += 8;
+    });
+
+    yPosition += 10;
   });
 
-  // Add the table to the PDF
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    startY: 40,
-    theme: 'grid',
-    styles: { 
-      fontSize: 10,
-      cellPadding: 3,
-      lineColor: [200, 200, 200],
-      lineWidth: 0.1,
-    },
-    headStyles: {
-      fillColor: [105, 108, 255],
-      textColor: 255,
-      fontStyle: 'bold',
-    },
-    alternateRowStyles: {
-      fillColor: [240, 240, 250],
-    },
-    margin: { top: 40 },
-  });
-
-  // Add a footer
+  // Add footer with page numbers
   const pageCount = doc.internal.pages.length;
   for(let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
-    doc.setTextColor(150, 150, 150);
+    doc.setTextColor(100, 100, 100);
     doc.text(
       `Page ${i} sur ${pageCount}`,
       doc.internal.pageSize.getWidth() / 2,
@@ -81,7 +115,7 @@ export const generatePDF = (evaluations: Evaluation[]) => {
     );
   }
 
-  // Save the PDF with a timestamp to ensure unique filenames
+  // Save the PDF
   const timestamp = new Date().getTime();
-  doc.save(`evaluations-stagiaires-${timestamp}.pdf`);
+  doc.save(`rapport-evaluations-${timestamp}.pdf`);
 };
