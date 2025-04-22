@@ -35,13 +35,13 @@ export const ensureUserExists = async () => {
       });
       
       if (error) {
-        console.error('Erreur lors de la création de l'utilisateur:', error);
+        console.error("Erreur lors de la création de l'utilisateur:", error);
       } else {
-        console.log('Utilisateur créé avec succès');
+        console.log("Utilisateur créé avec succès");
       }
     }
   } catch (error) {
-    console.error('Erreur lors de la vérification/création de l'utilisateur:', error);
+    console.error("Erreur lors de la vérification/création de l'utilisateur:", error);
   }
 };
 
@@ -58,7 +58,7 @@ const createTables = async () => {
       if (error) console.error('Error creating tables:', error);
     }
   } catch (error) {
-    console.error('Erreur lors de la vérification/création des tables:', error);
+    console.error("Erreur lors de la vérification/création des tables:", error);
   }
 };
 
