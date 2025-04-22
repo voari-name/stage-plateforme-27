@@ -41,7 +41,9 @@ export const generatePDF = (evaluations: Evaluation[]) => {
 
   let yPosition = 15;
   textLines.forEach((line, index) => {
-    const textWidth = doc.getStringUnitWidth(line) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+    // Use alternative method to calculate text width without getFontSize()
+    const fontSize = 12; // Using the same font size set earlier
+    const textWidth = doc.getStringUnitWidth(line) * fontSize / doc.internal.scaleFactor;
     const xPosition = (doc.internal.pageSize.getWidth() - textWidth) / 2;
     doc.text(line, xPosition, yPosition);
     yPosition += (index === 1 || index === 5 || index === 7) ? 10 : 6;
@@ -60,6 +62,7 @@ export const generatePDF = (evaluations: Evaluation[]) => {
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
   const title = "RAPPORT D'EVALUATION STAGIAIRE";
+  // Use the explicit font size instead of getFontSize()
   const titleWidth = doc.getStringUnitWidth(title) * 16 / doc.internal.scaleFactor;
   const titleX = (doc.internal.pageSize.getWidth() - titleWidth) / 2;
   doc.text(title, titleX, yPosition);
