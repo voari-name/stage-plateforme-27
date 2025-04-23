@@ -3,8 +3,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Mail, Phone, Trash } from "lucide-react";
+import { FileText, Trash2, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { generatePDF } from "@/utils/pdfUtils";
 
 export type StagiaireStatus = "active" | "completed" | "upcoming";
 
@@ -29,7 +30,7 @@ type StagiaireCardProps = {
   onDelete?: (id: string) => void;
 };
 
-export function StagiaireCard({ stagiaire, onView, onDelete }: StagiaireCardProps) {
+export function StagiaireCard({ stagiaire, onDelete }: StagiaireCardProps) {
   const statusConfig = {
     active: { label: "En cours", className: "bg-success text-success-foreground" },
     completed: { label: "Terminé", className: "bg-muted text-muted-foreground" },
@@ -37,7 +38,6 @@ export function StagiaireCard({ stagiaire, onView, onDelete }: StagiaireCardProp
   };
 
   const status = statusConfig[stagiaire.status];
-  
   const initials = `${stagiaire.prenom[0]}${stagiaire.nom[0]}`.toUpperCase();
 
   return (
@@ -72,11 +72,13 @@ export function StagiaireCard({ stagiaire, onView, onDelete }: StagiaireCardProp
         </div>
         <div className="pt-2 flex flex-col gap-2">
           <Button variant="ghost" size="sm" className="justify-start gap-2 h-8">
-            <Mail className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
+            {stagiaire.intitule}
+          </Button>
+          <Button variant="ghost" size="sm" className="justify-start gap-2 h-8">
             {stagiaire.email}
           </Button>
           <Button variant="ghost" size="sm" className="justify-start gap-2 h-8">
-            <Phone className="h-4 w-4" />
             {stagiaire.telephone}
           </Button>
         </div>
@@ -88,17 +90,17 @@ export function StagiaireCard({ stagiaire, onView, onDelete }: StagiaireCardProp
           className="gap-1"
           onClick={() => onDelete && onDelete(stagiaire.id)}
         >
-          <Trash className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" />
           Supprimer
         </Button>
         <Button
           variant="default"
           size="sm"
           className="gap-1"
-          onClick={() => onView && onView(stagiaire.id)}
+          onClick={() => generatePDF(stagiaire)}
         >
-          <FileText className="h-4 w-4" />
-          Détails
+          <Download className="h-4 w-4" />
+          Télécharger PDF
         </Button>
       </CardFooter>
     </Card>

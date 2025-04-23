@@ -1,5 +1,6 @@
 
 import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 type Stagiaire = {
   id: string;
@@ -12,22 +13,22 @@ type Stagiaire = {
   status: string;
   dateDebut: string;
   dateFin: string;
+  intitule: string;
 };
 
-export const generatePDF = (stagiaires: Stagiaire[]) => {
+export const generatePDF = (stagiaire: Stagiaire) => {
   const doc = new jsPDF();
-  
-  // Header
+
+  // En-tête
   doc.setDrawColor(0);
   doc.setFillColor(200, 200, 200);
   doc.circle(doc.internal.pageSize.getWidth() / 2, 20, 10, 'F');
 
-  // Header text
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
-  
-  const textLines = [
+
+  const headerLines = [
     "REPOBLIKAN'I MADAGASIKARA",
     "Fitiavana - Tanindrazana - Fandrosoana",
     "",
@@ -41,7 +42,7 @@ export const generatePDF = (stagiaires: Stagiaire[]) => {
   ];
 
   let yPosition = 15;
-  textLines.forEach((line, index) => {
+  headerLines.forEach((line, index) => {
     const fontSize = 12;
     const textWidth = doc.getStringUnitWidth(line) * fontSize / doc.internal.scaleFactor;
     const xPosition = (doc.internal.pageSize.getWidth() - textWidth) / 2;
@@ -49,61 +50,72 @@ export const generatePDF = (stagiaires: Stagiaire[]) => {
     yPosition += (index === 1 || index === 5 || index === 7) ? 10 : 6;
   });
 
-  // Date and reference
   doc.setFontSize(11);
   doc.text(`Antananarivo, le ${new Date().toLocaleDateString('fr-FR')}`, 120, yPosition);
   yPosition += 15;
-
   doc.text(`N° _____ ${new Date().getFullYear()}/MTEFOP.SG/DSI`, 20, yPosition);
   yPosition += 20;
 
-  // Title
+  // Titre
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  const title = "RAPPORT DES STAGIAIRES";
+  const title = "FICHE DE STAGIAIRE";
   const titleWidth = doc.getStringUnitWidth(title) * 16 / doc.internal.scaleFactor;
   const titleX = (doc.internal.pageSize.getWidth() - titleWidth) / 2;
   doc.text(title, titleX, yPosition);
-  yPosition += 20;
+  yPosition += 15;
 
-  // Content for each stagiaire
-  doc.setFontSize(12);
+  doc.setFontSize(13);
   doc.setFont("helvetica", "normal");
-  
-  stagiaires.forEach((stagiaire, index) => {
-    // Check if we need a new page
-    if (yPosition > 250) {
-      doc.addPage();
-      yPosition = 20;
-    }
 
-    doc.setFont("helvetica", "bold");
-    doc.text(`Stagiaire ${index + 1}:`, 20, yPosition);
-    yPosition += 10;
-
-    doc.setFont("helvetica", "normal");
-    const content = [
-      `Nom et Prénom: ${stagiaire.prenom} ${stagiaire.nom}`,
-      `Email: ${stagiaire.email}`,
-      `Téléphone: ${stagiaire.telephone}`,
-      `Établissement: ${stagiaire.etablissement}`,
-      `Formation: ${stagiaire.formation}`,
-      `Statut: ${stagiaire.status}`,
-      `Date de Début: ${stagiaire.dateDebut}`,
-      `Date de Fin: ${stagiaire.dateFin}`
-    ];
-
-    content.forEach(line => {
-      doc.text(line, 30, yPosition);
-      yPosition += 8;
-    });
-
-    yPosition += 10;
+  autoTable(doc, {
+    startY: yPosition,
+    margin: { left: 30, right: 30 },
+    styles: { fontSize: 12 },
+    body: [
+      [
+        { content: "Nom et Prénom :", styles: { fontStyle: 'bold' } },
+        `${stagiaire.prenom} ${stagiaire.nom}`
+      ],
+      [
+        { content: "Intitulé :", styles: { fontStyle: 'bold' } },
+        stagiaire.intitule
+      ],
+      [
+        { content: "Email :", styles: { fontStyle: 'bold' } },
+        stagiaire.email
+      ],
+      [
+        { content: "Téléphone :", styles: { fontStyle: 'bold' } },
+        stagiaire.telephone
+      ],
+      [
+        { content: "Établissement :", styles: { fontStyle: 'bold' } },
+        stagiaire.etablissement
+      ],
+      [
+        { content: "Formation :", styles: { fontStyle: 'bold' } },
+        stagiaire.formation
+      ],
+      [
+        { content: "Statut :", styles: { fontStyle: 'bold' } },
+        stagiaire.status
+      ],
+      [
+        { content: "Date de Début :", styles: { fontStyle: 'bold' } },
+        stagiaire.dateDebut
+      ],
+      [
+        { content: "Date de Fin :", styles: { fontStyle: 'bold' } },
+        stagiaire.dateFin
+      ]
+    ],
+    theme: 'plain'
   });
 
-  // Page numbers
+  // Pagination
   const pageCount = doc.internal.pages.length;
-  for(let i = 1; i <= pageCount; i++) {
+  for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
@@ -115,8 +127,7 @@ export const generatePDF = (stagiaires: Stagiaire[]) => {
     );
   }
 
-  // Save the PDF
+  // Save
   const timestamp = new Date().getTime();
-  doc.save(`rapport-stagiaires-${timestamp}.pdf`);
+  doc.save(`fiche-stagiaire-${stagiaire.nom}-${stagiaire.prenom}-${timestamp}.pdf`);
 };
-

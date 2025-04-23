@@ -50,12 +50,12 @@ const Login = () => {
         // Stockage local pour maintenir la session
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("username", values.username);
-        
+
         toast({
           title: "Connexion réussie",
           description: "Bienvenue sur la plateforme de gestion des stagiaires",
         });
-        
+
         navigate("/a-propos");
       } else {
         toast({
@@ -81,14 +81,14 @@ const Login = () => {
       <div className="w-full">
         <Banner />
       </div>
-      
+
       <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-lg border-blue-200">
           <CardHeader className="space-y-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
             <div className="flex items-center justify-center mb-4">
-              <img 
-                src="/lovable-uploads/5c0ae490-98de-4bfa-bff1-df9fe97ebe0b.png" 
-                alt="MTEFoP Logo" 
+              <img
+                src="/lovable-uploads/5c0ae490-98de-4bfa-bff1-df9fe97ebe0b.png"
+                alt="MTEFoP Logo"
                 className="h-16 w-16 filter drop-shadow-md"
               />
             </div>
@@ -107,9 +107,9 @@ const Login = () => {
                     <FormItem>
                       <FormLabel className="text-base">Nom d'utilisateur</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="Entrez votre nom d'utilisateur" 
-                          {...field} 
+                        <Input
+                          placeholder="Entrez votre nom d'utilisateur"
+                          {...field}
                           className="text-base py-6 border-blue-200 focus:border-blue-400"
                         />
                       </FormControl>
@@ -124,23 +124,19 @@ const Login = () => {
                     <FormItem>
                       <FormLabel className="text-base">Mot de passe</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="" 
+                        <Input
+                          type="password"
+                          placeholder=""
                           {...field}
-                          className="text-base py-6 border-blue-200 focus:border-blue-400" 
+                          className="text-base py-6 border-blue-200 focus:border-blue-400"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <div className="text-center text-sm mt-2 text-blue-600">
-                  <p>Utilisateur: RAHAJANIAINA</p>
-                  <p>Mot de passe: olivier</p>
-                </div>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full py-6 text-base bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
                   disabled={isLoading}
                 >
