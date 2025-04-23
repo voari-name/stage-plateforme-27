@@ -98,21 +98,22 @@ export function EvaluationCard({ evaluation, onDelete, onDownload }: EvaluationC
         </div>
       </CardContent>
       
-      <CardFooter className="border-t border-blue-100 dark:border-blue-900 pt-4 flex justify-end gap-2">
+      <CardFooter className="border-t border-blue-100 dark:border-blue-900 pt-4 flex flex-wrap justify-end gap-2">
         <Button
           size="sm"
           variant="destructive"
           onClick={() => onDelete(evaluation.id)}
+          className="text-xs flex items-center px-2 md:text-sm md:px-3"
         >
-          <Trash2 className="h-4 w-4 mr-1" />
+          <Trash2 className="h-3 w-3 md:h-4 md:w-4 mr-1" />
           Supprimer
         </Button>
         <Button
           size="sm"
-          className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+          className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-xs flex items-center px-2 md:text-sm md:px-3"
           onClick={() => onDownload(evaluation.id)}
         >
-          <FileDown className="h-4 w-4 mr-1" />
+          <FileDown className="h-3 w-3 md:h-4 md:w-4 mr-1" />
           Télécharger PDF
         </Button>
       </CardFooter>

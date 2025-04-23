@@ -7,17 +7,36 @@ type PDFData = StagiaireType | Record<string, string | number>[] | Record<string
 
 export const generatePDF = (data: PDFData) => {
   const doc = new jsPDF();
-
-  doc.setFontSize(20);
-  doc.text("Rapport d'évaluation", 105, 15, { align: 'center' });
+  
+  // Ajout d'un en-tête professionnel
+  doc.setFillColor(63, 81, 181); // Couleur bleue pour l'en-tête
+  doc.rect(0, 0, doc.internal.pageSize.width, 30, 'F');
+  
+  // Logo ou titre
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("RAPPORT D'ÉVALUATION", 105, 15, { align: 'center' });
+  
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
 
   const today = new Date().toLocaleDateString('fr-FR');
-  doc.text(`Date d'émission: ${today}`, 105, 25, { align: 'center' });
+  doc.text(`Date d'émission: ${today}`, 105, 40, { align: 'center' });
 
   const isArray = Array.isArray(data);
 
-  let lastTableY = 35;
+  let lastTableY = 50; // Position de départ plus basse pour accommoder l'en-tête
+
+  // Pagination
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Page ${i} sur ${totalPages}`, 105, 285, { align: 'center' });
+  }
 
   if (isArray) {
     const tableData = data.map(item => [
@@ -43,7 +62,7 @@ export const generatePDF = (data: PDFData) => {
     autoTable(doc, {
       head: [tableHeaders],
       body: tableData,
-      startY: 35,
+      startY: lastTableY,
       styles: {
         fontSize: 10,
         cellPadding: 3,
@@ -59,6 +78,15 @@ export const generatePDF = (data: PDFData) => {
         fillColor: [240, 240, 240]
       },
       didDrawPage: (data) => {
+        // Redessiner l'en-tête sur chaque page
+        doc.setFillColor(63, 81, 181);
+        doc.rect(0, 0, doc.internal.pageSize.width, 30, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.text("RAPPORT D'ÉVALUATION", 105, 15, { align: 'center' });
+        doc.setTextColor(0, 0, 0);
+        
         lastTableY = data.cursor.y;
       }
     });
@@ -75,7 +103,7 @@ export const generatePDF = (data: PDFData) => {
 
     autoTable(doc, {
       body: detailsData,
-      startY: 35,
+      startY: lastTableY,
       theme: 'grid',
       styles: {
         fontSize: 10,
@@ -88,6 +116,15 @@ export const generatePDF = (data: PDFData) => {
         }
       },
       didDrawPage: (data) => {
+        // Redessiner l'en-tête sur chaque page
+        doc.setFillColor(63, 81, 181);
+        doc.rect(0, 0, doc.internal.pageSize.width, 30, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.text("RAPPORT D'ÉVALUATION", 105, 15, { align: 'center' });
+        doc.setTextColor(0, 0, 0);
+        
         lastTableY = data.cursor.y;
       }
     });

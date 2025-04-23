@@ -7,6 +7,11 @@ const EvaluationSchema = new mongoose.Schema({
     ref: 'Stagiaire',
     required: true
   },
+  evaluateur: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   date: {
     type: String,
     required: true
@@ -44,10 +49,25 @@ const EvaluationSchema = new mongoose.Schema({
   commentaire: {
     type: String
   },
+  status: {
+    type: String,
+    enum: ['draft', 'reviewed'],
+    default: 'reviewed'
+  },
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
+});
+
+// Middleware pre-save pour mettre à jour updateAt
+EvaluationSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
 });
 
 module.exports = mongoose.model('Evaluation', EvaluationSchema);

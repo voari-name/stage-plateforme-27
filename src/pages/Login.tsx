@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Banner } from "@/components/layout/Banner";
-import { supabase } from "@/lib/supabase";
+
+const API_URL = "http://localhost:5000/api";
 
 const loginFormSchema = z.object({
   username: z.string().min(1, "Le nom d'utilisateur est requis"),
@@ -35,41 +36,60 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
     try {
-      if (values.username === "RAHAJANIAINA" && values.password === "olivier") {
-        // Tenter de se connecter via Supabase avec le compte prédéfini
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: "rahajaniaina@example.com", // Email par défaut configuré dans Supabase
-          password: values.password,
-        });
+      // Appel à l'API pour l'authentification
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur de connexion');
+      }
 
-        if (error) {
-          // Si on ne peut pas se connecter via Supabase, autoriser quand même l'accès
-          console.warn("Échec de connexion à Supabase, mais accès autorisé avec credentials locaux:", error);
-        }
+      // Stockage du token et des informations utilisateur
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify({
+        id: data.user.id,
+        username: data.user.username,
+        role: data.user.role
+      }));
+      localStorage.setItem("isLoggedIn", "true");
 
-        // Stockage local pour maintenir la session
+      toast({
+        title: "Connexion réussie",
+        description: "Bienvenue sur la plateforme de gestion des stagiaires",
+      });
+
+      navigate("/a-propos");
+    } catch (error: any) {
+      console.error("Erreur de connexion:", error);
+      
+      // Si l'API n'est pas disponible, on vérifie les identifiants en local
+      if (error.message.includes("Failed to fetch") && 
+          values.username === "RAHAJANIAINA" && 
+          values.password === "olivier") {
+          
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("username", values.username);
-
+        
         toast({
-          title: "Connexion réussie",
+          title: "Connexion réussie (mode hors ligne)",
           description: "Bienvenue sur la plateforme de gestion des stagiaires",
         });
-
+        
         navigate("/a-propos");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Erreur de connexion",
-          description: "Identifiants invalides",
-        });
+        return;
       }
-    } catch (error) {
-      console.error("Erreur complète:", error);
+      
       toast({
         variant: "destructive",
         title: "Erreur de connexion",
-        description: "Une erreur est survenue lors de la connexion",
+        description: error.message || "Identifiants invalides",
       });
     } finally {
       setIsLoading(false);

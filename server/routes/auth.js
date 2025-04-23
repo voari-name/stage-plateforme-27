@@ -10,19 +10,27 @@ const User = require('../models/User');
 // @desc    Register user
 // @access  Public
 router.post('/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, email, password, nom, prenom } = req.body;
 
   try {
-    // Check if user exists
-    let user = await User.findOne({ username });
-    if (user) {
-      return res.status(400).json({ message: 'Cet utilisateur existe déjà' });
+    // Check if user exists by username or email
+    let userByUsername = await User.findOne({ username });
+    if (userByUsername) {
+      return res.status(400).json({ message: 'Cet identifiant existe déjà' });
+    }
+    
+    let userByEmail = await User.findOne({ email });
+    if (userByEmail) {
+      return res.status(400).json({ message: 'Cet email existe déjà' });
     }
 
     // Create new user
     user = new User({
       username,
-      password
+      email,
+      password,
+      nom,
+      prenom
     });
 
     // Encrypt password
@@ -35,7 +43,9 @@ router.post('/register', async (req, res) => {
     // Create JWT payload
     const payload = {
       user: {
-        id: user.id
+        id: user.id,
+        username: user.username,
+        role: user.role
       }
     };
 
@@ -46,7 +56,17 @@ router.post('/register', async (req, res) => {
       { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token });
+        res.json({ 
+          token,
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            nom: user.nom,
+            prenom: user.prenom,
+            role: user.role
+          }
+        });
       }
     );
   } catch (err) {
@@ -74,10 +94,16 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Identifiants invalides' });
     }
 
+    // Update last login time
+    user.lastLogin = new Date();
+    await user.save();
+
     // Create JWT payload
     const payload = {
       user: {
-        id: user.id
+        id: user.id,
+        username: user.username,
+        role: user.role
       }
     };
 
@@ -88,7 +114,17 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token, username: user.username });
+        res.json({
+          token,
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            nom: user.nom,
+            prenom: user.prenom,
+            role: user.role
+          }
+        });
       }
     );
   } catch (err) {
@@ -104,6 +140,61 @@ router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Erreur serveur');
+  }
+});
+
+// @route   PUT api/auth/update-profile
+// @desc    Update user profile
+// @access  Private
+router.put('/update-profile', auth, async (req, res) => {
+  const { nom, prenom, email } = req.body;
+  
+  // Build user object
+  const userFields = {};
+  if (nom) userFields.nom = nom;
+  if (prenom) userFields.prenom = prenom;
+  if (email) userFields.email = email;
+
+  try {
+    // Update user
+    let user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: userFields },
+      { new: true }
+    ).select('-password');
+
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Erreur serveur');
+  }
+});
+
+// @route   PUT api/auth/change-password
+// @desc    Change user password
+// @access  Private
+router.put('/change-password', auth, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  
+  try {
+    let user = await User.findById(req.user.id);
+    
+    // Check current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Mot de passe actuel incorrect' });
+    }
+    
+    // Update password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    
+    await user.save();
+    
+    res.json({ message: 'Mot de passe mis à jour avec succès' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Erreur serveur');

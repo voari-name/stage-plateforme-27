@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const stagiairesRoutes = require('./routes/stagiaires');
 const evaluationsRoutes = require('./routes/evaluations');
 const missionsRoutes = require('./routes/missions');
+const { initAdminUser } = require('./utils/initDb');
 
 // Load environment variables
 dotenv.config();
@@ -21,7 +22,11 @@ app.use(express.json());
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
+  .then(() => {
+    console.log('Connected to MongoDB');
+    // Initialize admin user after successful connection
+    initAdminUser();
+  })
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
