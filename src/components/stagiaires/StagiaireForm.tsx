@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -30,6 +29,7 @@ const stagiaireFormSchema = z.object({
   dateFin: z.date({
     required_error: "Une date de fin est requise",
   }),
+  intitule: z.string().min(2, "L'intitulé doit contenir au moins 2 caractères"),
 }).refine(data => data.dateFin >= data.dateDebut, {
   message: "La date de fin doit être postérieure à la date de début",
   path: ["dateFin"],
@@ -68,6 +68,7 @@ export const StagiaireForm = ({
     status: initialValues?.status || "upcoming",
     dateDebut: initialValues?.dateDebut ? parseDate(initialValues.dateDebut) : undefined,
     dateFin: initialValues?.dateFin ? parseDate(initialValues.dateFin) : undefined,
+    intitule: initialValues?.intitule || "",
   };
 
   const form = useForm<StagiaireFormValues>({
@@ -301,6 +302,22 @@ export const StagiaireForm = ({
                       />
                     </PopoverContent>
                   </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <FormField
+              control={form.control}
+              name="intitule"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Intitulé</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Intitulé du stage ou de la mission" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

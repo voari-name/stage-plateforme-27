@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
@@ -54,7 +53,8 @@ router.post('/', auth, async (req, res) => {
     avatar,
     status,
     dateDebut,
-    dateFin
+    dateFin,
+    intitule
   } = req.body;
 
   try {
@@ -68,7 +68,8 @@ router.post('/', auth, async (req, res) => {
       avatar,
       status,
       dateDebut,
-      dateFin
+      dateFin,
+      intitule
     });
 
     const stagiaire = await newStagiaire.save();
@@ -93,10 +94,10 @@ router.put('/:id', auth, async (req, res) => {
     avatar,
     status,
     dateDebut,
-    dateFin
+    dateFin,
+    intitule
   } = req.body;
 
-  // Build stagiaire object
   const stagiaireFields = {};
   if (nom) stagiaireFields.nom = nom;
   if (prenom) stagiaireFields.prenom = prenom;
@@ -108,6 +109,7 @@ router.put('/:id', auth, async (req, res) => {
   if (status) stagiaireFields.status = status;
   if (dateDebut) stagiaireFields.dateDebut = dateDebut;
   if (dateFin) stagiaireFields.dateFin = dateFin;
+  if (intitule) stagiaireFields.intitule = intitule;
 
   try {
     let stagiaire = await Stagiaire.findById(req.params.id);
@@ -116,7 +118,6 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Stagiaire non trouvé' });
     }
 
-    // Update
     stagiaire = await Stagiaire.findByIdAndUpdate(
       req.params.id,
       { $set: stagiaireFields },

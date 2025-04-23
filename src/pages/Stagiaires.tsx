@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -106,6 +105,7 @@ const Stagiaires = () => {
         status: values.status,
         dateDebut: format(values.dateDebut, "dd/MM/yyyy"),
         dateFin: format(values.dateFin, "dd/MM/yyyy"),
+        intitule: values.intitule,
       };
       
       setStagiaires([...stagiaires, newStagiaire]);
@@ -145,6 +145,7 @@ const Stagiaires = () => {
               status: values.status,
               dateDebut: format(values.dateDebut, "dd/MM/yyyy"),
               dateFin: format(values.dateFin, "dd/MM/yyyy"),
+              intitule: values.intitule,
             };
           }
           return s;

@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 
 const StagiaireSchema = new mongoose.Schema({
@@ -45,6 +44,10 @@ const StagiaireSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  intitule: {
+    type: String,
+    required: true
   }
 });
 
