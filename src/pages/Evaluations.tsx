@@ -130,7 +130,9 @@ const Evaluations = () => {
       return;
     }
 
-    generatePDF(evaluationsForPDF);
+    // If there's only one item, pass it as a single object; otherwise, pass the array
+    const dataForPDF = id ? evaluationsForPDF[0] : evaluationsForPDF;
+    generatePDF(dataForPDF);
     
     toast({
       title: "Téléchargement en cours",
