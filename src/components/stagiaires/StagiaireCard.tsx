@@ -20,6 +20,7 @@ export type StagiaireType = {
   status: StagiaireStatus;
   dateDebut: string;
   dateFin: string;
+  intitule: string;
 };
 
 type StagiaireCardProps = {
