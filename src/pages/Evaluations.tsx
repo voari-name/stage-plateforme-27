@@ -4,7 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { addNotification } from "@/utils/notificationUtils";
-import { generatePDF } from "@/utils/pdfUtils";
+import { generatePDF, EvaluationType } from "@/utils/pdfUtils";
 import { EvaluationsHeader } from "@/components/evaluations/EvaluationsHeader";
 import { EvaluationsTabs } from "@/components/evaluations/EvaluationsTabs";
 import { EvaluationsList } from "@/components/evaluations/EvaluationsList";
@@ -83,14 +83,18 @@ const Evaluations = () => {
         id: evaluation.id,
         nom: evaluation.nom,
         prenom: evaluation.prenom,
+        note: evaluation.note,
+        genre: evaluation.genre,
         email: evaluation.email || '',
         telephone: evaluation.telephone || '',
         etablissement: evaluation.etablissement || 'Non spécifié',
         formation: evaluation.formation || 'Non spécifié',
-        status: evaluation.status === 'reviewed' ? 'Évaluée' : 'En attente',
+        status: evaluation.status,
+        date: evaluation.date,
         dateDebut: evaluation.dateDebut || evaluation.date,
-        dateFin: evaluation.dateFin || evaluation.date
-      }));
+        dateFin: evaluation.dateFin || evaluation.date,
+        intitule: 'Évaluation de stage' // Adding the required intitule field
+      } as EvaluationType));
 
     if (evaluationsForPDF.length === 0) {
       toast({
