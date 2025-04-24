@@ -6,7 +6,6 @@ import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
 
 interface Project {
   id: string;
@@ -19,23 +18,21 @@ export default function GestionProjets() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchProjects();
   }, []);
 
-  const fetchProjects = async () => {
+  const fetchProjects = () => {
+    setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProjects(data || []);
+      // Récupérer les projets depuis le localStorage
+      const savedProjects = localStorage.getItem('projects');
+      if (savedProjects) {
+        setProjects(JSON.parse(savedProjects));
+      }
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching projects:', error);
       toast({
@@ -43,22 +40,26 @@ export default function GestionProjets() {
         title: "Erreur",
         description: "Impossible de charger les projets"
       });
+      setLoading(false);
     }
   };
 
-  const handleProjectCreate = async (projectData: { title: string; description: string }) => {
+  const handleProjectCreate = (projectData: { title: string; description: string }) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Créer un nouveau projet avec un ID unique
+      const newProject = {
+        id: Date.now().toString(),
+        title: projectData.title,
+        description: projectData.description,
+        created_at: new Date().toISOString()
+      };
+
+      const updatedProjects = [newProject, ...projects];
       
-      const { data, error } = await supabase
-        .from('projects')
-        .insert([{ ...projectData, user_id: user?.id }])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setProjects([data, ...projects]);
+      // Sauvegarder dans le localStorage
+      localStorage.setItem('projects', JSON.stringify(updatedProjects));
+      
+      setProjects(updatedProjects);
       setCreateDialogOpen(false);
       toast({
         title: "Succès",
@@ -88,28 +89,34 @@ export default function GestionProjets() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <Card key={project.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-lg">{project.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">{project.description}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Créé le: {new Date(project.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-          {projects.length === 0 && (
-            <Card className="col-span-full text-center p-6">
-              <p className="text-muted-foreground">Aucun projet créé pour le moment</p>
-            </Card>
-          )}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <span className="text-blue-600 font-semibold">Chargement...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => (
+              <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-lg">{project.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">{project.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Créé le: {new Date(project.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            {projects.length === 0 && (
+              <Card className="col-span-full text-center p-6">
+                <p className="text-muted-foreground">Aucun projet créé pour le moment</p>
+              </Card>
+            )}
+          </div>
+        )}
       </div>
       <CreateProjectDialog 
         open={createDialogOpen} 

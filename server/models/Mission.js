@@ -31,6 +31,10 @@ const MissionSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  projet: {
+    type: String,
+    default: null
+  },
   stagiaires: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Stagiaire'

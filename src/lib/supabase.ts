@@ -1,15 +1,32 @@
 
 import { createClient } from '@supabase/supabase-js';
 
+// Configuration de base pour Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-url.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
 
+// Création du client Supabase
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Simuler un utilisateur en local (pour développement sans connexion Supabase)
+export const ensureLocalUserExists = () => {
+  const localUser = localStorage.getItem('localUser');
+  if (!localUser) {
+    const defaultUser = {
+      id: 'local-user-id',
+      email: 'rahajaniaina@example.com',
+      username: 'RAHAJANIAINA',
+      created_at: new Date().toISOString(),
+    };
+    localStorage.setItem('localUser', JSON.stringify(defaultUser));
+    console.log('Utilisateur local créé');
+  }
+};
 
 // Fonction pour créer un utilisateur si nécessaire
 export const ensureUserExists = async () => {
   try {
-    // Vérifier si l'utilisateur RAHAJANIAINA existe déjà
+    // Essayer de s'authentifier avec Supabase
     const { data: existingUser, error: checkError } = await supabase.auth.signInWithPassword({
       email: 'rahajaniaina@example.com',
       password: 'olivier'
@@ -42,25 +59,12 @@ export const ensureUserExists = async () => {
     }
   } catch (error) {
     console.error("Erreur lors de la vérification/création de l'utilisateur:", error);
+    // Fallback: créer un utilisateur local
+    ensureLocalUserExists();
   }
 };
 
-// Create the projects table if it doesn't exist
-const createTables = async () => {
-  try {
-    const { data: exists } = await supabase
-      .from('projects')
-      .select('id')
-      .limit(1);
-
-    if (!exists) {
-      const { error } = await supabase.rpc('create_initial_tables');
-      if (error) console.error('Error creating tables:', error);
-    }
-  } catch (error) {
-    console.error("Erreur lors de la vérification/création des tables:", error);
-  }
-};
-
-// Initialiser les tables et l'utilisateur
-ensureUserExists().then(() => createTables());
+// Initialiser l'utilisateur local
+ensureLocalUserExists();
+// Essayer d'initialiser l'utilisateur Supabase également
+ensureUserExists();

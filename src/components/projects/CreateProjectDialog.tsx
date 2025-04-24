@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,14 +27,21 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
     title: "",
     description: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    setFormData({
-      title: "",
-      description: "",
-    });
+    setIsSubmitting(true);
+    
+    // Simulate a slight delay to show loading state
+    setTimeout(() => {
+      onSubmit(formData);
+      setFormData({
+        title: "",
+        description: "",
+      });
+      setIsSubmitting(false);
+    }, 500);
   };
 
   return (
@@ -41,6 +49,9 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Créer un nouveau projet</DialogTitle>
+          <DialogDescription>
+            Remplissez les informations ci-dessous pour créer un nouveau projet.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -50,6 +61,7 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
+              placeholder="Entrez le titre du projet"
             />
           </div>
           <div className="space-y-2">
@@ -59,13 +71,16 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               required
+              placeholder="Décrivez votre projet"
             />
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               Annuler
             </Button>
-            <Button type="submit">Créer le projet</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Création en cours..." : "Créer le projet"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

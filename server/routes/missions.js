@@ -59,6 +59,21 @@ router.get('/stagiaire/:stagiaireId', auth, async (req, res) => {
   }
 });
 
+// @route   GET api/missions/projet/:projetId
+// @desc    Get missions by projet ID
+// @access  Private
+router.get('/projet/:projetId', auth, async (req, res) => {
+  try {
+    const missions = await Mission.find({ projet: req.params.projetId })
+      .populate('stagiaires', 'nom prenom avatar')
+      .sort({ dateDebut: -1 });
+    res.json(missions);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Erreur serveur');
+  }
+});
+
 // @route   POST api/missions
 // @desc    Create a mission
 // @access  Private
@@ -71,7 +86,8 @@ router.post('/', auth, async (req, res) => {
     dateFin,
     progress,
     departement,
-    stagiaires
+    stagiaires,
+    projet
   } = req.body;
 
   try {
@@ -93,6 +109,7 @@ router.post('/', auth, async (req, res) => {
       dateFin,
       progress,
       departement,
+      projet,
       stagiaires: stagiaires || []
     });
 
@@ -120,7 +137,8 @@ router.put('/:id', auth, async (req, res) => {
     dateFin,
     progress,
     departement,
-    stagiaires
+    stagiaires,
+    projet
   } = req.body;
 
   // Build mission object
@@ -132,6 +150,7 @@ router.put('/:id', auth, async (req, res) => {
   if (dateFin) missionFields.dateFin = dateFin;
   if (progress !== undefined) missionFields.progress = progress;
   if (departement) missionFields.departement = departement;
+  if (projet !== undefined) missionFields.projet = projet;
   
   // Check if stagiaires are being updated
   if (stagiaires) {
