@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -31,7 +30,8 @@ import { useToast } from "@/hooks/use-toast";
 import { StagiaireForm } from "@/components/stagiaires/StagiaireForm";
 import { format } from "date-fns";
 import { addNotification } from "@/utils/notificationUtils";
-import { supabase } from "@/lib/supabase";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const Stagiaires = () => {
   const [stagiaires, setStagiaires] = useState<StagiaireType[]>([]);
@@ -50,88 +50,55 @@ const Stagiaires = () => {
 
   const fetchStagiaires = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("stagiaires")
-      .select("*")
-      .order("createdAt", { ascending: false });
-
-    if (error) {
-      toast({ title: "Erreur", description: "Erreur lors du chargement des stagiaires", variant: "destructive" });
-    } else if (data) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/stagiaires`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement des stagiaires');
+      }
+      
+      const data = await response.json();
+      
       setStagiaires(
         data.map((row: any) => ({
-          id: row.id || row._id || row.uuid || row.idstagiaire || row.email, // fallback
+          id: row._id || row.id || row.uuid || row.idstagiaire || row.email, // fallback
           nom: row.nom,
           prenom: row.prenom,
           email: row.email,
           telephone: row.telephone,
           etablissement: row.etablissement,
           formation: row.formation,
-          status: row.status,
+          status: row.status || 'active',
           dateDebut: row.dateDebut,
           dateFin: row.dateFin,
           intitule: row.intitule,
           avatar: row.avatar,
         }))
       );
+    } catch (error) {
+      console.error("Erreur fetchStagiaires:", error);
+      toast({ title: "Erreur", description: "Erreur lors du chargement des stagiaires", variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
-
-  const filteredStagiaires = stagiaires.filter(stagiaire => {
-    const statusMatch = activeTab === "all" || stagiaire.status === activeTab;
-    const searchMatch =
-      searchTerm === "" ||
-      `${stagiaire.prenom} ${stagiaire.nom}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      stagiaire.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      stagiaire.formation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      stagiaire.etablissement.toLowerCase().includes(searchTerm.toLowerCase());
-    return statusMatch && searchMatch;
-  });
 
   const handleAddStagiaire = async (values: any) => {
     try {
-      let { data, error } = await supabase
-        .from("stagiaires")
-        .insert([
-          {
-            nom: values.nom,
-            prenom: values.prenom,
-            email: values.email,
-            telephone: values.telephone,
-            etablissement: values.etablissement,
-            formation: values.formation,
-            status: values.status,
-            dateDebut: format(values.dateDebut, "dd/MM/yyyy"),
-            dateFin: format(values.dateFin, "dd/MM/yyyy"),
-            intitule: values.intitule,
-            avatar: values.avatar || null,
-          },
-        ])
-        .select("*")
-        .single();
-      if (error) {
-        toast({ title: "Erreur", description: "Erreur lors de l'ajout", variant: "destructive" });
-      } else {
-        setDrawerOpen(false);
-        addNotification(
-          "Nouveau stagiaire ajouté",
-          `${values.prenom} ${values.nom} a été ajouté avec succès`
-        );
-        toast({ title: "Stagiaire ajouté", description: `${values.prenom} ${values.nom} a été ajouté avec succès` });
-        await fetchStagiaires();
-      }
-    } catch (error) {
-      toast({ title: "Erreur", description: "Une erreur s'est produite lors de l'ajout", variant: "destructive" });
-    }
-  };
-
-  const handleEditStagiaire = async (values: any) => {
-    if (!stagiaireToEdit) return;
-    try {
-      const { error } = await supabase
-        .from("stagiaires")
-        .update({
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/stagiaires`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        },
+        body: JSON.stringify({
           nom: values.nom,
           prenom: values.prenom,
           email: values.email,
@@ -144,20 +111,66 @@ const Stagiaires = () => {
           intitule: values.intitule,
           avatar: values.avatar || null,
         })
-        .eq("id", stagiaireToEdit.id);
-      if (error) {
-        toast({ title: "Erreur", description: "Erreur lors de la modification", variant: "destructive" });
-      } else {
-        setDrawerOpen(false);
-        setStagiaireToEdit(null);
-        addNotification(
-          "Stagiaire modifié",
-          `Les informations de ${values.prenom} ${values.nom} ont été mises à jour`
-        );
-        toast({ title: "Stagiaire modifié", description: `Les informations de ${values.prenom} ${values.nom} ont été mises à jour` });
-        await fetchStagiaires();
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'ajout du stagiaire');
       }
+
+      const data = await response.json();
+      
+      setDrawerOpen(false);
+      addNotification(
+        "Nouveau stagiaire ajouté",
+        `${values.prenom} ${values.nom} a été ajouté avec succès`
+      );
+      toast({ title: "Stagiaire ajouté", description: `${values.prenom} ${values.nom} a été ajouté avec succès` });
+      await fetchStagiaires();
     } catch (error) {
+      console.error("Erreur handleAddStagiaire:", error);
+      toast({ title: "Erreur", description: "Une erreur s'est produite lors de l'ajout", variant: "destructive" });
+    }
+  };
+
+  const handleEditStagiaire = async (values: any) => {
+    if (!stagiaireToEdit) return;
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/stagiaires/${stagiaireToEdit.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        },
+        body: JSON.stringify({
+          nom: values.nom,
+          prenom: values.prenom,
+          email: values.email,
+          telephone: values.telephone,
+          etablissement: values.etablissement,
+          formation: values.formation,
+          status: values.status,
+          dateDebut: format(values.dateDebut, "dd/MM/yyyy"),
+          dateFin: format(values.dateFin, "dd/MM/yyyy"),
+          intitule: values.intitule,
+          avatar: values.avatar || null,
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la modification du stagiaire');
+      }
+      
+      setDrawerOpen(false);
+      setStagiaireToEdit(null);
+      addNotification(
+        "Stagiaire modifié",
+        `Les informations de ${values.prenom} ${values.nom} ont été mises à jour`
+      );
+      toast({ title: "Stagiaire modifié", description: `Les informations de ${values.prenom} ${values.nom} ont été mises à jour` });
+      await fetchStagiaires();
+    } catch (error) {
+      console.error("Erreur handleEditStagiaire:", error);
       toast({ title: "Erreur", description: "Une erreur s'est produite lors de la modification", variant: "destructive" });
     }
   };
@@ -165,10 +178,20 @@ const Stagiaires = () => {
   const handleDeleteStagiaire = async () => {
     if (!stagiaireToDelete) return;
     let stagiaireToRemove = stagiaires.find(s => s.id === stagiaireToDelete);
-    const { error } = await supabase.from("stagiaires").delete().eq("id", stagiaireToDelete);
-    if (error) {
-      toast({ title: "Erreur", description: "Erreur lors de la suppression", variant: "destructive" });
-    } else {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/stagiaires/${stagiaireToDelete}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression du stagiaire');
+      }
+      
       setStagiaireToDelete(null);
       toast({ title: "Stagiaire supprimé", description: "Le stagiaire a été supprimé avec succès" });
       if (stagiaireToRemove) {
@@ -178,6 +201,9 @@ const Stagiaires = () => {
         );
       }
       await fetchStagiaires();
+    } catch (error) {
+      console.error("Erreur handleDeleteStagiaire:", error);
+      toast({ title: "Erreur", description: "Erreur lors de la suppression", variant: "destructive" });
     }
   };
 
@@ -191,6 +217,17 @@ const Stagiaires = () => {
     setDrawerOpen(false);
     setStagiaireToEdit(null);
   };
+
+  const filteredStagiaires = stagiaires.filter(stagiaire => {
+    const statusMatch = activeTab === "all" || stagiaire.status === activeTab;
+    const searchMatch =
+      searchTerm === "" ||
+      `${stagiaire.prenom} ${stagiaire.nom}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stagiaire.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stagiaire.formation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stagiaire.etablissement.toLowerCase().includes(searchTerm.toLowerCase());
+    return statusMatch && searchMatch;
+  });
 
   return (
     <div className="flex h-screen bg-background">
