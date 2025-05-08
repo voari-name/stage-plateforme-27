@@ -33,14 +33,17 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate a slight delay to show loading state
+    // Submit the form data
+    onSubmit(formData);
+    
+    // Reset form and close dialog after submission
     setTimeout(() => {
-      onSubmit(formData);
       setFormData({
         title: "",
         description: "",
       });
       setIsSubmitting(false);
+      onOpenChange(false);
     }, 500);
   };
 
@@ -78,7 +81,7 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               Annuler
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || !formData.title || !formData.description}>
               {isSubmitting ? "Création en cours..." : "Créer le projet"}
             </Button>
           </DialogFooter>

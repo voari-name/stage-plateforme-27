@@ -34,6 +34,19 @@ const UserSchema = new mongoose.Schema({
   },
   lastLogin: {
     type: Date
+  },
+  preferences: {
+    theme: {
+      type: String,
+      enum: ['light', 'dark'],
+      default: 'light'
+    },
+    brightness: {
+      type: Number,
+      min: 50,
+      max: 150,
+      default: 100
+    }
   }
 });
 
@@ -41,5 +54,20 @@ const UserSchema = new mongoose.Schema({
 UserSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
+
+// Middleware pre-save pour hacher les mots de passe
+UserSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = mongoose.model('User', UserSchema);

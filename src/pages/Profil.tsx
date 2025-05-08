@@ -7,10 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, Phone, Calendar, Camera, Save, X, Moon, Sun } from "lucide-react";
+import { User, Mail, Phone, Calendar, Camera, Save, X, Moon, Sun, SunMedium } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/ThemeProvider";
+import { Slider } from "@/components/ui/slider";
 
 const Profil = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -19,6 +20,7 @@ const Profil = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { theme, toggleTheme } = useTheme();
+  const [brightness, setBrightness] = useState(100);
   
   const [profileData, setProfileData] = useState({
     fullName: "RAHAJANIAINA Olivier",
@@ -33,7 +35,15 @@ const Profil = () => {
   useEffect(() => {
     // Animation d'entrée
     setAnimateProfile(true);
-  }, []);
+    
+    // Appliquer la luminosité
+    document.documentElement.style.filter = `brightness(${brightness}%)`;
+    
+    return () => {
+      // Reset brightness when component unmounts
+      document.documentElement.style.filter = "brightness(100%)";
+    };
+  }, [brightness]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -41,6 +51,11 @@ const Profil = () => {
       ...formData,
       [name]: value
     });
+  };
+  
+  const handleBrightnessChange = (value: number[]) => {
+    setBrightness(value[0]);
+    document.documentElement.style.filter = `brightness(${value[0]}%)`;
   };
   
   const handleSave = () => {
@@ -150,6 +165,25 @@ const Profil = () => {
                       <span className="text-sm text-muted-foreground ml-2">
                         {theme === 'dark' ? 'Mode sombre' : 'Mode clair'}
                       </span>
+                    </div>
+                    
+                    {/* Réglage de luminosité */}
+                    <div className="flex flex-col w-full max-w-xs mt-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm flex items-center">
+                          <SunMedium className="h-4 w-4 mr-2 text-amber-500" />
+                          Luminosité
+                        </Label>
+                        <span className="text-sm text-muted-foreground">{brightness}%</span>
+                      </div>
+                      <Slider 
+                        defaultValue={[100]} 
+                        max={150} 
+                        min={50} 
+                        step={5} 
+                        onValueChange={handleBrightnessChange}
+                        className="mt-2"
+                      />
                     </div>
                     
                     {!isEditing && !showImageUpload && (

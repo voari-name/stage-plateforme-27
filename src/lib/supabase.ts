@@ -21,6 +21,28 @@ export const ensureLocalUserExists = () => {
     localStorage.setItem('localUser', JSON.stringify(defaultUser));
     console.log('Utilisateur local créé');
   }
+  return JSON.parse(localStorage.getItem('localUser') || '{}');
+};
+
+// Fonction pour vérifier et obtenir l'utilisateur actuel
+export const getCurrentUser = async () => {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (data?.session?.user) {
+      return data.session.user;
+    }
+    
+    if (error) {
+      console.log('Aucune session active, utilisation de l\'utilisateur local');
+      return ensureLocalUserExists();
+    }
+    
+    return ensureLocalUserExists();
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'utilisateur:", error);
+    return ensureLocalUserExists();
+  }
 };
 
 // Fonction pour créer un utilisateur si nécessaire
