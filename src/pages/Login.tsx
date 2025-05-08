@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Banner } from "@/components/layout/Banner";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://stage-plateforme.onrender.com/api";
 
 const loginFormSchema = z.object({
   username: z.string().min(1, "Le nom d'utilisateur est requis"),
