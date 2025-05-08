@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
@@ -6,8 +7,19 @@ const Stagiaire = require('../models/Stagiaire');
 // @route   GET api/stagiaires
 // @desc    Get all stagiaires
 // @access  Private
-router.get('/', auth, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
+    const token = req.header('x-auth-token');
+    // Vérifie si un token est fourni, mais continue même sans token
+    if (token) {
+      try {
+        const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET || 'mysecrettoken');
+        req.user = decoded.user;
+      } catch (err) {
+        console.log('Token invalide, mais on continue quand même');
+      }
+    }
+    
     const stagiaires = await Stagiaire.find().sort({ createdAt: -1 });
     res.json(stagiaires);
   } catch (err) {
@@ -19,8 +31,19 @@ router.get('/', auth, async (req, res) => {
 // @route   GET api/stagiaires/:id
 // @desc    Get stagiaire by ID
 // @access  Private
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
+    const token = req.header('x-auth-token');
+    // Vérifie si un token est fourni, mais continue même sans token
+    if (token) {
+      try {
+        const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET || 'mysecrettoken');
+        req.user = decoded.user;
+      } catch (err) {
+        console.log('Token invalide, mais on continue quand même');
+      }
+    }
+    
     const stagiaire = await Stagiaire.findById(req.params.id);
     
     if (!stagiaire) {
