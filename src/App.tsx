@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Profil from "./pages/Profil";
 import GestionProjets from "./pages/GestionProjets";
+import Missions from "./pages/Missions";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = localStorage.getItem("isLoggedIn") === "true";
