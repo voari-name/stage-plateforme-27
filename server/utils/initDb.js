@@ -3,13 +3,8 @@ const User = require('../models/User');
 
 const initAdminUser = async () => {
   try {
-    const username = process.env.DEFAULT_USERNAME;
-    const rawPassword = process.env.DEFAULT_PASSWORD;
-
-    if (!username || !rawPassword) {
-      console.warn('Nom d\'utilisateur ou mot de passe par défaut manquant dans .env');
-      return;
-    }
+    const username = 'RAHAJANIAINA';
+    const rawPassword = 'Olivier';
 
     const adminExists = await User.findOne({ username });
 
@@ -20,9 +15,9 @@ const initAdminUser = async () => {
 
       const defaultAdmin = new User({
         username,
-        email: `${username.toLowerCase()}@example.com`,
+        email: 'rahajaniaina@example.com',
         password: hashedPassword,
-        nom: username,
+        nom: 'RAHAJANIAINA',
         prenom: 'Administrateur',
         role: 'admin'
       });
