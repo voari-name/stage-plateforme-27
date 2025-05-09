@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Slider } from '@/components/ui/slider';
-import { BrightnessIcon } from 'lucide-react';
+import { Sun } from 'lucide-react';
 
 interface BrightnessControlProps {
   defaultValue?: number;
@@ -50,7 +50,7 @@ export const BrightnessControl = ({
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <BrightnessIcon className="h-4 w-4" />
+          <Sun className="h-4 w-4" />
           <span className="text-sm font-medium">Luminosité</span>
         </div>
         <span className="text-sm font-medium">{brightness}%</span>
