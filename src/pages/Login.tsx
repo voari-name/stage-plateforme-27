@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,24 +67,7 @@ const Login = () => {
       navigate("/a-propos");
     } catch (error: any) {
       console.error("Erreur de connexion:", error);
-      
-      // Si l'API n'est pas disponible, on vérifie les identifiants en local
-      if (error.message.includes("Failed to fetch") && 
-          values.username === "RAHAJANIAINA" && 
-          values.password === "olivier") {
-          
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("username", values.username);
-        
-        toast({
-          title: "Connexion réussie (mode hors ligne)",
-          description: "Bienvenue sur la plateforme de gestion des stagiaires",
-        });
-        
-        navigate("/a-propos");
-        return;
-      }
-      
+
       toast({
         variant: "destructive",
         title: "Erreur de connexion",
