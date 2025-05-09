@@ -1,333 +1,487 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { BrightnessIcon, KeyIcon, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { User, Mail, Phone, Calendar, Camera, Save, X, Moon, Sun, SunMedium } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Switch } from "@/components/ui/switch";
-import { useTheme } from "@/components/ThemeProvider";
-import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BrightnessControl } from "@/components/profile/BrightnessControl";
+
+const profileSchema = z.object({
+  prenom: z.string().min(1, "Le prénom est requis"),
+  nom: z.string().min(1, "Le nom est requis"),
+  email: z.string().email("Email invalide"),
+});
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, "Le mot de passe actuel est requis"),
+  newPassword: z.string().min(6, "Le nouveau mot de passe doit contenir au moins 6 caractères"),
+  confirmPassword: z.string().min(1, "La confirmation du mot de passe est requise"),
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
+type PasswordFormValues = z.infer<typeof passwordSchema>;
+
+const API_URL = "http://localhost:5000/api";
 
 const Profil = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [profileImage, setProfileImage] = useState<string>("/lovable-uploads/aa4b9f4c-2bff-4893-a101-3498804ab803.png");
-  const [showImageUpload, setShowImageUpload] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const { theme, toggleTheme } = useTheme();
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
   const [brightness, setBrightness] = useState(100);
-  
-  const [profileData, setProfileData] = useState({
-    fullName: "RAHAJANIAINA Olivier",
-    email: "olivier.rahajaniaina@mtefop.mg",
-    phone: "+261 34 12 345 67",
-    hireDate: "01/01/2023"
+  const [offline, setOffline] = useState(false);
+
+  const profileForm = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      prenom: "",
+      nom: "",
+      email: "",
+    },
   });
-  
-  const [formData, setFormData] = useState({...profileData});
-  const [animateProfile, setAnimateProfile] = useState(false);
-  
+
+  const passwordForm = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
   useEffect(() => {
-    // Animation d'entrée
-    setAnimateProfile(true);
-    
-    // Appliquer la luminosité
-    document.documentElement.style.filter = `brightness(${brightness}%)`;
-    
-    return () => {
-      // Reset brightness when component unmounts
-      document.documentElement.style.filter = "brightness(100%)";
-    };
-  }, [brightness]);
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-  
-  const handleBrightnessChange = (value: number[]) => {
-    setBrightness(value[0]);
-    document.documentElement.style.filter = `brightness(${value[0]}%)`;
-  };
-  
-  const handleSave = () => {
-    setProfileData({...formData});
-    setIsEditing(false);
-    toast({
-      title: "Profil mis à jour",
-      description: "Vos informations ont été mises à jour avec succès.",
-    });
-  };
-  
-  const handleCancel = () => {
-    setFormData({...profileData});
-    setIsEditing(false);
-    setShowImageUpload(false);
-  };
-  
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
-  
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      
-      reader.onload = (event) => {
-        if (event.target && typeof event.target.result === 'string') {
-          setProfileImage(event.target.result);
-          toast({
-            title: "Photo de profil mise à jour",
-            description: "Votre photo de profil a été changée avec succès."
-          });
+    // Load user data
+    const fetchUserData = async () => {
+      try {
+        const userString = localStorage.getItem('user');
+        if (userString) {
+          const localUser = JSON.parse(userString);
+          
+          // Try to fetch from API first
+          try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/auth/me`, {
+              headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token || ''
+              }
+            });
+            
+            if (!response.ok) {
+              throw new Error('Erreur de chargement des données utilisateur');
+            }
+            
+            const userData = await response.json();
+            setUserData(userData);
+            setOffline(false);
+            
+            // Update form
+            profileForm.reset({
+              prenom: userData.prenom || '',
+              nom: userData.nom || '',
+              email: userData.email || '',
+            });
+            
+            // Set brightness from preferences
+            if (userData.preferences?.brightness) {
+              setBrightness(userData.preferences.brightness);
+              document.documentElement.style.filter = `brightness(${userData.preferences.brightness}%)`;
+            }
+            
+          } catch (error) {
+            console.error("Erreur API, utilisation des données locales:", error);
+            // Fallback to local data
+            setUserData(localUser);
+            setOffline(true);
+            
+            // Update form with local data
+            profileForm.reset({
+              prenom: localUser.prenom || '',
+              nom: localUser.nom || '',
+              email: localUser.email || '',
+            });
+            
+            // Set brightness from local storage if available
+            if (localUser.brightness) {
+              setBrightness(localUser.brightness);
+              document.documentElement.style.filter = `brightness(${localUser.brightness}%)`;
+            }
+          }
         }
-      };
+      } catch (error) {
+        console.error("Erreur lors du chargement des données utilisateur:", error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger vos informations"
+        });
+      }
+    };
+    
+    fetchUserData();
+  }, []);
+  
+  const onSubmitProfile = async (data: ProfileFormValues) => {
+    setIsLoadingProfile(true);
+    
+    try {
+      if (offline) {
+        // Update local storage in offline mode
+        const userString = localStorage.getItem('user');
+        if (userString) {
+          const user = JSON.parse(userString);
+          const updatedUser = {
+            ...user,
+            nom: data.nom,
+            prenom: data.prenom,
+            email: data.email
+          };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          setUserData(updatedUser);
+        }
+        
+        toast({
+          title: "Profil mis à jour",
+          description: "Vos informations ont été enregistrées localement (mode hors-ligne)"
+        });
+      } else {
+        // Update via API
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/auth/update-profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': token || ''
+          },
+          body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+          throw new Error('Erreur lors de la mise à jour du profil');
+        }
+        
+        const updatedUserData = await response.json();
+        setUserData(updatedUserData);
+        
+        // Update local storage
+        const userString = localStorage.getItem('user');
+        if (userString) {
+          const user = JSON.parse(userString);
+          localStorage.setItem('user', JSON.stringify({
+            ...user,
+            nom: data.nom,
+            prenom: data.prenom,
+            email: data.email
+          }));
+        }
+        
+        toast({
+          title: "Profil mis à jour",
+          description: "Vos informations ont été mises à jour avec succès"
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du profil:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de mettre à jour votre profil"
+      });
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
+  
+  const onSubmitPassword = async (data: PasswordFormValues) => {
+    setIsLoadingPassword(true);
+    
+    try {
+      if (offline) {
+        toast({
+          variant: "destructive",
+          title: "Mode hors-ligne",
+          description: "Le changement de mot de passe n'est pas disponible en mode hors-ligne"
+        });
+        return;
+      }
       
-      reader.readAsDataURL(file);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/auth/change-password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        },
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword
+        })
+      });
+      
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Erreur lors du changement de mot de passe');
+      }
+      
+      toast({
+        title: "Mot de passe changé",
+        description: "Votre mot de passe a été modifié avec succès"
+      });
+      
+      // Reset form
+      passwordForm.reset({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      
+    } catch (error: any) {
+      console.error("Erreur lors du changement de mot de passe:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error.message || "Impossible de changer votre mot de passe"
+      });
+    } finally {
+      setIsLoadingPassword(false);
+    }
+  };
+  
+  const handleBrightnessChange = async (value: number) => {
+    setBrightness(value);
+    
+    try {
+      if (!offline) {
+        const token = localStorage.getItem('token');
+        await fetch(`${API_URL}/auth/preferences`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': token || ''
+          },
+          body: JSON.stringify({
+            brightness: value
+          })
+        });
+      }
+      
+      // Always update local storage for offline use
+      const userString = localStorage.getItem('user');
+      if (userString) {
+        const user = JSON.parse(userString);
+        localStorage.setItem('user', JSON.stringify({
+          ...user,
+          brightness: value
+        }));
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la luminosité:", error);
     }
   };
 
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      
+
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
-        
-        <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-950">
-          <div className="mx-auto max-w-5xl">
-            <div className="flex flex-col lg:flex-row gap-6">
-              <div className="w-full">
-                <Card 
-                  className={`shadow-lg border-blue-200 dark:border-blue-800 overflow-hidden transition-all duration-700 transform ${animateProfile ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
-                >
-                  <div className="h-32 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-700 dark:to-indigo-800"></div>
-                  <div className="px-6 pb-6 -mt-16 flex flex-col items-center relative">
-                    <div className="relative">
-                      <Avatar className="border-4 border-white dark:border-gray-800 h-32 w-32 shadow-lg hover:scale-105 transition-transform cursor-pointer" onClick={() => setShowImageUpload(true)}>
-                        <AvatarImage src={profileImage} alt="Photo de profil" />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-xl">RO</AvatarFallback>
-                      </Avatar>
-                      
-                      {showImageUpload && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 rounded-full">
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            className="h-10 w-10 rounded-full bg-white text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                            onClick={triggerFileInput}
-                          >
-                            <Camera className="h-5 w-5" />
-                            <span className="sr-only">Changer la photo</span>
-                          </Button>
-                          <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            className="hidden" 
-                            accept="image/*"
-                            onChange={handleImageChange}
-                          />
-                        </div>
-                      )}
-                      
-                      {!showImageUpload && (
-                        <Button 
-                          variant="outline" 
-                          size="icon"
-                          className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-white dark:bg-gray-800 border-blue-300 dark:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900"
-                          onClick={() => setShowImageUpload(true)}
-                        >
-                          <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          <span className="sr-only">Changer la photo</span>
-                        </Button>
-                      )}
-                    </div>
-                    <h2 className="mt-4 text-2xl font-bold text-blue-800 dark:text-blue-300">{profileData.fullName}</h2>
-                    <p className="text-muted-foreground">Administrateur</p>
-                    
-                    {/* Commutateur de thème */}
-                    <div className="flex items-center space-x-2 mt-4">
-                      <Sun className="h-5 w-5 text-amber-500" />
-                      <Switch 
-                        checked={theme === 'dark'}
-                        onCheckedChange={toggleTheme}
-                      />
-                      <Moon className="h-5 w-5 text-blue-700 dark:text-blue-400" />
-                      <span className="text-sm text-muted-foreground ml-2">
-                        {theme === 'dark' ? 'Mode sombre' : 'Mode clair'}
-                      </span>
-                    </div>
-                    
-                    {/* Réglage de luminosité */}
-                    <div className="flex flex-col w-full max-w-xs mt-4 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-sm flex items-center">
-                          <SunMedium className="h-4 w-4 mr-2 text-amber-500" />
-                          Luminosité
-                        </Label>
-                        <span className="text-sm text-muted-foreground">{brightness}%</span>
-                      </div>
-                      <Slider 
-                        defaultValue={[100]} 
-                        max={150} 
-                        min={50} 
-                        step={5} 
-                        onValueChange={handleBrightnessChange}
-                        className="mt-2"
-                      />
-                    </div>
-                    
-                    {!isEditing && !showImageUpload && (
-                      <Button 
-                        onClick={() => setIsEditing(true)} 
-                        className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 dark:from-blue-600 dark:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800"
-                      >
-                        Modifier le profil
-                      </Button>
-                    )}
-                    
-                    {showImageUpload && (
-                      <div className="mt-4 flex space-x-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={handleCancel}
-                          className="flex items-center"
-                        >
-                          <X className="mr-1 h-4 w-4" />
-                          Annuler
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-                
-                <Card className={`mt-6 shadow-md border-blue-200 dark:border-blue-800 transition-all duration-700 delay-300 transform ${animateProfile ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+
+        <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900">
+          <div className="max-w-3xl mx-auto space-y-6">
+            {offline && (
+              <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md shadow">
+                <p className="font-medium">Mode hors-ligne actif</p>
+                <p className="text-sm">Les modifications seront sauvegardées localement</p>
+              </div>
+            )}
+            
+            <div className="flex items-center mb-6">
+              <h1 className="text-3xl font-bold text-blue-800 dark:text-blue-300">Mon profil</h1>
+            </div>
+
+            <Tabs defaultValue="infos" className="w-full">
+              <TabsList className="mb-6 bg-white/50 backdrop-blur-sm dark:bg-slate-800/50">
+                <TabsTrigger value="infos" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Informations personnelles
+                </TabsTrigger>
+                <TabsTrigger value="security" className="flex items-center gap-2">
+                  <KeyIcon className="h-4 w-4" />
+                  Sécurité
+                </TabsTrigger>
+                <TabsTrigger value="preferences" className="flex items-center gap-2">
+                  <BrightnessIcon className="h-4 w-4" />
+                  Préferences
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="infos">
+                <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg text-blue-800 dark:text-blue-300">Informations personnelles</CardTitle>
+                    <CardTitle>Informations personnelles</CardTitle>
+                    <CardDescription>
+                      Modifiez vos informations personnelles
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    {isEditing ? (
-                      <div className="space-y-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="fullName" className="flex items-center">
-                            <User className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
-                            Nom complet
-                          </Label>
-                          <Input
-                            id="fullName"
-                            name="fullName"
-                            value={formData.fullName}
-                            onChange={handleChange}
-                            className="border-blue-200 dark:border-blue-800 focus:border-blue-400 dark:focus:border-blue-600"
+                  <CardContent>
+                    <Form {...profileForm}>
+                      <form onSubmit={profileForm.handleSubmit(onSubmitProfile)} className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={profileForm.control}
+                            name="prenom"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Prénom</FormLabel>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={profileForm.control}
+                            name="nom"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Nom</FormLabel>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
                           />
                         </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="email" className="flex items-center">
-                            <Mail className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
-                            Email
-                          </Label>
-                          <Input
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="border-blue-200 dark:border-blue-800 focus:border-blue-400 dark:focus:border-blue-600"
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="phone" className="flex items-center">
-                            <Phone className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
-                            Téléphone
-                          </Label>
-                          <Input
-                            id="phone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            className="border-blue-200 dark:border-blue-800 focus:border-blue-400 dark:focus:border-blue-600"
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="hireDate" className="flex items-center">
-                            <Calendar className="h-5 w-5 mr-2 text-blue-500 dark:text-blue-400" />
-                            Date d'embauche
-                          </Label>
-                          <Input
-                            id="hireDate"
-                            name="hireDate"
-                            value={formData.hireDate}
-                            onChange={handleChange}
-                            className="border-blue-200 dark:border-blue-800 focus:border-blue-400 dark:focus:border-blue-600"
-                          />
-                        </div>
-                        
-                        <div className="flex space-x-4 pt-4">
+                        <FormField
+                          control={profileForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <Input type="email" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="pt-4">
                           <Button 
-                            onClick={handleSave}
-                            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 dark:from-blue-600 dark:to-indigo-700 dark:hover:from-blue-700 dark:hover:to-indigo-800 flex items-center"
+                            type="submit" 
+                            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
+                            disabled={isLoadingProfile}
                           >
-                            <Save className="mr-2 h-4 w-4" />
-                            Enregistrer
-                          </Button>
-                          <Button 
-                            onClick={handleCancel} 
-                            variant="outline"
-                            className="border-blue-200 dark:border-blue-700 flex items-center"
-                          >
-                            <X className="mr-2 h-4 w-4" />
-                            Annuler
+                            {isLoadingProfile ? "Enregistrement..." : "Enregistrer les modifications"}
                           </Button>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="flex items-center p-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
-                          <User className="h-5 w-5 mr-3 text-blue-600 dark:text-blue-400" />
-                          <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Nom complet</p>
-                            <p className="font-medium text-gray-800 dark:text-gray-200">{profileData.fullName}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center p-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
-                          <Mail className="h-5 w-5 mr-3 text-blue-600 dark:text-blue-400" />
-                          <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                            <p className="font-medium text-gray-800 dark:text-gray-200">{profileData.email}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center p-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
-                          <Phone className="h-5 w-5 mr-3 text-blue-600 dark:text-blue-400" />
-                          <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Téléphone</p>
-                            <p className="font-medium text-gray-800 dark:text-gray-200">{profileData.phone}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center p-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
-                          <Calendar className="h-5 w-5 mr-3 text-blue-600 dark:text-blue-400" />
-                          <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Date d'embauche</p>
-                            <p className="font-medium text-gray-800 dark:text-gray-200">{profileData.hireDate}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                      </form>
+                    </Form>
                   </CardContent>
                 </Card>
-              </div>
-            </div>
+              </TabsContent>
+              
+              <TabsContent value="security">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Changer de mot de passe</CardTitle>
+                    <CardDescription>
+                      Mettez à jour votre mot de passe pour sécuriser votre compte
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Form {...passwordForm}>
+                      <form onSubmit={passwordForm.handleSubmit(onSubmitPassword)} className="space-y-4">
+                        <FormField
+                          control={passwordForm.control}
+                          name="currentPassword"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mot de passe actuel</FormLabel>
+                              <FormControl>
+                                <Input type="password" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={passwordForm.control}
+                            name="newPassword"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Nouveau mot de passe</FormLabel>
+                                <FormControl>
+                                  <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={passwordForm.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Confirmer mot de passe</FormLabel>
+                                <FormControl>
+                                  <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="pt-4">
+                          <Button 
+                            type="submit" 
+                            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
+                            disabled={isLoadingPassword || offline}
+                          >
+                            {isLoadingPassword ? "Mise à jour..." : "Mettre à jour le mot de passe"}
+                          </Button>
+                        </div>
+                      </form>
+                    </Form>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="preferences">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Préférences d'affichage</CardTitle>
+                    <CardDescription>
+                      Personnalisez l'apparence de l'interface
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="px-2">
+                        <BrightnessControl 
+                          defaultValue={brightness} 
+                          onBrightnessChange={handleBrightnessChange}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>

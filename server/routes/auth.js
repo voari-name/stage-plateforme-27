@@ -64,7 +64,8 @@ router.post('/register', async (req, res) => {
             email: user.email,
             nom: user.nom,
             prenom: user.prenom,
-            role: user.role
+            role: user.role,
+            preferences: user.preferences
           }
         });
       }
@@ -122,7 +123,8 @@ router.post('/login', async (req, res) => {
             email: user.email,
             nom: user.nom,
             prenom: user.prenom,
-            role: user.role
+            role: user.role,
+            preferences: user.preferences
           }
         });
       }
@@ -195,6 +197,36 @@ router.put('/change-password', auth, async (req, res) => {
     await user.save();
     
     res.json({ message: 'Mot de passe mis à jour avec succès' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Erreur serveur');
+  }
+});
+
+// @route   PUT api/auth/preferences
+// @desc    Update user preferences
+// @access  Private
+router.put('/preferences', auth, async (req, res) => {
+  const { theme, brightness } = req.body;
+  
+  try {
+    const userPreferences = {};
+    if (theme) userPreferences['preferences.theme'] = theme;
+    if (brightness && brightness >= 50 && brightness <= 150) {
+      userPreferences['preferences.brightness'] = brightness;
+    }
+    
+    if (Object.keys(userPreferences).length === 0) {
+      return res.status(400).json({ message: 'Aucune préférence valide à mettre à jour' });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: userPreferences },
+      { new: true }
+    ).select('-password');
+    
+    res.json(user);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Erreur serveur');

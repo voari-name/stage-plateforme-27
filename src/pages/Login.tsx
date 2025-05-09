@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,8 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Banner } from "@/components/layout/Banner";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-const API_URL = "https://stage-plateforme.onrender.com/api";
+// Configure API URL with fallback mechanism for development
+const API_URL = "http://localhost:5000/api";
 
 const loginFormSchema = z.object({
   username: z.string().min(1, "Le nom d'utilisateur est requis"),
@@ -23,6 +27,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -34,6 +39,8 @@ const Login = () => {
 
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
+    setLoginError(null);
+    
     try {
       // Appel à l'API pour l'authentification
       const response = await fetch(`${API_URL}/auth/login`, {
@@ -68,11 +75,32 @@ const Login = () => {
     } catch (error: any) {
       console.error("Erreur de connexion:", error);
 
-      toast({
-        variant: "destructive",
-        title: "Erreur de connexion",
-        description: error.message || "Identifiants invalides",
-      });
+      // Handle offline mode gracefully
+      if (error.message === "Failed to fetch") {
+        setLoginError("Impossible de se connecter au serveur. Veuillez vérifier votre connexion ou contacter l'administrateur.");
+        
+        // Fallback to demo mode for development/testing
+        if (process.env.NODE_ENV === 'development') {
+          const demoUser = {
+            username: values.username,
+            role: 'admin'
+          };
+          
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("user", JSON.stringify(demoUser));
+          localStorage.setItem("token", "demo-token");
+          localStorage.setItem("demoMode", "true");
+          
+          toast({
+            title: "Mode démo activé",
+            description: "Vous êtes connecté en mode démo avec des données fictives.",
+          });
+          
+          navigate("/a-propos");
+        }
+      } else {
+        setLoginError(error.message || "Identifiants invalides");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -100,6 +128,14 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
+            {loginError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Erreur de connexion</AlertTitle>
+                <AlertDescription>{loginError}</AlertDescription>
+              </Alert>
+            )}
+            
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
