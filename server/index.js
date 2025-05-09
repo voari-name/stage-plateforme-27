@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -7,7 +6,7 @@ const authRoutes = require('./routes/auth');
 const stagiairesRoutes = require('./routes/stagiaires');
 const evaluationsRoutes = require('./routes/evaluations');
 const missionsRoutes = require('./routes/missions');
-const { initAdminUser } = require('./utils/initDb');
+const { initAdminUser } = require('./utils/initAdminUser'); // Aza adino fa io no tokony ho ilay file, raha "initDb.js" ilay anao dia asio fanitsiana
 
 // Load environment variables
 dotenv.config();
@@ -25,7 +24,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB');
     // Initialize admin user after successful connection
-    initAdminUser();
+    initAdminUser();  // Anisan'ny hanombohana ny famoronana admin raha tsy mbola misy
   })
   .catch(err => console.error('MongoDB connection error:', err));
 
