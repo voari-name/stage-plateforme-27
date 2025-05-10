@@ -8,7 +8,8 @@ import {
   Star,
   Info,
   UserCircle,
-  Briefcase
+  Briefcase,
+  Settings
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Banner } from "@/components/layout/Banner";
@@ -146,6 +147,13 @@ export function Sidebar() {
           to="/profil"
           expanded={expanded}
           active={isActive("/profil")}
+        />
+        <NavItem
+          icon={Settings}
+          label="Paramètres"
+          to="/parametres"
+          expanded={expanded}
+          active={isActive("/parametres")}
         />
       </div>
 

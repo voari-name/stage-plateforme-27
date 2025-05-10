@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import Profil from "./pages/Profil";
 import GestionProjets from "./pages/GestionProjets";
 import Missions from "./pages/Missions";
+import Parametres from "./pages/Parametres";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = localStorage.getItem("isLoggedIn") === "true";
@@ -71,6 +72,11 @@ const App = () => {
               <Route path="/profil" element={
                 <ProtectedRoute>
                   <Profil />
+                </ProtectedRoute>
+              } />
+              <Route path="/parametres" element={
+                <ProtectedRoute>
+                  <Parametres />
                 </ProtectedRoute>
               } />
               <Route path="/gestion-projets" element={
