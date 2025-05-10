@@ -47,7 +47,9 @@ const Login = () => {
         const demoUser = {
           id: "demo-user-id",
           username: values.username,
-          role: 'admin'
+          role: 'admin',
+          email: 'olivierrahajaniaina9@gmail.com',
+          tel: '038 51 621 07'
         };
         
         localStorage.setItem("isLoggedIn", "true");
@@ -109,9 +111,24 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="w-full bg-white shadow-md p-2">
+        <img 
+          src="/lovable-uploads/1a09be03-00ad-4861-bfd7-81f3a9aba185.png"
+          alt="MTEFoP Banner"
+          className="max-h-28 w-full object-contain"
+        />
+      </div>
+      
       <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-lg border-blue-200">
           <CardHeader className="space-y-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
+            <div className="flex justify-center mb-2">
+              <img 
+                src="/lovable-uploads/6e93b2be-abea-40f8-98c9-3d3a5895e5e6.png"
+                alt="MTEFoP Logo"
+                className="h-20 w-20 object-contain"
+              />
+            </div>
             <CardTitle className="text-2xl font-bold text-center">Connexion</CardTitle>
             <CardDescription className="text-center text-blue-100">
               Entrez vos identifiants pour accéder à la plateforme
