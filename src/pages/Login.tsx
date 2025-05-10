@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Banner } from "@/components/layout/Banner";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -42,7 +41,30 @@ const Login = () => {
     setLoginError(null);
     
     try {
-      // Appel à l'API pour l'authentification
+      // Vérifier les identifiants en mode hors ligne
+      if (values.username === "RAHAJANIAINA" && values.password === "Olivier") {
+        // Mode démo/hors ligne - identifiants acceptés
+        const demoUser = {
+          id: "demo-user-id",
+          username: values.username,
+          role: 'admin'
+        };
+        
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("user", JSON.stringify(demoUser));
+        localStorage.setItem("token", "demo-token");
+        localStorage.setItem("demoMode", "true");
+        
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur la plateforme de gestion des stagiaires",
+        });
+        
+        navigate("/a-propos");
+        return;
+      }
+      
+      // Si ce n'est pas le compte par défaut, essayer l'API
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -75,31 +97,10 @@ const Login = () => {
     } catch (error: any) {
       console.error("Erreur de connexion:", error);
 
-      // Handle offline mode gracefully
       if (error.message === "Failed to fetch") {
-        setLoginError("Impossible de se connecter au serveur. Veuillez vérifier votre connexion ou contacter l'administrateur.");
-        
-        // Fallback to demo mode for development/testing
-        if (process.env.NODE_ENV === 'development') {
-          const demoUser = {
-            username: values.username,
-            role: 'admin'
-          };
-          
-          localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("user", JSON.stringify(demoUser));
-          localStorage.setItem("token", "demo-token");
-          localStorage.setItem("demoMode", "true");
-          
-          toast({
-            title: "Mode démo activé",
-            description: "Vous êtes connecté en mode démo avec des données fictives.",
-          });
-          
-          navigate("/a-propos");
-        }
+        setLoginError("Impossible de se connecter au serveur. Veuillez essayer à nouveau.");
       } else {
-        setLoginError(error.message || "Identifiants invalides");
+        setLoginError("Identifiants invalides");
       }
     } finally {
       setIsLoading(false);
@@ -108,20 +109,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="w-full">
-        <Banner />
-      </div>
-
       <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-lg border-blue-200">
           <CardHeader className="space-y-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
-            <div className="flex items-center justify-center mb-4">
-              <img
-                src="/lovable-uploads/5c0ae490-98de-4bfa-bff1-df9fe97ebe0b.png"
-                alt="MTEFoP Logo"
-                className="h-16 w-16 filter drop-shadow-md"
-              />
-            </div>
             <CardTitle className="text-2xl font-bold text-center">Connexion</CardTitle>
             <CardDescription className="text-center text-blue-100">
               Entrez vos identifiants pour accéder à la plateforme
