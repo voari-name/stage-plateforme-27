@@ -3,15 +3,15 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  ChartBarIcon,
-  HomeIcon,
-  UsersIcon,
-  ClipboardDocumentCheckIcon,
-  BookOpenIcon,
-  BriefcaseIcon,
-  Cog6ToothIcon,
-  UserCircleIcon,
-} from "@heroicons/react/24/outline";
+  BarChart, 
+  Home, 
+  Users, 
+  ClipboardCheck, 
+  BookOpen, 
+  Briefcase, 
+  Settings, 
+  UserCircle
+} from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useTranslation } from "@/lib/translations";
 
@@ -24,43 +24,43 @@ export function Sidebar() {
     {
       name: t("sidebar.about"),
       href: "/a-propos",
-      icon: HomeIcon,
+      icon: Home,
       current: location.pathname === "/a-propos",
     },
     {
       name: t("sidebar.stagiaires"),
       href: "/stagiaires",
-      icon: UsersIcon,
+      icon: Users,
       current: location.pathname === "/stagiaires",
     },
     {
       name: t("sidebar.evaluations"),
       href: "/evaluations",
-      icon: ClipboardDocumentCheckIcon,
+      icon: ClipboardCheck,
       current: location.pathname === "/evaluations",
     },
     {
       name: t("sidebar.projects"),
       href: "/gestion-projets",
-      icon: ChartBarIcon,
+      icon: BarChart,
       current: location.pathname === "/gestion-projets",
     },
     {
       name: t("sidebar.missions"),
       href: "/missions",
-      icon: BriefcaseIcon,
+      icon: Briefcase,
       current: location.pathname === "/missions",
     },
     {
       name: "Profil",
       href: "/profil",
-      icon: UserCircleIcon,
+      icon: UserCircle,
       current: location.pathname === "/profil",
     },
     {
       name: t("sidebar.settings"),
       href: "/parametres",
-      icon: Cog6ToothIcon,
+      icon: Settings,
       current: location.pathname === "/parametres",
     },
   ];
@@ -70,7 +70,7 @@ export function Sidebar() {
       <div className="flex h-16 shrink-0 items-center justify-center border-b border-sidebar-border p-2">
         <Link to="/" className="flex items-center justify-center md:justify-start gap-2 outline-none">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sidebar-primary">
-            <BookOpenIcon className="h-6 w-6 text-sidebar-primary-foreground" />
+            <BookOpen className="h-6 w-6 text-sidebar-primary-foreground" />
           </div>
           <div className="hidden md:flex flex-col items-start whitespace-nowrap overflow-hidden transition-all duration-300">
             <span className="font-semibold text-sidebar-foreground">MTEFOP</span>
