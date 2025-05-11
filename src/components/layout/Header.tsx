@@ -12,12 +12,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/ThemeProvider";
+import { useTranslation } from "@/lib/translations";
 
 export function Header() {
   const [notifications, setNotifications] = useState<{id: string, title: string, message: string}[]>([]);
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { language } = useTheme();
+  const { t } = useTranslation(language);
   
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -52,8 +56,12 @@ export function Header() {
     
     const logoutNotification = {
       id: Date.now().toString(),
-      title: "Déconnexion réussie",
-      message: "Vous avez été déconnecté avec succès"
+      title: language === "fr" ? "Déconnexion réussie" : 
+             language === "en" ? "Logout successful" : 
+             "Nivoaka soa aman-tsara",
+      message: language === "fr" ? "Vous avez été déconnecté avec succès" : 
+               language === "en" ? "You have been logged out successfully" : 
+               "Nivoaka soa aman-tsara ianao"
     };
     
     toast({
@@ -92,7 +100,11 @@ export function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80">
               <DropdownMenuLabel className="flex items-center justify-between">
-                <span>Notifications</span>
+                <span>
+                  {language === "fr" ? "Notifications" : 
+                   language === "en" ? "Notifications" : 
+                   "Fampahafantarana"}
+                </span>
                 {notifications.length > 0 && (
                   <Button 
                     variant="ghost" 
@@ -100,7 +112,9 @@ export function Header() {
                     onClick={handleClearAllNotifications}
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
-                    Tout effacer
+                    {language === "fr" ? "Tout effacer" : 
+                     language === "en" ? "Clear all" : 
+                     "Fafao daholo"}
                   </Button>
                 )}
               </DropdownMenuLabel>
@@ -108,7 +122,9 @@ export function Header() {
               
               {notifications.length === 0 ? (
                 <div className="py-4 px-2 text-center text-sm text-muted-foreground">
-                  Pas de notifications
+                  {language === "fr" ? "Pas de notifications" : 
+                   language === "en" ? "No notifications" : 
+                   "Tsy misy fampahafantarana"}
                 </div>
               ) : (
                 notifications.map(notification => (
@@ -127,7 +143,9 @@ export function Header() {
                           onClick={() => handleClearNotification(notification.id)}
                           className="text-xs h-6"
                         >
-                          Effacer
+                          {language === "fr" ? "Effacer" : 
+                           language === "en" ? "Clear" : 
+                           "Fafao"}
                         </Button>
                       </div>
                     </div>
@@ -150,7 +168,7 @@ export function Header() {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                 <LogOut className="h-4 w-4 mr-2" />
-                Déconnexion
+                {t("header.logout")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

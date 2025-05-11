@@ -36,9 +36,13 @@ const App = () => {
     setIsAuthenticated(loggedIn);
   }, []);
   
+  // Load saved theme and language preferences or use defaults
+  const savedTheme = localStorage.getItem("mtefop-ui-theme") || "light";
+  const savedLanguage = localStorage.getItem("mtefop-ui-language") || "fr";
+  
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme={savedTheme as "light" | "dark"} defaultLanguage={savedLanguage as "fr" | "en" | "mg"}>
         <TooltipProvider>
           <Toaster />
           <Sonner />

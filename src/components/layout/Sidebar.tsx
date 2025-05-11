@@ -1,167 +1,113 @@
 
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  Users,
-  Star,
-  Info,
-  UserCircle,
-  Briefcase,
-  Settings
-} from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Banner } from "@/components/layout/Banner";
-
-type NavItemProps = {
-  icon: React.ElementType;
-  label: string;
-  to: string;
-  expanded: boolean;
-  active?: boolean;
-};
-
-const NavItem = ({ icon: Icon, label, to, expanded, active }: NavItemProps) => {
-  if (expanded) {
-    return (
-      <Link to={to} className="w-full block mb-1">
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full justify-start transition-all duration-200 sidebar-item-hover",
-            active ? "sidebar-item-active" : ""
-          )}
-        >
-          <Icon className={cn("h-5 w-5 mr-2", active ? "text-blue-600 dark:text-blue-400" : "")} />
-          <span className="font-medium">{label}</span>
-        </Button>
-      </Link>
-    );
-  } else {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link to={to} className="w-full block mb-1">
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full justify-center py-3 transition-all duration-200 sidebar-item-hover",
-                  active ? "sidebar-item-active" : ""
-                )}
-              >
-                <Icon className={cn("h-5 w-5", active ? "text-blue-600 dark:text-blue-400" : "")} />
-              </Button>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right" className="bg-popover font-medium">
-            {label}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  }
-};
+  ChartBarIcon,
+  HomeIcon,
+  UsersIcon,
+  ClipboardDocumentCheckIcon,
+  BookOpenIcon,
+  BriefcaseIcon,
+  Cog6ToothIcon,
+  UserCircleIcon,
+} from "@heroicons/react/24/outline";
+import { useTheme } from "@/components/ThemeProvider";
+import { useTranslation } from "@/lib/translations";
 
 export function Sidebar() {
-  const [expanded, setExpanded] = useState(true);
   const location = useLocation();
-  
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+  const { language } = useTheme();
+  const { t } = useTranslation(language);
+
+  const menuItems = [
+    {
+      name: t("sidebar.about"),
+      href: "/a-propos",
+      icon: HomeIcon,
+      current: location.pathname === "/a-propos",
+    },
+    {
+      name: t("sidebar.stagiaires"),
+      href: "/stagiaires",
+      icon: UsersIcon,
+      current: location.pathname === "/stagiaires",
+    },
+    {
+      name: t("sidebar.evaluations"),
+      href: "/evaluations",
+      icon: ClipboardDocumentCheckIcon,
+      current: location.pathname === "/evaluations",
+    },
+    {
+      name: t("sidebar.projects"),
+      href: "/gestion-projets",
+      icon: ChartBarIcon,
+      current: location.pathname === "/gestion-projets",
+    },
+    {
+      name: t("sidebar.missions"),
+      href: "/missions",
+      icon: BriefcaseIcon,
+      current: location.pathname === "/missions",
+    },
+    {
+      name: "Profil",
+      href: "/profil",
+      icon: UserCircleIcon,
+      current: location.pathname === "/profil",
+    },
+    {
+      name: t("sidebar.settings"),
+      href: "/parametres",
+      icon: Cog6ToothIcon,
+      current: location.pathname === "/parametres",
+    },
+  ];
 
   return (
-    <div
-      className={cn(
-        "h-screen flex flex-col bg-gradient-to-b from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950 dark:via-indigo-950 dark:to-blue-950 border-r border-sidebar-border transition-all duration-300 shadow-lg",
-        expanded ? "w-64" : "w-16"
-      )}
-    >
-      <div className="flex items-center justify-between p-4 border-b border-sidebar-border bg-gradient-to-r from-blue-200 to-indigo-200 dark:from-blue-900 dark:to-indigo-900">
-        {expanded && (
-          <div className="flex items-center fade-in">
-            <img 
-              src="/lovable-uploads/5c0ae490-98de-4bfa-bff1-df9fe97ebe0b.png" 
-              alt="MTEFoP Logo" 
-              className="h-10 w-10 mr-2 animate-pulse"
-            />
-            <h1 className="text-xl font-bold text-blue-700 dark:text-blue-300">MTEFoP</h1>
+    <div className="fixed inset-y-0 left-0 z-50 w-16 bg-sidebar pb-10 transition-all duration-300 ease-in-out hover:w-56 md:w-56 flex flex-col overflow-hidden border-r border-sidebar-border shadow-sm">
+      <div className="flex h-16 shrink-0 items-center justify-center border-b border-sidebar-border p-2">
+        <Link to="/" className="flex items-center justify-center md:justify-start gap-2 outline-none">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sidebar-primary">
+            <BookOpenIcon className="h-6 w-6 text-sidebar-primary-foreground" />
           </div>
-        )}
+          <div className="hidden md:flex flex-col items-start whitespace-nowrap overflow-hidden transition-all duration-300">
+            <span className="font-semibold text-sidebar-foreground">MTEFOP</span>
+            <span className="text-xs text-sidebar-foreground/60">Formation Pro</span>
+          </div>
+        </Link>
+      </div>
+      <nav className="flex-1 overflow-hidden hover:overflow-y-auto scrollbar-hide">
+        <ul className="flex flex-col gap-1 p-2">
+          {menuItems.map((item) => (
+            <li key={item.name}>
+              <Link
+                to={item.href}
+                className={cn(
+                  "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent",
+                  item.current && "bg-sidebar-accent font-medium"
+                )}
+              >
+                <item.icon
+                  className={cn("h-5 w-5 text-sidebar-foreground/60 group-hover:text-sidebar-foreground", 
+                    item.current && "text-sidebar-foreground")}
+                />
+                <span className="ml-3 whitespace-nowrap text-sm text-sidebar-foreground opacity-0 transition-all duration-300 group-hover:opacity-100 md:opacity-100">
+                  {item.name}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div className="mt-auto p-4 hidden md:block">
         <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setExpanded(!expanded)}
-          className={cn(
-            "hover:bg-blue-100 dark:hover:bg-blue-900 rounded-full",
-            expanded ? "ml-auto" : "mx-auto"
-          )}
+          variant="outline"
+          className="w-full justify-start text-xs text-sidebar-foreground/70 bg-sidebar-accent/50 hover:bg-sidebar-accent hover:text-sidebar-foreground border-sidebar-border"
         >
-          {expanded ? (
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
-          )}
-          <span className="sr-only">Toggle Sidebar</span>
+          v1.0.0
         </Button>
-      </div>
-      
-      <div className="flex-1 px-3 py-4 space-y-2 overflow-y-auto scrollbar-hide">
-        <NavItem
-          icon={Info}
-          label="À propos"
-          to="/a-propos"
-          expanded={expanded}
-          active={isActive("/a-propos")}
-        />
-        <NavItem
-          icon={Users}
-          label="Stagiaires"
-          to="/stagiaires"
-          expanded={expanded}
-          active={isActive("/stagiaires")}
-        />
-        <NavItem
-          icon={Star}
-          label="Évaluations"
-          to="/evaluations"
-          expanded={expanded}
-          active={isActive("/evaluations")}
-        />
-        <NavItem
-          icon={Briefcase}
-          label="Gestion de Projet"
-          to="/gestion-projets"
-          expanded={expanded}
-          active={isActive("/gestion-projets")}
-        />
-        <NavItem
-          icon={UserCircle}
-          label="Profil"
-          to="/profil"
-          expanded={expanded}
-          active={isActive("/profil")}
-        />
-        <NavItem
-          icon={Settings}
-          label="Paramètres"
-          to="/parametres"
-          expanded={expanded}
-          active={isActive("/parametres")}
-        />
-      </div>
-
-      <div className="mt-auto p-3">
-        <Banner className={cn(
-          "w-full rounded-lg overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1", 
-          !expanded && "h-24"
-        )} />
       </div>
     </div>
   );
