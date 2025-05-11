@@ -62,7 +62,7 @@ export function Sidebar() {
   
   const accountMenuItems = [
     {
-      name: "Profil",
+      name: t("sidebar.profile"),
       href: "/profil",
       icon: UserCircle,
       current: location.pathname === "/profil",
@@ -106,6 +106,8 @@ export function Sidebar() {
                       "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent",
                       item.current && "bg-sidebar-accent font-medium"
                     )}
+                    aria-label={item.name}
+                    title={item.name}
                   >
                     <item.icon
                       className={cn("h-5 w-5 text-sidebar-foreground/60 group-hover:text-sidebar-foreground", 
@@ -138,6 +140,8 @@ export function Sidebar() {
                       "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent",
                       item.current && "bg-sidebar-accent font-medium"
                     )}
+                    aria-label={item.name}
+                    title={item.name}
                   >
                     <item.icon
                       className={cn("h-5 w-5 text-sidebar-foreground/60 group-hover:text-sidebar-foreground", 
@@ -170,6 +174,8 @@ export function Sidebar() {
                       "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent",
                       item.current && "bg-sidebar-accent font-medium"
                     )}
+                    aria-label={item.name}
+                    title={item.name}
                   >
                     <item.icon
                       className={cn("h-5 w-5 text-sidebar-foreground/60 group-hover:text-sidebar-foreground", 

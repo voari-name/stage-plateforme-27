@@ -45,6 +45,11 @@ export const translations: Translations = {
     en: "Settings",
     mg: "Safidy",
   },
+  "sidebar.profile": {
+    fr: "Profil",
+    en: "Profile",
+    mg: "Mombamomba ahy",
+  },
   "header.logout": {
     fr: "Déconnexion",
     en: "Logout",
