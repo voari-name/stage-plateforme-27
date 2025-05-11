@@ -1,73 +1,113 @@
-# Welcome to your Lovable project
 
-## Project info
+# MTEFOP Formation Pro Platform
 
-**URL**: https://lovable.dev/projects/6ee032c7-65ab-4878-aff2-4114f2d469bf
+A professional platform for managing trainees, evaluations, missions and projects.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Multi-language support (French, English, Malagasy)
+- Dark/Light mode with brightness control
+- User authentication and profile management
+- Trainee management
+- Evaluations system
+- Project and mission management
+- Responsive design
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/6ee032c7-65ab-4878-aff2-4114f2d469bf) and start prompting.
+### Frontend:
+- React with TypeScript
+- React Router for navigation
+- Tanstack Query for data fetching
+- Tailwind CSS for styling
+- Shadcn UI for UI components
+- Lucide React for icons
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend:
+- Node.js + Express
+- MongoDB with Mongoose
+- JWT for authentication
 
-**Use your preferred IDE**
+## Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Node.js (v14+ recommended)
+- MongoDB installed locally or a MongoDB Atlas account
 
-Follow these steps:
+### Installation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Clone the repository:
+```
+git clone <repository-url>
+cd mtefop-formation-pro
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Install dependencies for both frontend and backend:
+```
+npm install
+cd server
+npm install
+cd ..
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. Configure environment variables:
+- Copy `server/.env.example` to `server/.env` and update the values as needed
+- Make sure MongoDB is running
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+4. Start the backend server:
+```
+cd server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+5. Start the frontend development server:
+```
+# In another terminal
+npm run dev
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+6. Access the application at: `http://localhost:5173`
 
-**Use GitHub Codespaces**
+## Default Login Credentials
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Username: RAHAJANIAINA
+- Password: olivier
 
-## What technologies are used for this project?
+## Development
 
-This project is built with:
+The project structure is organized as follows:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- `/src` - Frontend React application
+  - `/components` - Reusable UI components
+  - `/pages` - Main application pages
+  - `/lib` - Utilities and hooks
+  - `/hooks` - Custom React hooks
+  - `/utils` - Helper functions
 
-## How can I deploy this project?
+- `/server` - Backend Node.js application
+  - `/controllers` - API route controllers
+  - `/models` - Mongoose data models
+  - `/routes` - API routes
+  - `/middleware` - Express middleware
+  - `/utils` - Helper utilities
 
-Simply open [Lovable](https://lovable.dev/projects/6ee032c7-65ab-4878-aff2-4114f2d469bf) and click on Share -> Publish.
+## Deployment
 
-## Can I connect a custom domain to my Lovable project?
+To deploy the application:
 
-Yes it is!
+1. Build the frontend:
+```
+npm run build
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+2. Set environment variables for production in the server's .env file
+3. Start the server in production mode:
+```
+cd server
+NODE_ENV=production npm start
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## License
+
+[MIT](LICENSE)
