@@ -21,6 +21,17 @@ const Profil = () => {
       } catch (err) {
         console.error("Erreur lors de la récupération des données utilisateur:", err);
       }
+    } else {
+      // Si aucun utilisateur trouvé, créer un utilisateur par défaut
+      const defaultUser = {
+        username: "RAHAJANIAINA Olivier",
+        role: "administrateur",
+        email: "olivierrahajaniaina9@gmail.com",
+        tel: "038 51 621 07",
+        brightness: 100
+      };
+      localStorage.setItem('user', JSON.stringify(defaultUser));
+      setUser(defaultUser);
     }
   }, []);
 
@@ -36,13 +47,11 @@ const Profil = () => {
       setUser(updatedUser);
     }
     
-    // Simuler une sauvegarde réussie côté serveur
-    setTimeout(() => {
-      toast({
-        title: "Préférences mises à jour",
-        description: `La luminosité a été réglée à ${brightness}%`,
-      });
-    }, 500);
+    // Afficher un toast de confirmation
+    toast({
+      title: "Préférences mises à jour",
+      description: `La luminosité a été réglée à ${brightness}%`,
+    });
   };
 
   return (
@@ -54,29 +63,31 @@ const Profil = () => {
         
         {user && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="md:col-span-2 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-md">
+            <Card className="md:col-span-2 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-md dark:from-blue-900/20 dark:to-indigo-900/20">
               <CardContent className="pt-6 pb-6">
                 <div className="flex flex-col md:flex-row items-center gap-6">
                   <div className="relative">
                     <Avatar className="h-32 w-32 shadow-lg border-4 border-white">
-                      <AvatarImage src="/lovable-uploads/e6b88ccc-e55c-4e18-a197-bb843eb98a43.png" alt="RAHAJANIAINA Olivier" />
-                      <AvatarFallback className="text-2xl">RO</AvatarFallback>
+                      <AvatarImage src="/lovable-uploads/5e6c13a6-fdab-4248-a467-68e7d30fd2dc.png" alt={user.username} />
+                      <AvatarFallback className="text-2xl bg-blue-100 text-blue-800">
+                        {user.username.split(' ').map((name: string) => name[0]).join('')}
+                      </AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="space-y-2 text-center md:text-left flex-1">
                     <h2 className="text-2xl font-bold">{user.username}</h2>
-                    <p className="text-lg text-blue-800 capitalize">{user.role}</p>
+                    <p className="text-lg text-blue-800 dark:text-blue-300 capitalize">{user.role}</p>
                     <div className="flex flex-col gap-2 mt-2">
                       <div className="flex items-center gap-2 justify-center md:justify-start">
-                        <Mail className="h-5 w-5 text-blue-600" />
+                        <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         <span>{user.email || "olivierrahajaniaina9@gmail.com"}</span>
                       </div>
                       <div className="flex items-center gap-2 justify-center md:justify-start">
-                        <Phone className="h-5 w-5 text-blue-600" />
+                        <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         <span>{user.tel || "038 51 621 07"}</span>
                       </div>
                       <div className="flex items-center gap-2 justify-center md:justify-start">
-                        <MapPin className="h-5 w-5 text-blue-600" />
+                        <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         <span>Madagascar</span>
                       </div>
                     </div>
@@ -85,7 +96,7 @@ const Profil = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-md transition-shadow duration-300">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <User className="h-5 w-5 text-blue-500" />
@@ -114,7 +125,7 @@ const Profil = () => {
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="hover:shadow-md transition-shadow duration-300">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Sun className="h-5 w-5 text-orange-500" />

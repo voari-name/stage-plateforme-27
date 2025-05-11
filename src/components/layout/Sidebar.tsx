@@ -76,10 +76,10 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="fixed inset-y-0 left-0 z-50 w-16 bg-sidebar pb-10 transition-all duration-300 ease-in-out hover:w-56 md:w-56 flex flex-col overflow-hidden border-r border-sidebar-border shadow-sm">
-      <div className="flex h-16 shrink-0 items-center justify-center border-b border-sidebar-border p-2">
+    <div className="fixed inset-y-0 left-0 z-50 w-16 bg-sidebar pb-10 transition-all duration-300 ease-in-out hover:w-56 md:w-56 flex flex-col overflow-hidden border-r border-sidebar-border shadow-lg">
+      <div className="flex h-16 shrink-0 items-center justify-center border-b border-sidebar-border p-2 bg-sidebar-accent/30">
         <Link to="/" className="flex items-center justify-center md:justify-start gap-2 outline-none">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sidebar-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sidebar-primary shadow-md">
             <BookOpen className="h-6 w-6 text-sidebar-primary-foreground" />
           </div>
           <div className="hidden md:flex flex-col items-start whitespace-nowrap overflow-hidden transition-all duration-300">
@@ -103,15 +103,15 @@ export function Sidebar() {
                   <Link
                     to={item.href}
                     className={cn(
-                      "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent",
-                      item.current && "bg-sidebar-accent font-medium"
+                      "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent transition-colors duration-200",
+                      item.current && "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
                     )}
                     aria-label={item.name}
                     title={item.name}
                   >
                     <item.icon
                       className={cn("h-5 w-5 text-sidebar-foreground/60 group-hover:text-sidebar-foreground", 
-                        item.current && "text-sidebar-foreground")}
+                        item.current && "text-sidebar-primary-foreground")}
                     />
                     <span className="ml-3 whitespace-nowrap text-sm text-sidebar-foreground opacity-0 transition-all duration-300 group-hover:opacity-100 md:opacity-100">
                       {item.name}
@@ -137,15 +137,15 @@ export function Sidebar() {
                   <Link
                     to={item.href}
                     className={cn(
-                      "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent",
-                      item.current && "bg-sidebar-accent font-medium"
+                      "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent transition-colors duration-200",
+                      item.current && "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
                     )}
                     aria-label={item.name}
                     title={item.name}
                   >
                     <item.icon
                       className={cn("h-5 w-5 text-sidebar-foreground/60 group-hover:text-sidebar-foreground", 
-                        item.current && "text-sidebar-foreground")}
+                        item.current && "text-sidebar-primary-foreground")}
                     />
                     <span className="ml-3 whitespace-nowrap text-sm text-sidebar-foreground opacity-0 transition-all duration-300 group-hover:opacity-100 md:opacity-100">
                       {item.name}
@@ -171,15 +171,15 @@ export function Sidebar() {
                   <Link
                     to={item.href}
                     className={cn(
-                      "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent",
-                      item.current && "bg-sidebar-accent font-medium"
+                      "group flex h-10 w-full items-center rounded-md px-3 outline-none hover:bg-sidebar-accent transition-colors duration-200",
+                      item.current && "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
                     )}
                     aria-label={item.name}
                     title={item.name}
                   >
                     <item.icon
                       className={cn("h-5 w-5 text-sidebar-foreground/60 group-hover:text-sidebar-foreground", 
-                        item.current && "text-sidebar-foreground")}
+                        item.current && "text-sidebar-primary-foreground")}
                     />
                     <span className="ml-3 whitespace-nowrap text-sm text-sidebar-foreground opacity-0 transition-all duration-300 group-hover:opacity-100 md:opacity-100">
                       {item.name}
