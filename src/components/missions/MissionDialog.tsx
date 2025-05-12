@@ -1,10 +1,7 @@
-
-import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MissionForm, MissionFormValues } from "./MissionForm";
 import { MissionType } from "./MissionCard";
 import { useToast } from "@/hooks/use-toast";
-import { formatDate } from "./utils";
 
 interface MissionDialogProps {
   open: boolean;
