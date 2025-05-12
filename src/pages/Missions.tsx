@@ -1,24 +1,10 @@
 
 import { useState } from "react";
+import { Layout } from "@/components/layout/Layout";
 import { Header } from "@/components/layout/Header";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import {
-  Calendar,
-  Check,
-  Clock,
-  ClipboardList,
-  Filter,
-  Plus,
-  User,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -26,27 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { MissionCard, MissionType, Stagiaire } from "@/components/missions/MissionCard";
+import { MissionDialog } from "@/components/missions/MissionDialog";
+import { AssignStagiairesDialog } from "@/components/missions/AssignStagiairesDialog";
+import { MissionFormValues } from "@/components/missions/MissionForm";
+import { ClipboardList, Filter, Plus } from "lucide-react";
+import { formatDate } from "@/components/missions/utils";
+import { useToast } from "@/hooks/use-toast";
 
-type MissionStatus = "not_started" | "in_progress" | "completed";
-
-type Mission = {
-  id: string;
-  titre: string;
-  description: string;
-  status: MissionStatus;
-  dateDebut: string;
-  dateFin: string;
-  progress: number;
-  departement: string;
-  stagiaires: {
-    id: string;
-    nom: string;
-    prenom: string;
-    avatar?: string;
-  }[];
-};
-
-const MOCK_MISSIONS: Mission[] = [
+// Mock data
+const MOCK_MISSIONS: MissionType[] = [
   {
     id: "1",
     titre: "Refonte site web",
@@ -117,49 +93,131 @@ const MOCK_MISSIONS: Mission[] = [
   },
 ];
 
-const getMissionStatusConfig = (status: MissionStatus) => {
-  const config = {
-    not_started: { 
-      label: "Non commencée", 
-      className: "bg-muted text-muted-foreground",
-      icon: <Clock className="h-4 w-4 mr-1" />
-    },
-    in_progress: { 
-      label: "En cours", 
-      className: "bg-info text-info-foreground",
-      icon: <ClipboardList className="h-4 w-4 mr-1" />
-    },
-    completed: { 
-      label: "Terminée", 
-      className: "bg-success text-success-foreground",
-      icon: <Check className="h-4 w-4 mr-1" />
-    },
-  };
-  
-  return config[status];
-};
+// Mock stagiaires data
+const MOCK_STAGIAIRES: Stagiaire[] = [
+  { id: "1", nom: "Dubois", prenom: "Marie" },
+  { id: "2", nom: "Martin", prenom: "Thomas" },
+  { id: "3", nom: "Bernard", prenom: "Lucie" },
+  { id: "4", nom: "Petit", prenom: "Antoine" },
+  { id: "5", nom: "Durand", prenom: "Sophie" },
+  { id: "6", nom: "Leroy", prenom: "Maxime" },
+  { id: "7", nom: "Moreau", prenom: "Julie" },
+  { id: "8", nom: "Simon", prenom: "Nicolas" },
+];
 
 const Missions = () => {
-  const [missions, setMissions] = useState<Mission[]>(MOCK_MISSIONS);
+  const { toast } = useToast();
+  const [missions, setMissions] = useState<MissionType[]>(MOCK_MISSIONS);
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filterType, setFilterType] = useState<string>("");
   
+  // Mission dialog states
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [currentMission, setCurrentMission] = useState<MissionType | undefined>();
+  
+  // Assign stagiaires dialog state
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  
+  // Filter missions based on active tab and search query
   const filteredMissions = missions.filter((mission) => {
-    if (activeTab === "all") return true;
-    return mission.status === activeTab;
+    // Filter by tab
+    if (activeTab !== "all" && mission.status !== activeTab) {
+      return false;
+    }
+    
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        mission.titre.toLowerCase().includes(query) ||
+        mission.description.toLowerCase().includes(query) ||
+        mission.departement.toLowerCase().includes(query)
+      );
+    }
+    
+    return true;
   });
+  
+  // Handle mission creation
+  const handleCreateMission = (values: MissionFormValues) => {
+    const newMission: MissionType = {
+      id: `mission-${Date.now()}`,
+      titre: values.titre,
+      description: values.description,
+      status: values.status,
+      dateDebut: formatDate(values.dateDebut),
+      dateFin: formatDate(values.dateFin),
+      progress: values.progress || 0,
+      departement: values.departement,
+      stagiaires: []
+    };
+    
+    setMissions([newMission, ...missions]);
+  };
+  
+  // Handle mission update
+  const handleUpdateMission = (values: MissionFormValues) => {
+    if (!currentMission) return;
+    
+    setMissions(missions.map(mission => 
+      mission.id === currentMission.id
+        ? {
+            ...mission,
+            titre: values.titre,
+            description: values.description,
+            status: values.status,
+            dateDebut: formatDate(values.dateDebut),
+            dateFin: formatDate(values.dateFin),
+            progress: values.progress || 0,
+            departement: values.departement,
+          }
+        : mission
+    ));
+  };
+  
+  // View mission details (opens edit dialog)
+  const handleViewDetails = (id: string) => {
+    const mission = missions.find(m => m.id === id);
+    if (mission) {
+      setCurrentMission(mission);
+      setEditDialogOpen(true);
+    }
+  };
+  
+  // Open assign stagiaires dialog
+  const handleOpenAssignDialog = (id: string) => {
+    const mission = missions.find(m => m.id === id);
+    if (mission) {
+      setCurrentMission(mission);
+      setAssignDialogOpen(true);
+    }
+  };
+  
+  // Handle stagiaire assignment
+  const handleAssignStagiaires = (missionId: string, stagiaireIds: string[]) => {
+    // Find selected stagiaires from the mock data
+    const selectedStagiaires = MOCK_STAGIAIRES.filter(s => stagiaireIds.includes(s.id));
+    
+    // Update the mission with the new stagiaires
+    setMissions(missions.map(mission => 
+      mission.id === missionId
+        ? { ...mission, stagiaires: selectedStagiaires }
+        : mission
+    ));
+  };
   
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar />
-      
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <Layout>
         <Header />
         
         <main className="flex-1 overflow-y-auto p-6">
           <div className="mx-auto max-w-7xl">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Missions</h1>
-              <Button>
+              <Button onClick={() => setCreateDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Nouvelle mission
               </Button>
@@ -184,8 +242,10 @@ const Missions = () => {
                 <Input
                   placeholder="Rechercher une mission..."
                   className="w-full sm:w-[250px]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <Select>
+                <Select value={filterType} onValueChange={setFilterType}>
                   <SelectTrigger className="w-[180px]">
                     <div className="flex items-center">
                       <Filter className="mr-2 h-4 w-4" />
@@ -202,74 +262,14 @@ const Missions = () => {
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {filteredMissions.map((mission) => {
-                const statusConfig = getMissionStatusConfig(mission.status);
-                
-                return (
-                  <Card key={mission.id}>
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium text-lg">{mission.titre}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {mission.description}
-                          </p>
-                        </div>
-                        <Badge className={cn("font-normal flex items-center", statusConfig.className)}>
-                          {statusConfig.icon}
-                          {statusConfig.label}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-4">
-                      <div className="flex justify-between items-center text-sm">
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                          <span>
-                            {mission.dateDebut} - {mission.dateFin}
-                          </span>
-                        </div>
-                        <span className="text-muted-foreground">
-                          {mission.departement}
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progression</span>
-                          <span>{mission.progress}%</span>
-                        </div>
-                        <Progress value={mission.progress} className="h-2" />
-                      </div>
-                      
-                      <div className="pt-2">
-                        <p className="text-sm font-medium mb-2 flex items-center">
-                          <User className="h-4 w-4 mr-2 text-muted-foreground" />
-                          Stagiaires assignés
-                        </p>
-                        <div className="flex -space-x-2">
-                          {mission.stagiaires.map((stagiaire) => (
-                            <Avatar key={stagiaire.id} className="border-2 border-background h-8 w-8">
-                              <AvatarImage src={stagiaire.avatar} alt={`${stagiaire.prenom} ${stagiaire.nom}`} />
-                              <AvatarFallback className="text-xs">
-                                {stagiaire.prenom[0]}{stagiaire.nom[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                          ))}
-                        </div>
-                      </div>
-                    </CardContent>
-                    
-                    <CardFooter className="border-t pt-4 flex justify-end">
-                      <Button variant="outline" className="mr-2">
-                        Assigner
-                      </Button>
-                      <Button>Voir détails</Button>
-                    </CardFooter>
-                  </Card>
-                );
-              })}
+              {filteredMissions.map((mission) => (
+                <MissionCard 
+                  key={mission.id} 
+                  mission={mission} 
+                  onViewDetails={handleViewDetails}
+                  onAssign={handleOpenAssignDialog}
+                />
+              ))}
             </div>
             
             {filteredMissions.length === 0 && (
@@ -281,14 +281,44 @@ const Missions = () => {
                 <p className="text-muted-foreground mb-4">
                   Aucune mission ne correspond à vos filtres.
                 </p>
-                <Button variant="outline" onClick={() => setActiveTab("all")}>
+                <Button variant="outline" onClick={() => {
+                  setActiveTab("all");
+                  setSearchQuery("");
+                  setFilterType("");
+                }}>
                   Réinitialiser les filtres
                 </Button>
               </div>
             )}
           </div>
         </main>
-      </div>
+        
+        {/* Create Mission Dialog */}
+        <MissionDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSubmit={handleCreateMission}
+          title="Créer une nouvelle mission"
+        />
+        
+        {/* Edit Mission Dialog */}
+        <MissionDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSubmit={handleUpdateMission}
+          mission={currentMission}
+          title="Modifier la mission"
+        />
+        
+        {/* Assign Stagiaires Dialog */}
+        <AssignStagiairesDialog
+          open={assignDialogOpen}
+          onOpenChange={setAssignDialogOpen}
+          mission={currentMission}
+          stagiaires={MOCK_STAGIAIRES}
+          onAssign={handleAssignStagiaires}
+        />
+      </Layout>
     </div>
   );
 };
