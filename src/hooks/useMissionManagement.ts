@@ -63,8 +63,8 @@ export const useMissionManagement = ({
       titre: values.titre,
       description: values.description,
       status: values.status,
-      dateDebut: formatDate(values.dateDebut),
-      dateFin: formatDate(values.dateFin),
+      dateDebut: values.dateDebut ? formatDate(values.dateDebut) : "",
+      dateFin: values.dateFin ? formatDate(values.dateFin) : "",
       progress: values.progress || 0,
       departement: values.departement,
       stagiaires: []
@@ -84,8 +84,8 @@ export const useMissionManagement = ({
             titre: values.titre,
             description: values.description,
             status: values.status,
-            dateDebut: formatDate(values.dateDebut),
-            dateFin: formatDate(values.dateFin),
+            dateDebut: values.dateDebut ? formatDate(values.dateDebut) : "",
+            dateFin: values.dateFin ? formatDate(values.dateFin) : "",
             progress: values.progress || 0,
             departement: values.departement,
           }

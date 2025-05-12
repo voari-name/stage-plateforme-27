@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -47,18 +46,12 @@ export const MissionForm = ({
 }: MissionFormProps) => {
   const { toast } = useToast();
   
-  const parseDate = (dateStr?: string) => {
-    if (!dateStr) return undefined;
-    const [day, month, year] = dateStr.split('/').map(Number);
-    return new Date(year, month - 1, day);
-  };
-
   const defaultValues: Partial<MissionFormValues> = {
     titre: initialValues?.titre || "",
     description: initialValues?.description || "",
     status: initialValues?.status || "not_started",
-    dateDebut: initialValues?.dateDebut ? parseDate(initialValues.dateDebut) : undefined,
-    dateFin: initialValues?.dateFin ? parseDate(initialValues.dateFin) : undefined,
+    dateDebut: initialValues?.dateDebut,
+    dateFin: initialValues?.dateFin,
     departement: initialValues?.departement || "",
     progress: initialValues?.progress || 0,
   };

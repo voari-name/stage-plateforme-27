@@ -23,6 +23,20 @@ export function MissionDialog({
 }: MissionDialogProps) {
   const { toast } = useToast();
   
+  // Convert string dates to Date objects for the form
+  const convertedMission = mission ? {
+    ...mission,
+    dateDebut: mission.dateDebut ? parseDate(mission.dateDebut) : undefined,
+    dateFin: mission.dateFin ? parseDate(mission.dateFin) : undefined,
+  } : undefined;
+  
+  // Helper function to parse date strings into Date objects
+  function parseDate(dateStr: string): Date | undefined {
+    if (!dateStr) return undefined;
+    const [day, month, year] = dateStr.split('/').map(Number);
+    return new Date(year, month - 1, day);
+  }
+  
   const handleSubmit = (values: MissionFormValues) => {
     onSubmit(values);
     onOpenChange(false);
@@ -44,7 +58,7 @@ export function MissionDialog({
         <MissionForm 
           onSubmit={handleSubmit}
           onCancel={() => onOpenChange(false)}
-          initialValues={mission}
+          initialValues={convertedMission}
           isEdit={!!mission}
         />
       </DialogContent>
