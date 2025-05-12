@@ -26,7 +26,7 @@ export const getMissionStatusConfig = (status: MissionStatus): StatusConfig => {
       label: "Terminée", 
       className: "bg-success text-success-foreground",
       icon: <Check className="h-4 w-4 mr-1" />
-    },
+    }
   };
   
   return config[status];
