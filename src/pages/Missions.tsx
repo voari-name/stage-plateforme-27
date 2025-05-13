@@ -7,6 +7,7 @@ import { MissionsList } from "@/components/missions/MissionsList";
 import { MissionsEmptyState } from "@/components/missions/MissionsEmptyState";
 import { MissionDialog } from "@/components/missions/MissionDialog";
 import { AssignStagiairesDialog } from "@/components/missions/AssignStagiairesDialog";
+import { DeleteMissionDialog } from "@/components/missions/DeleteMissionDialog";
 import { useMissionManagement } from "@/hooks/useMissionManagement";
 import { MOCK_STAGIAIRES } from "@/data/missionsData";
 import { useTheme } from "@/components/ThemeProvider";
@@ -26,6 +27,8 @@ const Missions = () => {
     setEditDialogOpen,
     assignDialogOpen,
     setAssignDialogOpen,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
     
     // Filter states
     activeTab,
@@ -42,6 +45,8 @@ const Missions = () => {
     handleViewDetails,
     handleOpenAssignDialog,
     handleAssignStagiaires,
+    handleOpenDeleteDialog,
+    handleDeleteMission,
   } = useMissionManagement({
     language,
     allStagiaires: MOCK_STAGIAIRES,
@@ -52,7 +57,7 @@ const Missions = () => {
       <Layout>
         <Header />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-primary/5 to-background">
           <div className="mx-auto max-w-7xl">
             <MissionsHeader 
               onCreateMission={() => setCreateDialogOpen(true)} 
@@ -78,6 +83,7 @@ const Missions = () => {
                 missions={filteredMissions}
                 onViewDetails={handleViewDetails}
                 onAssign={handleOpenAssignDialog}
+                onDelete={handleOpenDeleteDialog}
                 language={language}
               />
             ) : (
@@ -123,6 +129,15 @@ const Missions = () => {
           mission={currentMission}
           stagiaires={MOCK_STAGIAIRES}
           onAssign={handleAssignStagiaires}
+          language={language}
+        />
+
+        {/* Delete Mission Dialog */}
+        <DeleteMissionDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          mission={currentMission}
+          onDelete={handleDeleteMission}
           language={language}
         />
       </Layout>

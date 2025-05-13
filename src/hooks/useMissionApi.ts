@@ -1,4 +1,3 @@
-
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { MissionType } from "@/components/missions/MissionCard";
@@ -339,12 +338,69 @@ export const useMissionApi = ({ language }: UseMissionApiProps) => {
     }
   };
 
+  const deleteMission = async (id: string): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      try {
+        const response = await fetch(`http://localhost:5000/api/missions/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': 'demo-token'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Update local storage for offline fallback
+        const storedMissions = localStorage.getItem('missions');
+        if (storedMissions) {
+          const missions = JSON.parse(storedMissions);
+          const filteredMissions = missions.filter((m: MissionType) => m.id !== id);
+          localStorage.setItem('missions', JSON.stringify(filteredMissions));
+        }
+        
+        return true;
+      } catch (err) {
+        console.error("Server delete failed, using local storage:", err);
+        
+        // Fallback to local storage
+        const storedMissions = localStorage.getItem('missions');
+        if (storedMissions) {
+          const missions = JSON.parse(storedMissions);
+          const filteredMissions = missions.filter((m: MissionType) => m.id !== id);
+          localStorage.setItem('missions', JSON.stringify(filteredMissions));
+        }
+        
+        return true;
+      }
+    } catch (err) {
+      const errorMsg = language === "fr" ? "Erreur lors de la suppression de la mission" :
+                       language === "en" ? "Error deleting mission" :
+                       "Hadisoana tamin'ny famafana ny iraka";
+      setError(errorMsg);
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+        description: err instanceof Error ? err.message : String(err),
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
     getMissions,
     createMission,
     updateMission,
+    deleteMission,
     assignStagiaires
   };
 };

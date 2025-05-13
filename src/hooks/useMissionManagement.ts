@@ -25,6 +25,7 @@ export const useMissionManagement = ({
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   // Filter states
   const [activeTab, setActiveTab] = useState<string>("all");
@@ -36,7 +37,8 @@ export const useMissionManagement = ({
     loading, 
     getMissions, 
     createMission, 
-    updateMission, 
+    updateMission,
+    deleteMission,
     assignStagiaires 
   } = useMissionApi({ language });
 
@@ -116,6 +118,27 @@ export const useMissionManagement = ({
       });
     }
   };
+
+  // Handle mission deletion
+  const handleDeleteMission = async () => {
+    if (!currentMission) return;
+
+    const success = await deleteMission(currentMission.id);
+    if (success) {
+      setMissions(missions.filter(mission => mission.id !== currentMission.id));
+      setDeleteDialogOpen(false);
+      setCurrentMission(undefined);
+      
+      toast({
+        title: language === "fr" ? "Mission supprimée" : 
+               language === "en" ? "Mission deleted" : 
+               "Iraka voafafa",
+        description: language === "fr" ? "La mission a été supprimée avec succès" : 
+                     language === "en" ? "The mission has been successfully deleted" : 
+                     "Nahomby ny famafana ny iraka",
+      });
+    }
+  };
   
   // View mission details (opens edit dialog)
   const handleViewDetails = (id: string) => {
@@ -132,6 +155,15 @@ export const useMissionManagement = ({
     if (mission) {
       setCurrentMission(mission);
       setAssignDialogOpen(true);
+    }
+  };
+
+  // Open delete confirmation dialog
+  const handleOpenDeleteDialog = (id: string) => {
+    const mission = missions.find(m => m.id === id);
+    if (mission) {
+      setCurrentMission(mission);
+      setDeleteDialogOpen(true);
     }
   };
   
@@ -174,6 +206,8 @@ export const useMissionManagement = ({
     setEditDialogOpen,
     assignDialogOpen,
     setAssignDialogOpen,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
     
     // Filter states
     activeTab,
@@ -187,8 +221,10 @@ export const useMissionManagement = ({
     // Actions
     handleCreateMission,
     handleUpdateMission,
+    handleDeleteMission,
     handleViewDetails,
     handleOpenAssignDialog,
+    handleOpenDeleteDialog,
     handleAssignStagiaires,
   };
 };
