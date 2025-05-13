@@ -107,7 +107,11 @@ export const MissionCard = ({
             </span>
             <span className="text-primary font-semibold">{mission.progress}%</span>
           </div>
-          <Progress value={mission.progress} className="h-2 bg-primary/10" indicatorClassName="bg-gradient-to-r from-primary/80 to-primary" />
+          <Progress 
+            value={mission.progress} 
+            className="h-2 bg-primary/10" 
+            indicatorClassName="bg-gradient-to-r from-primary/80 to-primary" 
+          />
         </div>
         
         <div className="pt-2">
