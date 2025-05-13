@@ -1,31 +1,41 @@
 
 import React from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import { UseFormReturn } from "react-hook-form";
 import { MissionFormValues } from "./MissionFormSchema";
 
 interface MissionFormProgressProps {
   form: UseFormReturn<MissionFormValues>;
+  language: string;
 }
 
-export const MissionFormProgress: React.FC<MissionFormProgressProps> = ({ form }) => {
+export const MissionFormProgress: React.FC<MissionFormProgressProps> = ({ form, language }) => {
+  const progressValue = form.watch("progress");
+  
+  const getLabel = () => {
+    return language === "fr" ? "Progression" : 
+           language === "en" ? "Progress" : 
+           "Fandrosoana";
+  };
+
   return (
     <FormField
       control={form.control}
       name="progress"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Progression ({field.value}%)</FormLabel>
+          <div className="flex justify-between items-center mb-2">
+            <FormLabel>{getLabel()}</FormLabel>
+            <span className="text-sm font-medium">{field.value}%</span>
+          </div>
           <FormControl>
-            <Input
-              type="range"
-              min="0"
-              max="100"
-              step="5"
-              {...field}
-              onChange={(e) => field.onChange(parseInt(e.target.value))}
-              className="w-full"
+            <Slider
+              min={0}
+              max={100}
+              step={5}
+              defaultValue={[progressValue || 0]}
+              onValueChange={(values) => field.onChange(values[0])}
             />
           </FormControl>
           <FormMessage />

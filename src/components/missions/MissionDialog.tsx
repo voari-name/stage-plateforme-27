@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MissionForm, MissionFormValues } from "./MissionForm";
 import { MissionType } from "./MissionCard";
@@ -9,6 +10,7 @@ interface MissionDialogProps {
   onSubmit: (mission: MissionFormValues) => void;
   mission?: MissionType;
   title: string;
+  language: string;
 }
 
 export function MissionDialog({ 
@@ -16,7 +18,8 @@ export function MissionDialog({
   onOpenChange, 
   onSubmit,
   mission,
-  title
+  title,
+  language
 }: MissionDialogProps) {
   const { toast } = useToast();
   
@@ -39,10 +42,20 @@ export function MissionDialog({
     onOpenChange(false);
     
     toast({
-      title: mission ? "Mission modifiée" : "Mission créée",
+      title: mission 
+        ? language === "fr" ? "Mission modifiée" 
+          : language === "en" ? "Mission updated" 
+          : "Iraka nohavaozina"
+        : language === "fr" ? "Mission créée" 
+          : language === "en" ? "Mission created" 
+          : "Iraka noforonina",
       description: mission 
-        ? "Les modifications ont été enregistrées avec succès."
-        : "La nouvelle mission a été créée avec succès."
+        ? language === "fr" ? "Les modifications ont été enregistrées avec succès." 
+          : language === "en" ? "The changes have been successfully saved." 
+          : "Voatahiry soa aman-tsara ny fanovana."
+        : language === "fr" ? "La nouvelle mission a été créée avec succès." 
+          : language === "en" ? "The new mission has been successfully created." 
+          : "Nahomby ny famoronana ny iraka vaovao."
     });
   };
   
@@ -57,6 +70,7 @@ export function MissionDialog({
           onCancel={() => onOpenChange(false)}
           initialValues={convertedMission}
           isEdit={!!mission}
+          language={language}
         />
       </DialogContent>
     </Dialog>

@@ -1,5 +1,4 @@
 
-import { Link } from "react-router-dom";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,10 +31,40 @@ type MissionCardProps = {
   mission: MissionType;
   onViewDetails?: (id: string) => void;
   onAssign?: (id: string) => void;
+  language?: string;
 };
 
-export const MissionCard = ({ mission, onViewDetails, onAssign }: MissionCardProps) => {
-  const statusConfig = getMissionStatusConfig(mission.status);
+export const MissionCard = ({ 
+  mission, 
+  onViewDetails, 
+  onAssign,
+  language = "fr"
+}: MissionCardProps) => {
+  const statusConfig = getMissionStatusConfig(mission.status, language);
+  
+  const getAssignButtonText = () => {
+    return language === "fr" ? "Assigner" : 
+           language === "en" ? "Assign" : 
+           "Hanokana";
+  };
+
+  const getDetailsButtonText = () => {
+    return language === "fr" ? "Voir détails" : 
+           language === "en" ? "View details" : 
+           "Hijery ny antsipiriany";
+  };
+
+  const getStagiaireText = () => {
+    return language === "fr" ? "Stagiaires assignés" : 
+           language === "en" ? "Assigned trainees" : 
+           "Mpianatra voatokana";
+  };
+
+  const getNoStagiaireText = () => {
+    return language === "fr" ? "Aucun stagiaire assigné" : 
+           language === "en" ? "No trainees assigned" : 
+           "Tsy misy mpianatra voatokana";
+  };
   
   return (
     <Card className="h-full flex flex-col">
@@ -69,7 +98,11 @@ export const MissionCard = ({ mission, onViewDetails, onAssign }: MissionCardPro
         
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Progression</span>
+            <span>
+              {language === "fr" ? "Progression" : 
+               language === "en" ? "Progress" : 
+               "Fandrosoana"}
+            </span>
             <span>{mission.progress}%</span>
           </div>
           <Progress value={mission.progress} className="h-2" />
@@ -78,7 +111,7 @@ export const MissionCard = ({ mission, onViewDetails, onAssign }: MissionCardPro
         <div className="pt-2">
           <p className="text-sm font-medium mb-2 flex items-center">
             <User className="h-4 w-4 mr-2 text-muted-foreground" />
-            Stagiaires assignés
+            {getStagiaireText()}
           </p>
           <div className="flex -space-x-2">
             {mission.stagiaires.map((stagiaire) => (
@@ -90,7 +123,7 @@ export const MissionCard = ({ mission, onViewDetails, onAssign }: MissionCardPro
               </Avatar>
             ))}
             {mission.stagiaires.length === 0 && (
-              <span className="text-sm text-muted-foreground">Aucun stagiaire assigné</span>
+              <span className="text-sm text-muted-foreground">{getNoStagiaireText()}</span>
             )}
           </div>
         </div>
@@ -99,12 +132,12 @@ export const MissionCard = ({ mission, onViewDetails, onAssign }: MissionCardPro
       <CardFooter className="border-t pt-4 flex justify-end mt-auto">
         {onAssign && (
           <Button variant="outline" className="mr-2" onClick={() => onAssign(mission.id)}>
-            Assigner
+            {getAssignButtonText()}
           </Button>
         )}
         {onViewDetails && (
           <Button onClick={() => onViewDetails(mission.id)}>
-            Voir détails
+            {getDetailsButtonText()}
           </Button>
         )}
       </CardFooter>

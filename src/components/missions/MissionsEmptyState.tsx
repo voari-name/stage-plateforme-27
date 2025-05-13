@@ -1,23 +1,43 @@
 
 import { Button } from "@/components/ui/button";
-import { ClipboardList } from "lucide-react";
+import { FileSearch } from "lucide-react";
 
 interface MissionsEmptyStateProps {
   resetFilters: () => void;
+  language: string;
 }
 
-export const MissionsEmptyState = ({ resetFilters }: MissionsEmptyStateProps) => {
+export const MissionsEmptyState = ({ resetFilters, language }: MissionsEmptyStateProps) => {
+  const getMessage = () => {
+    switch(language) {
+      case "fr": return "Aucune mission ne correspond à vos critères de recherche.";
+      case "en": return "No missions match your search criteria.";
+      case "mg": return "Tsy misy iraka mifanaraka amin'ny fikarohana nataonao.";
+      default: return "Aucune mission ne correspond à vos critères de recherche.";
+    }
+  };
+
+  const getButtonText = () => {
+    switch(language) {
+      case "fr": return "Réinitialiser les filtres";
+      case "en": return "Reset filters";
+      case "mg": return "Avereno ny sivana";
+      default: return "Réinitialiser les filtres";
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-4">
-        <ClipboardList className="h-10 w-10 text-muted-foreground" />
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="bg-muted/50 p-4 rounded-full">
+        <FileSearch className="h-10 w-10 text-muted-foreground" />
       </div>
-      <h3 className="font-medium text-lg mb-1">Aucune mission trouvée</h3>
-      <p className="text-muted-foreground mb-4">
-        Aucune mission ne correspond à vos filtres.
-      </p>
-      <Button variant="outline" onClick={resetFilters}>
-        Réinitialiser les filtres
+      <h3 className="mt-4 text-lg font-medium">{getMessage()}</h3>
+      <Button 
+        variant="outline" 
+        onClick={resetFilters}
+        className="mt-4"
+      >
+        {getButtonText()}
       </Button>
     </div>
   );

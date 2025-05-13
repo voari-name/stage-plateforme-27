@@ -1,21 +1,25 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MissionType } from "@/components/missions/MissionCard";
-import { MissionFormValues } from "@/components/missions/MissionForm";
-import { formatDate } from "@/components/missions/utils";
+import { MissionFormValues } from "@/components/missions/form/MissionFormSchema";
 import { Stagiaire } from "@/components/missions/MissionCard";
+import { useMissionApi } from "./useMissionApi";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/translations";
 
 interface UseMissionManagementProps {
-  initialMissions: MissionType[];
+  language: string;
   allStagiaires: Stagiaire[];
 }
 
 export const useMissionManagement = ({ 
-  initialMissions, 
+  language, 
   allStagiaires 
 }: UseMissionManagementProps) => {
-  const [missions, setMissions] = useState<MissionType[]>(initialMissions);
+  const { t } = useTranslation(language);
+  const [missions, setMissions] = useState<MissionType[]>([]);
   const [currentMission, setCurrentMission] = useState<MissionType | undefined>();
+  const { toast } = useToast();
   
   // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -26,6 +30,25 @@ export const useMissionManagement = ({
   const [activeTab, setActiveTab] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("");
+  
+  // API integration
+  const { 
+    loading, 
+    getMissions, 
+    createMission, 
+    updateMission, 
+    assignStagiaires 
+  } = useMissionApi({ language });
+
+  // Load missions when component mounts
+  useEffect(() => {
+    const loadMissions = async () => {
+      const fetchedMissions = await getMissions();
+      setMissions(fetchedMissions);
+    };
+    
+    loadMissions();
+  }, [getMissions]);
   
   // Get filtered missions based on active tab and search query
   const getFilteredMissions = () => {
@@ -57,40 +80,41 @@ export const useMissionManagement = ({
   };
   
   // Handle mission creation
-  const handleCreateMission = (values: MissionFormValues) => {
-    const newMission: MissionType = {
-      id: `mission-${Date.now()}`,
-      titre: values.titre,
-      description: values.description,
-      status: values.status,
-      dateDebut: values.dateDebut ? formatDate(values.dateDebut) : "",
-      dateFin: values.dateFin ? formatDate(values.dateFin) : "",
-      progress: values.progress || 0,
-      departement: values.departement,
-      stagiaires: []
-    };
-    
-    setMissions([newMission, ...missions]);
+  const handleCreateMission = async (values: MissionFormValues) => {
+    const result = await createMission(values);
+    if (result) {
+      setMissions(prev => [result, ...prev]);
+      
+      toast({
+        title: language === "fr" ? "Mission créée" : 
+               language === "en" ? "Mission created" : 
+               "Iraka noforonina",
+        description: language === "fr" ? "La nouvelle mission a été créée avec succès" : 
+                     language === "en" ? "The new mission has been successfully created" : 
+                     "Nahomby ny famoronana ny iraka vaovao",
+      });
+    }
   };
   
   // Handle mission update
-  const handleUpdateMission = (values: MissionFormValues) => {
+  const handleUpdateMission = async (values: MissionFormValues) => {
     if (!currentMission) return;
     
-    setMissions(missions.map(mission => 
-      mission.id === currentMission.id
-        ? {
-            ...mission,
-            titre: values.titre,
-            description: values.description,
-            status: values.status,
-            dateDebut: values.dateDebut ? formatDate(values.dateDebut) : "",
-            dateFin: values.dateFin ? formatDate(values.dateFin) : "",
-            progress: values.progress || 0,
-            departement: values.departement,
-          }
-        : mission
-    ));
+    const result = await updateMission(currentMission.id, values);
+    if (result) {
+      setMissions(missions.map(mission => 
+        mission.id === currentMission.id ? result : mission
+      ));
+      
+      toast({
+        title: language === "fr" ? "Mission mise à jour" : 
+               language === "en" ? "Mission updated" : 
+               "Iraka nohavaozina",
+        description: language === "fr" ? "La mission a été mise à jour avec succès" : 
+                     language === "en" ? "The mission has been successfully updated" : 
+                     "Nahomby ny fanavaozana ny iraka",
+      });
+    }
   };
   
   // View mission details (opens edit dialog)
@@ -112,21 +136,35 @@ export const useMissionManagement = ({
   };
   
   // Handle stagiaire assignment
-  const handleAssignStagiaires = (missionId: string, stagiaireIds: string[]) => {
-    // Find selected stagiaires from the mock data
-    const selectedStagiaires = allStagiaires.filter(s => stagiaireIds.includes(s.id));
+  const handleAssignStagiaires = async (missionId: string, stagiaireIds: string[]) => {
+    const success = await assignStagiaires(missionId, stagiaireIds);
     
-    // Update the mission with the new stagiaires
-    setMissions(missions.map(mission => 
-      mission.id === missionId
-        ? { ...mission, stagiaires: selectedStagiaires }
-        : mission
-    ));
+    if (success) {
+      // Find selected stagiaires from the mock data
+      const selectedStagiaires = allStagiaires.filter(s => stagiaireIds.includes(s.id));
+      
+      // Update the mission with the new stagiaires
+      setMissions(missions.map(mission => 
+        mission.id === missionId
+          ? { ...mission, stagiaires: selectedStagiaires }
+          : mission
+      ));
+      
+      toast({
+        title: language === "fr" ? "Stagiaires assignés" : 
+               language === "en" ? "Trainees assigned" : 
+               "Mpianatra voatokana",
+        description: language === "fr" ? "Les stagiaires ont été assignés à la mission avec succès" : 
+                     language === "en" ? "Trainees have been successfully assigned to the mission" : 
+                     "Nahomby ny fanendrena ireo mpianatra ho amin'ny iraka",
+      });
+    }
   };
   
   return {
     missions,
     currentMission,
+    loading,
     filteredMissions: getFilteredMissions(),
     
     // Dialog states

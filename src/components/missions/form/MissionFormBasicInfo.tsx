@@ -8,9 +8,36 @@ import { MissionFormValues } from "./MissionFormSchema";
 
 interface MissionFormBasicInfoProps {
   form: UseFormReturn<MissionFormValues>;
+  language: string;
 }
 
-export const MissionFormBasicInfo: React.FC<MissionFormBasicInfoProps> = ({ form }) => {
+export const MissionFormBasicInfo: React.FC<MissionFormBasicInfoProps> = ({ form, language }) => {
+  const getLabel = (field: string) => {
+    if (field === "title") {
+      return language === "fr" ? "Titre" : 
+             language === "en" ? "Title" : 
+             "Lohateny";
+    } else if (field === "description") {
+      return language === "fr" ? "Description" : 
+             language === "en" ? "Description" : 
+             "Fanazavana";
+    }
+    return field;
+  };
+
+  const getPlaceholder = (field: string) => {
+    if (field === "title") {
+      return language === "fr" ? "Titre de la mission" : 
+             language === "en" ? "Mission title" : 
+             "Lohateny ny iraka";
+    } else if (field === "description") {
+      return language === "fr" ? "Description détaillée de la mission" : 
+             language === "en" ? "Detailed mission description" : 
+             "Fanazavana feno momba ny iraka";
+    }
+    return "";
+  };
+
   return (
     <>
       <FormField
@@ -18,9 +45,9 @@ export const MissionFormBasicInfo: React.FC<MissionFormBasicInfoProps> = ({ form
         name="titre"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Titre</FormLabel>
+            <FormLabel>{getLabel("title")}</FormLabel>
             <FormControl>
-              <Input placeholder="Titre de la mission" {...field} />
+              <Input placeholder={getPlaceholder("title")} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -32,10 +59,10 @@ export const MissionFormBasicInfo: React.FC<MissionFormBasicInfoProps> = ({ form
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>{getLabel("description")}</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder="Description détaillée de la mission" 
+                placeholder={getPlaceholder("description")} 
                 className="min-h-[100px]" 
                 {...field} 
               />

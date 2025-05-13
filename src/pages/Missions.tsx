@@ -8,12 +8,16 @@ import { MissionsEmptyState } from "@/components/missions/MissionsEmptyState";
 import { MissionDialog } from "@/components/missions/MissionDialog";
 import { AssignStagiairesDialog } from "@/components/missions/AssignStagiairesDialog";
 import { useMissionManagement } from "@/hooks/useMissionManagement";
-import { MOCK_MISSIONS, MOCK_STAGIAIRES } from "@/data/missionsData";
+import { MOCK_STAGIAIRES } from "@/data/missionsData";
+import { useTheme } from "@/components/ThemeProvider";
 
 const Missions = () => {
+  const { language } = useTheme();
+  
   const {
     currentMission,
     filteredMissions,
+    loading,
     
     // Dialog states
     createDialogOpen,
@@ -39,7 +43,7 @@ const Missions = () => {
     handleOpenAssignDialog,
     handleAssignStagiaires,
   } = useMissionManagement({
-    initialMissions: MOCK_MISSIONS,
+    language,
     allStagiaires: MOCK_STAGIAIRES,
   });
   
@@ -50,7 +54,10 @@ const Missions = () => {
         
         <main className="flex-1 overflow-y-auto p-6">
           <div className="mx-auto max-w-7xl">
-            <MissionsHeader onCreateMission={() => setCreateDialogOpen(true)} />
+            <MissionsHeader 
+              onCreateMission={() => setCreateDialogOpen(true)} 
+              language={language}
+            />
             
             <MissionsFilters
               activeTab={activeTab}
@@ -59,16 +66,25 @@ const Missions = () => {
               setSearchQuery={setSearchQuery}
               filterType={filterType}
               setFilterType={setFilterType}
+              language={language}
             />
             
-            {filteredMissions.length > 0 ? (
+            {loading ? (
+              <div className="flex justify-center items-center p-12">
+                <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : filteredMissions.length > 0 ? (
               <MissionsList 
                 missions={filteredMissions}
                 onViewDetails={handleViewDetails}
                 onAssign={handleOpenAssignDialog}
+                language={language}
               />
             ) : (
-              <MissionsEmptyState resetFilters={resetFilters} />
+              <MissionsEmptyState 
+                resetFilters={resetFilters}
+                language={language}
+              />
             )}
           </div>
         </main>
@@ -78,7 +94,12 @@ const Missions = () => {
           open={createDialogOpen}
           onOpenChange={setCreateDialogOpen}
           onSubmit={handleCreateMission}
-          title="Créer une nouvelle mission"
+          title={
+            language === "fr" ? "Créer une nouvelle mission" :
+            language === "en" ? "Create a new mission" :
+            "Mamorona iraka vaovao"
+          }
+          language={language}
         />
         
         {/* Edit Mission Dialog */}
@@ -87,7 +108,12 @@ const Missions = () => {
           onOpenChange={setEditDialogOpen}
           onSubmit={handleUpdateMission}
           mission={currentMission}
-          title="Modifier la mission"
+          title={
+            language === "fr" ? "Modifier la mission" :
+            language === "en" ? "Edit mission" :
+            "Hanova ny iraka"
+          }
+          language={language}
         />
         
         {/* Assign Stagiaires Dialog */}
@@ -97,6 +123,7 @@ const Missions = () => {
           mission={currentMission}
           stagiaires={MOCK_STAGIAIRES}
           onAssign={handleAssignStagiaires}
+          language={language}
         />
       </Layout>
     </div>
