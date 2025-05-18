@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Plus, Edit, Trash2, Paperclip, Download, FilePdf, Flag } from "lucide-react";
+import { Plus, Edit, Trash2, Paperclip, Download, FileText, Flag } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 import { EditProjectDialog } from "@/components/projects/EditProjectDialog";
@@ -278,7 +278,7 @@ export default function GestionProjets() {
                 variant="outline"
                 className="border-blue-200 text-blue-600 hover:bg-blue-50"
               >
-                <FilePdf className="w-4 h-4 mr-2" />
+                <FileText className="w-4 h-4 mr-2" />
                 Exporter PDF
               </Button>
             )}
@@ -334,7 +334,7 @@ export default function GestionProjets() {
                       onClick={() => handleGenerateProjectPDF(project)}
                       className="text-blue-700 hover:bg-blue-50"
                     >
-                      <FilePdf className="h-4 w-4 mr-1" /> PDF
+                      <FileText className="h-4 w-4 mr-1" /> PDF
                     </Button>
                     <Button 
                       variant="outline" 
