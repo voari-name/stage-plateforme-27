@@ -2,7 +2,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Paperclip, Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 import { EditProjectDialog } from "@/components/projects/EditProjectDialog";
@@ -14,6 +14,9 @@ interface Project {
   title: string;
   description: string;
   created_at: string;
+  attachmentUrl?: string;
+  attachmentName?: string;
+  attachmentType?: string;
 }
 
 export default function GestionProjets() {
@@ -49,15 +52,43 @@ export default function GestionProjets() {
     }
   };
 
-  const handleProjectCreate = (projectData: { title: string; description: string }) => {
+  const saveProjectAttachment = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      
+      reader.onloadend = () => {
+        // Simuler le stockage du fichier en utilisant le localStorage
+        // Dans une application réelle, vous utiliseriez un stockage approprié comme Supabase Storage
+        const attachmentId = `attachment-${Date.now()}`;
+        localStorage.setItem(attachmentId, reader.result as string);
+        resolve(attachmentId);
+      };
+      
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleProjectCreate = async (projectData: { 
+    title: string; 
+    description: string;
+    attachmentFile?: File | null;
+  }) => {
     try {
-      // Créer un nouveau projet avec un ID unique
-      const newProject = {
+      // Préparer les données du projet
+      const newProject: Project = {
         id: Date.now().toString(),
         title: projectData.title,
         description: projectData.description,
         created_at: new Date().toISOString()
       };
+      
+      // Gérer l'upload de fichier si présent
+      if (projectData.attachmentFile) {
+        const attachmentId = await saveProjectAttachment(projectData.attachmentFile);
+        newProject.attachmentUrl = attachmentId;
+        newProject.attachmentName = projectData.attachmentFile.name;
+        newProject.attachmentType = projectData.attachmentFile.type;
+      }
 
       const updatedProjects = [newProject, ...projects];
       
@@ -79,14 +110,36 @@ export default function GestionProjets() {
     }
   };
 
-  const handleProjectEdit = (projectData: { title: string; description: string }) => {
+  const handleProjectEdit = async (projectData: { 
+    title: string; 
+    description: string;
+    attachmentFile?: File | null;
+  }) => {
     if (!selectedProject) return;
     
     try {
+      // Préparer la mise à jour du projet
+      const updatedProject = { 
+        ...selectedProject,
+        title: projectData.title,
+        description: projectData.description
+      };
+      
+      // Gérer la mise à jour du fichier si nécessaire
+      if (projectData.attachmentFile) {
+        // Supprimer l'ancien fichier si nécessaire (dans une app réelle)
+        // if (selectedProject.attachmentUrl) {
+        //   await deleteAttachment(selectedProject.attachmentUrl);
+        // }
+        
+        const attachmentId = await saveProjectAttachment(projectData.attachmentFile);
+        updatedProject.attachmentUrl = attachmentId;
+        updatedProject.attachmentName = projectData.attachmentFile.name;
+        updatedProject.attachmentType = projectData.attachmentFile.type;
+      }
+      
       const updatedProjects = projects.map(project => 
-        project.id === selectedProject.id 
-        ? { ...project, title: projectData.title, description: projectData.description } 
-        : project
+        project.id === selectedProject.id ? updatedProject : project
       );
       
       localStorage.setItem('projects', JSON.stringify(updatedProjects));
@@ -111,6 +164,11 @@ export default function GestionProjets() {
     if (!selectedProject) return;
     
     try {
+      // Supprimer également le fichier joint (si présent)
+      if (selectedProject.attachmentUrl) {
+        localStorage.removeItem(selectedProject.attachmentUrl);
+      }
+      
       const updatedProjects = projects.filter(project => project.id !== selectedProject.id);
       localStorage.setItem('projects', JSON.stringify(updatedProjects));
       setProjects(updatedProjects);
@@ -139,6 +197,38 @@ export default function GestionProjets() {
     setSelectedProject(project);
     setDeleteDialogOpen(true);
   };
+  
+  const handleDownloadAttachment = (project: Project) => {
+    if (!project.attachmentUrl) return;
+    
+    try {
+      // Récupérer le fichier depuis le localStorage
+      const fileData = localStorage.getItem(project.attachmentUrl);
+      if (!fileData) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Fichier introuvable"
+        });
+        return;
+      }
+      
+      // Créer un lien de téléchargement
+      const a = document.createElement('a');
+      a.href = fileData;
+      a.download = project.attachmentName || 'fichier-projet';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading attachment:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de télécharger le fichier"
+      });
+    }
+  };
 
   return (
     <Layout>
@@ -147,7 +237,7 @@ export default function GestionProjets() {
           <h1 className="text-3xl font-bold text-primary">Gestion de Projet</h1>
           <Button 
             onClick={() => setCreateDialogOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md"
           >
             <Plus className="w-4 h-4 mr-2" />
             Créer un projet
@@ -162,24 +252,39 @@ export default function GestionProjets() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects && projects.length > 0 ? (
               projects.map((project) => (
-                <Card key={project.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
+                <Card key={project.id} className="hover:shadow-lg transition-all duration-300 hover:scale-[1.01] border-blue-100">
+                  <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-transparent">
                     <CardTitle className="text-lg">{project.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">{project.description}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Créé le: {new Date(project.created_at).toLocaleDateString()}
-                      </p>
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground line-clamp-3">{project.description}</p>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <span>Créé le: {new Date(project.created_at).toLocaleDateString()}</span>
+                      </div>
+                      
+                      {project.attachmentUrl && (
+                        <div className="flex items-center gap-2 p-2 rounded-md bg-blue-50 text-blue-700 mt-2">
+                          <Paperclip className="h-4 w-4" />
+                          <span className="text-sm truncate flex-1">{project.attachmentName || "Pièce jointe"}</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 px-2 text-blue-700 hover:text-blue-800 hover:bg-blue-100"
+                            onClick={() => handleDownloadAttachment(project)}
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
-                  <CardFooter className="flex justify-end gap-2 pt-2">
+                  <CardFooter className="flex justify-end gap-2 pt-2 border-t border-blue-50">
                     <Button 
                       variant="outline" 
                       size="sm" 
                       onClick={() => openEditDialog(project)}
-                      className="hover:bg-blue-50"
+                      className="border-blue-200 hover:bg-blue-50 text-blue-700"
                     >
                       <Edit className="h-4 w-4 mr-1" /> Modifier
                     </Button>
@@ -187,6 +292,7 @@ export default function GestionProjets() {
                       variant="destructive" 
                       size="sm" 
                       onClick={() => openDeleteDialog(project)}
+                      className="bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 border-none"
                     >
                       <Trash2 className="h-4 w-4 mr-1" /> Supprimer
                     </Button>
@@ -196,6 +302,14 @@ export default function GestionProjets() {
             ) : (
               <Card className="col-span-full text-center p-6">
                 <p className="text-muted-foreground">Aucun projet créé pour le moment</p>
+                <Button 
+                  onClick={() => setCreateDialogOpen(true)} 
+                  variant="outline" 
+                  className="mt-4 border-blue-200 text-blue-600"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Créer votre premier projet
+                </Button>
               </Card>
             )}
           </div>
