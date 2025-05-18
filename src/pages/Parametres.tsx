@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { LanguageSection } from "@/components/settings/LanguageSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
 import { useTheme } from "@/components/ThemeProvider";
+import { Banner } from "@/components/layout/Banner";
 
 const Parametres = () => {
   const { language } = useTheme();
@@ -17,6 +18,8 @@ const Parametres = () => {
         
         <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-background/50 to-background">
           <div className="mx-auto max-w-5xl">
+            <Banner className="mb-6" />
+            
             <h1 className="text-3xl font-bold mb-6 text-foreground bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               {language === "fr" ? "Paramètres" : language === "en" ? "Settings" : "Safidy"}
             </h1>

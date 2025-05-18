@@ -1,13 +1,13 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Plus, Edit, Trash2, Paperclip, Download } from "lucide-react";
+import { Plus, Edit, Trash2, Paperclip, Download, FilePdf, Flag } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 import { EditProjectDialog } from "@/components/projects/EditProjectDialog";
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog";
 import { useToast } from "@/components/ui/use-toast";
+import { generateProjectPDF, generateProjectsListPDF } from "@/utils/projectPdfUtils";
 
 interface Project {
   id: string;
@@ -230,18 +230,66 @@ export default function GestionProjets() {
     }
   };
 
+  // Generate PDF for a specific project
+  const handleGenerateProjectPDF = (project: Project) => {
+    try {
+      generateProjectPDF(project);
+      toast({
+        title: "Succès",
+        description: "PDF du projet généré avec succès"
+      });
+    } catch (error) {
+      console.error('Error generating project PDF:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de générer le PDF du projet"
+      });
+    }
+  };
+
+  // Generate PDF for all projects
+  const handleGenerateProjectsListPDF = () => {
+    try {
+      generateProjectsListPDF(projects);
+      toast({
+        title: "Succès",
+        description: "PDF de la liste des projets généré avec succès"
+      });
+    } catch (error) {
+      console.error('Error generating projects list PDF:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de générer le PDF de la liste des projets"
+      });
+    }
+  };
+
   return (
     <Layout>
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-primary">Gestion de Projet</h1>
-          <Button 
-            onClick={() => setCreateDialogOpen(true)}
-            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Créer un projet
-          </Button>
+          <div className="flex gap-2">
+            {projects.length > 0 && (
+              <Button 
+                onClick={handleGenerateProjectsListPDF}
+                variant="outline"
+                className="border-blue-200 text-blue-600 hover:bg-blue-50"
+              >
+                <FilePdf className="w-4 h-4 mr-2" />
+                Exporter PDF
+              </Button>
+            )}
+            <Button 
+              onClick={() => setCreateDialogOpen(true)}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Créer un projet
+            </Button>
+          </div>
         </div>
 
         {loading ? (
@@ -280,6 +328,14 @@ export default function GestionProjets() {
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-end gap-2 pt-2 border-t border-blue-50">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleGenerateProjectPDF(project)}
+                      className="text-blue-700 hover:bg-blue-50"
+                    >
+                      <FilePdf className="h-4 w-4 mr-1" /> PDF
+                    </Button>
                     <Button 
                       variant="outline" 
                       size="sm" 

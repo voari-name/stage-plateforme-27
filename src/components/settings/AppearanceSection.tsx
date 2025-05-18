@@ -56,24 +56,6 @@ export function AppearanceSection() {
         </div>
         
         <BrightnessControl />
-        
-        <div className="space-y-2">
-          <Label>
-            {language === "fr" ? "Couleur principale" : 
-             language === "en" ? "Primary color" : 
-             "Loko voalohany"}
-          </Label>
-          <div className="flex gap-2 flex-wrap">
-            {["#3b82f6", "#ec4899", "#8b5cf6", "#10b981", "#f97316"].map((color) => (
-              <button
-                key={color}
-                className="w-8 h-8 rounded-full border-2 border-background shadow-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary"
-                style={{ backgroundColor: color }}
-                aria-label={`Sélectionner la couleur ${color}`}
-              />
-            ))}
-          </div>
-        </div>
       </CardContent>
     </Card>
   );
