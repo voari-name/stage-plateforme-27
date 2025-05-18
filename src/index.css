@@ -43,6 +43,11 @@
     --sidebar-border: 210 40% 90%;
     --sidebar-ring: 210 100% 50%;
     
+    /* Madagascar themed colors */
+    --mg-red: 0 100% 60%;
+    --mg-green: 142 100% 29%;
+    --mg-white: 0 0% 100%;
+    
     /* Nouveaux thèmes */
     --warning: 38 92% 50%;
     --warning-foreground: 38 92% 10%;
@@ -152,7 +157,7 @@
   animation: pulse 2s infinite ease-in-out;
 }
 
-/* Card styles */
+/* Professional Card styles */
 .card-gradient {
   @apply bg-gradient-to-br from-white to-gray-100 shadow-md;
 }
@@ -161,46 +166,46 @@
   @apply backdrop-blur-md bg-white/60 border border-white/30 shadow-lg;
 }
 
-/* Button hover effects */
+/* Professional Button hover effects */
 .btn-hover-effect {
   @apply transition-all duration-300 ease-in-out hover:shadow-md hover:-translate-y-0.5;
 }
 
-/* Table styles */
+/* Professional Table styles */
 .table-row-hover {
   @apply transition-colors duration-200 hover:bg-blue-50;
 }
 
-/* Sidebar improvements */
+/* Professional Sidebar improvements */
 .sidebar-item-active {
-  @apply bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300;
+  @apply bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 font-medium;
 }
 
 .sidebar-item-hover {
   @apply transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/30;
 }
 
-/* Form input focus effect */
+/* Professional Form input focus effect */
 .input-focus-effect {
   @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
 }
 
-/* 3D Button Effect */
+/* Professional 3D Button Effect */
 .btn-3d {
   @apply transition-all duration-200 shadow-md hover:shadow-lg active:shadow-sm active:translate-y-px;
 }
 
-/* Gradient Text */
+/* Professional Gradient Text */
 .gradient-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
 }
 
-/* Glass Card */
+/* Professional Glass Card */
 .glass-card {
   @apply backdrop-blur-lg bg-white/70 border border-white/30 shadow-lg;
 }
 
-/* Glowing Effect */
+/* Professional Glowing Effect */
 .glow {
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
   transition: all 0.3s ease;
@@ -221,7 +226,7 @@
   animation: float 5s ease-in-out infinite;
 }
 
-/* Hover Card Effect */
+/* Professional Hover Card Effect */
 .hover-card {
   transition: all 0.3s ease;
 }
@@ -229,4 +234,34 @@
 .hover-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Madagascar Flag Colors */
+.mg-flag {
+  @apply flex;
+}
+
+.mg-flag-white {
+  @apply bg-white w-1/3;
+}
+
+.mg-flag-red {
+  @apply bg-red-600 w-1/3;
+}
+
+.mg-flag-green {
+  @apply bg-green-600 w-1/3;
+}
+
+/* Professional Components */
+.professional-paper {
+  @apply bg-white rounded-lg shadow-sm border border-gray-100 p-6;
+}
+
+.professional-header {
+  @apply border-b border-gray-100 py-4 px-6 flex justify-between items-center;
+}
+
+.professional-button {
+  @apply rounded-md px-4 py-2 transition-all duration-300 font-medium;
 }

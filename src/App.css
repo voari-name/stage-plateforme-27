@@ -1,4 +1,3 @@
-
 #root {
   width: 100%;
   min-height: 100vh;
@@ -16,6 +15,7 @@
   filter: drop-shadow(0 0 1em rgba(59, 130, 246, 0.8));
 }
 
+/* Cards */
 .card {
   padding: 1.5em;
   border-radius: 0.75rem;
@@ -29,7 +29,7 @@
   transform: translateY(-2px);
 }
 
-/* Gradients */
+/* Professional gradients */
 .blue-gradient {
   background: linear-gradient(90deg, #2563eb, #60a5fa);
 }
@@ -46,6 +46,19 @@
   background: linear-gradient(90deg, #d97706, #fbbf24);
 }
 
+/* Madagascar colors */
+.mg-red {
+  background-color: #ff3333;
+}
+
+.mg-green {
+  background-color: #009639;
+}
+
+.mg-white {
+  background-color: #ffffff;
+}
+
 /* Page layouts */
 .page-container {
   padding: 1.5rem;
@@ -53,7 +66,7 @@
   margin: 0 auto;
 }
 
-/* Dashboard stats cards */
+/* Dashboard stats cards - Professional style */
 .stat-card {
   border-radius: 0.75rem;
   padding: 1.25rem;
@@ -63,6 +76,7 @@
   flex-direction: column;
   justify-content: space-between;
   transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .stat-card:hover {
@@ -70,7 +84,7 @@
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
 
-/* Form styles */
+/* Form styles - Professional */
 .form-group label {
   font-weight: 500;
   margin-bottom: 0.5rem;
@@ -96,7 +110,7 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-/* Animations */
+/* Professional animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -115,7 +129,7 @@
   animation: slideIn 0.5s ease-out forwards;
 }
 
-/* Table styles */
+/* Table styles - Professional */
 .data-table {
   width: 100%;
   border-collapse: separate;
@@ -232,4 +246,66 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(148, 163, 184, 0.8);
+}
+
+/* Madagascar themed elements */
+.mg-flag-container {
+  display: flex;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.mg-flag-white {
+  width: 33.33%;
+  height: 100%;
+  background-color: white;
+}
+
+.mg-flag-red {
+  width: 33.33%;
+  height: 100%;
+  background-color: #ff3333;
+}
+
+.mg-flag-green {
+  width: 33.33%;
+  height: 100%;
+  background-color: #009639;
+}
+
+/* Professional card styles */
+.professional-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.professional-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Professional headers */
+.professional-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to right, #ffffff, #f8f9fa);
+}
+
+.professional-content {
+  padding: 25px 30px;
+}
+
+.professional-footer {
+  padding: 15px 30px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafbfc;
 }
