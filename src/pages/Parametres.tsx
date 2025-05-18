@@ -3,8 +3,6 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { LanguageSection } from "@/components/settings/LanguageSection";
 import { AppearanceSection } from "@/components/settings/AppearanceSection";
-import { DataSection } from "@/components/settings/DataSection";
-import { SecuritySection } from "@/components/settings/SecuritySection";
 import { useTheme } from "@/components/ThemeProvider";
 
 const Parametres = () => {
@@ -26,8 +24,6 @@ const Parametres = () => {
             <div className="grid gap-6">
               <LanguageSection />
               <AppearanceSection />
-              <DataSection />
-              <SecuritySection />
             </div>
           </div>
         </main>

@@ -74,6 +74,12 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
     return <File className="w-4 h-4 text-blue-500" />;
   };
 
+  // Créer une URL temporaire pour le téléchargement du fichier
+  const getDownloadUrl = () => {
+    if (!attachmentFile) return null;
+    return URL.createObjectURL(attachmentFile);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
@@ -129,6 +135,15 @@ export function CreateProjectDialog({ open, onOpenChange, onSubmit }: CreateProj
               <div className="flex items-center gap-2 p-2 rounded-md bg-blue-50 text-blue-900">
                 {getFileIcon()}
                 <span className="text-sm font-medium truncate flex-1">{attachmentFile.name}</span>
+                <a 
+                  href={getDownloadUrl() || '#'} 
+                  download={attachmentFile.name}
+                  className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="text-xs">Télécharger</span>
+                </a>
                 <button 
                   type="button" 
                   onClick={() => setAttachmentFile(null)} 

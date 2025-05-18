@@ -2,13 +2,9 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+// Modelisation selon la structure MySQL visible dans l'image
 const UserSchema = new mongoose.Schema({
   username: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  email: {
     type: String,
     required: true,
     unique: true
@@ -17,17 +13,16 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  nom: {
-    type: String
-  },
-  prenom: {
-    type: String
+  email: {
+    type: String,
+    unique: true
   },
   role: {
     type: String,
     enum: ['admin', 'user'],
     default: 'user'
   },
+  // Les champs supplémentaires peuvent être ajoutés selon les besoins
   createdAt: {
     type: Date,
     default: Date.now

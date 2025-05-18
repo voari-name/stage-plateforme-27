@@ -1,13 +1,12 @@
 
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const mysql = require('mysql2/promise');
 const authRoutes = require('./routes/auth');
 const stagiairesRoutes = require('./routes/stagiaires');
 const evaluationsRoutes = require('./routes/evaluations');
 const missionsRoutes = require('./routes/missions');
-const { initAdminUser } = require('./utils/initDb');
 
 // Load environment variables
 dotenv.config();
@@ -36,26 +35,85 @@ app.get('/api/status', (req, res) => {
 });
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
-  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-  res.json({ 
-    server: 'running', 
-    database: dbStatus,
-    timestamp: new Date().toISOString() 
-  });
+app.get('/api/health', async (req, res) => {
+  try {
+    await db.query('SELECT 1');
+    res.json({ 
+      server: 'running', 
+      database: 'connected',
+      timestamp: new Date().toISOString() 
+    });
+  } catch (error) {
+    res.json({ 
+      server: 'running', 
+      database: 'disconnected',
+      timestamp: new Date().toISOString() 
+    });
+  }
 });
 
-// Connect to MongoDB with improved error handling
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    // Initialize admin user after successful connection
-    initAdminUser();
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit process with failure
-  });
+// Create MySQL connection pool
+const db = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'stage_platform',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+// Make the database connection available to routes
+app.use((req, res, next) => {
+  req.db = db;
+  next();
+});
+
+// Initialize database with tables if they don't exist
+const initDatabase = async () => {
+  try {
+    // Check if users table exists
+    const [tables] = await db.query(`
+      SELECT TABLE_NAME 
+      FROM information_schema.TABLES 
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'users'
+    `, [process.env.DB_NAME || 'stage_platform']);
+
+    if (tables.length === 0) {
+      // Create users table if it doesn't exist
+      await db.query(`
+        CREATE TABLE users (
+          id INT(11) NOT NULL AUTO_INCREMENT,
+          username VARCHAR(255) NOT NULL,
+          password VARCHAR(255) NOT NULL,
+          email VARCHAR(255),
+          role VARCHAR(50) DEFAULT 'user',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          last_login TIMESTAMP NULL,
+          PRIMARY KEY (id),
+          UNIQUE KEY unique_username (username),
+          UNIQUE KEY unique_email (email)
+        )
+      `);
+      
+      console.log('Users table created');
+      
+      // Create admin user
+      const bcrypt = require('bcryptjs');
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash('admin123', salt);
+      
+      await db.query(`
+        INSERT INTO users (username, password, email, role)
+        VALUES ('admin', ?, 'admin@example.com', 'admin')
+      `, [hashedPassword]);
+      
+      console.log('Admin user created');
+    }
+  } catch (error) {
+    console.error('Database initialization error:', error);
+  }
+};
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -92,9 +150,12 @@ app.use((req, res) => {
 });
 
 // Start server with improved logging
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
   console.log(`API endpoints available at: http://localhost:${PORT}/api/`);
+  
+  // Initialize database
+  await initDatabase();
 });
 
 // Handle unhandled promise rejections
