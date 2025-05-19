@@ -25,19 +25,14 @@ export const MissionForm = ({
   isEdit = false,
   language
 }: MissionFormProps) => {
-  // Current date for default values
-  const today = new Date();
-  const nextMonth = new Date();
-  nextMonth.setMonth(today.getMonth() + 1);
-
-  // Default form values
+  // Default form values - now empty
   const defaultValues: Partial<MissionFormValues> = {
     titre: "",
     description: "",
     departement: "",
     status: "not_started",
-    dateDebut: today,
-    dateFin: nextMonth,
+    dateDebut: undefined,
+    dateFin: undefined,
     progress: 0,
     ...initialValues
   };
